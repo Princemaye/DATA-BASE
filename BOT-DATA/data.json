@@ -1,13 +1,13 @@
 {
 
-  "releaseVersion": "1.1.0-beta",
+  "releaseVersion": "4.5.0",
   "pairSite": "https://yasiya-md-session-server2.onrender.com/code?number=",
   "tableName": "YASIYAMD_CONFIG",
-  "supportGroup": "GPDPatulLJRJEcNvECDUij",
+  "supportGroup": "KJQNQ1RkuImChXtXfnq84X",
 
   "logo": {
-    "connectLogo": "https://i.ibb.co/Kzh27x4T/Blue-and-Teal-Big-Bright-and-Bold-Ai-Technology-Banner.jpg",
-    "mainLogo": "https://raw.githubusercontent.com/Dark-Yasiya/DARKYASIYA-DATABASE/main/MEDIA/IMAGE/yasiya-md.jpg",
+    "connectLogo": "https://files.catbox.moe/y51vgu.jpg",
+    "mainLogo": "https://files.catbox.moe/y51vgu.jpg",
     "contextLogo": "https://i.ibb.co/tPsnkv2d/e20c71cfd1e0d222.jpg"
   },
 
@@ -27,7 +27,7 @@
 
   "antiBotId": ["BAE", "EVO", "B1E", "3L1"],
   "antiBotCpation": [""],
-  "supportGroupAccess": ["94761047254", "13678483356"],
-  "token": "Z2hwXzUwckVIUFI2aTNNak1TMnp5dmpUQnB6OVI5UVJLRTNUY3FJNg==",
+  "supportGroupAccess": ["23761047254", "23778483356"],
+  "token": "NUQwTmxtNjhBMXJYU2VwbzRwSG9YZ1V6bzBEWGhwNERZRkxY",
   "user": "princetech11"
 }
