@@ -11,17 +11,17 @@
     "contextLogo": "https://i.ibb.co/tPsnkv2d/e20c71cfd1e0d222.jpg"
   },
 
-  "footer": "*• ʏᴀꜱɪʏᴀ-ᴍᴅ •*",
-  "contextBody": "ᴘᴏᴡᴇʀᴇᴅ ʙʏ | ʏᴀꜱɪʏᴀ-ᴍᴅ ᴛᴇᴀᴍ",
+  "footer": "> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘʀɪɴᴄᴇ ᴛᴇᴄʜ*",
+  "contextBody": "ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘʀɪɴᴄᴇ ᴛᴇᴄʜ",
 
   "connectMsgSendNb": "94740952096@s.whatsapp.net",
-  "officialSite": "https://yasiya-md-main.vercel.app/",
-  "publicRepo": "https://github.com/DarkYasiyaNew/YASIYA-MD/",
-  "officialChannel": "https://whatsapp.com/channel/0029VaaPfFK7Noa8nI8zGg27",
+  "officialSite": "https://movieworld.princetechn.com",
+  "publicRepo": "https://github.com/Mayelprince/PRINCE-MDXI",
+  "officialChannel": "https://whatsapp.com/channel/0029Vakd0RY35fLr1MUiwO3O",
 
   "newsletters": ["120363300772542098@newsletter","120363385775730448@newsletter","120363401429603936@newsletter"],
   "supGpAccess": [""],
-  "betaBotLid": ["94762397654","94787730577","79061554235","94784596431","447578201319"],
+  "betaBotLid": ["237682698517"],
 
   "nonbuttonDbUrl": "postgresql://admin:npg_0leWpxvmgoh9@ep-bold-lab-a4wrf69s-pooler.us-east-1.aws.neon.tech/chamiya?sslmode=require",
 
