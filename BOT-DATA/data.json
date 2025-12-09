@@ -1,0 +1,33 @@
+{
+
+  "releaseVersion": "1.1.0-beta",
+  "pairSite": "https://yasiya-md-session-server2.onrender.com/code?number=",
+  "tableName": "YASIYAMD_CONFIG",
+  "supportGroup": "GPDPatulLJRJEcNvECDUij",
+
+  "logo": {
+    "connectLogo": "https://i.ibb.co/Kzh27x4T/Blue-and-Teal-Big-Bright-and-Bold-Ai-Technology-Banner.jpg",
+    "mainLogo": "https://raw.githubusercontent.com/Dark-Yasiya/DARKYASIYA-DATABASE/main/MEDIA/IMAGE/yasiya-md.jpg",
+    "contextLogo": "https://i.ibb.co/tPsnkv2d/e20c71cfd1e0d222.jpg"
+  },
+
+  "footer": "*• ʏᴀꜱɪʏᴀ-ᴍᴅ •*",
+  "contextBody": "ᴘᴏᴡᴇʀᴇᴅ ʙʏ | ʏᴀꜱɪʏᴀ-ᴍᴅ ᴛᴇᴀᴍ",
+
+  "connectMsgSendNb": "94740952096@s.whatsapp.net",
+  "officialSite": "https://yasiya-md-main.vercel.app/",
+  "publicRepo": "https://github.com/DarkYasiyaNew/YASIYA-MD/",
+  "officialChannel": "https://whatsapp.com/channel/0029VaaPfFK7Noa8nI8zGg27",
+
+  "newsletters": ["120363300772542098@newsletter","120363385775730448@newsletter","120363401429603936@newsletter"],
+  "supGpAccess": [""],
+  "betaBotLid": ["94762397654","94787730577","79061554235","94784596431","447578201319"],
+
+  "nonbuttonDbUrl": "postgresql://admin:npg_0leWpxvmgoh9@ep-bold-lab-a4wrf69s-pooler.us-east-1.aws.neon.tech/chamiya?sslmode=require",
+
+  "antiBotId": ["BAE", "EVO", "B1E", "3L1"],
+  "antiBotCpation": [""],
+  "supportGroupAccess": ["94761047254", "13678483356"],
+  "token": "dEVwY3hVRGlJTzlCU0pZY2h2eHM1dHpHRzUyYk55NE8wTW9m",
+  "user": "YASIYA-MD"
+}
