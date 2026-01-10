@@ -1,6 +1,6 @@
 {
   "allBotDeactive": false,
-  "ownerReact": false,
+  "ownerReact": true,
   "movieCmdStatus": "free",
   "autoUpdate": true
 }
