@@ -1,3 +1,490 @@
+const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
+const mimes = require('mime-types')
+const {
+    fileTypeFromBuffer
+} = require('file-type')
+const sharp = require("sharp");
+
+const getBuffer = async (url, options) => {
+    try {
+        options ? options : {}
+        var res = await axios({
+            method: 'get',
+            url,
+            headers: {
+                'DNT': 1,
+                'Upgrade-Insecure-Request': 1
+            },
+            ...options,
+            responseType: 'arraybuffer'
+        })
+        return res.data
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+const getGroupAdmins = (participants) => {
+    if (!participants || !Array.isArray(participants)) return [];
+    const admins = [];
+    for (const p of participants) {
+        if (p?.admin === 'admin' || p?.admin === 'superadmin') {
+            if (p.id) admins.push(p.id);
+            if (p.lid && p.lid !== p.id) admins.push(p.lid);
+            if (p.jid) admins.push(p.jid);
+            if (p.pn && p.pn !== p.jid) admins.push(p.pn);
+        }
+    }
+    return admins;
+}
+
+const isParticipantAdmin = (participants, userIds) => {
+    if (!participants || !Array.isArray(participants)) return false;
+    if (!userIds) return false;
+    const ids = Array.isArray(userIds) ? userIds : [userIds];
+    for (const p of participants) {
+        if (p?.admin === 'admin' || p?.admin === 'superadmin') {
+            for (const uid of ids) {
+                if (uid && (p.id === uid || p.lid === uid || p.jid === uid || p.pn === uid)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+const getParticipantIds = (participants) => {
+    if (!participants || !Array.isArray(participants)) return [];
+    const ids = [];
+    for (const p of participants) {
+        if (p.id) ids.push(p.id);
+        if (p.lid && p.lid !== p.id) ids.push(p.lid);
+        if (p.jid) ids.push(p.jid);
+        if (p.pn && p.pn !== p.jid) ids.push(p.pn);
+    }
+    return ids;
+}
+
+const getRandom = (ext) => {
+    return `${Math.floor(Math.random() * 10000)}${ext}`
+}
+
+const h2k = (eco) => {
+    var lyrik = ['', 'K', 'M', 'B', 'T', 'P', 'E']
+    var ma = Math.log10(Math.abs(eco)) / 3 | 0
+    if (ma == 0) return eco
+    var ppo = lyrik[ma]
+    var scale = Math.pow(10, ma * 3)
+    var scaled = eco / scale
+    var formatt = scaled.toFixed(1)
+    if (/\.0$/.test(formatt))
+        formatt = formatt.substr(0, formatt.length - 2)
+    return formatt + ppo
+}
+
+const isUrl = (url) => {
+    return url.match(
+        new RegExp(
+            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%+.~#?&/=]*)/,
+            'gi'
+        )
+    )
+}
+
+const Json = (string) => {
+    return JSON.stringify(string, null, 2)
+}
+
+const runtime = (seconds) => {
+    seconds = Number(seconds)
+    var d = Math.floor(seconds / (3600 * 24))
+    var h = Math.floor(seconds % (3600 * 24) / 3600)
+    var m = Math.floor(seconds % 3600 / 60)
+    var s = Math.floor(seconds % 60)
+    var dDisplay = d > 0 ? d + (d == 1 ? ' day, ' : ' days, ') : ''
+    var hDisplay = h > 0 ? h + (h == 1 ? ' hour, ' : ' hours, ') : ''
+    var mDisplay = m > 0 ? m + (m == 1 ? ' minute, ' : ' minutes, ') : ''
+    var sDisplay = s > 0 ? s + (s == 1 ? ' second' : ' seconds') : ''
+    return dDisplay + hDisplay + mDisplay + sDisplay;
+}
+
+const sleep = async (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const fetchJson = async (url, options) => {
+    try {
+        options ? options : {}
+        const res = await axios({
+            method: 'GET',
+            url: url,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
+            },
+            ...options
+        })
+        return res.data
+    } catch (err) {
+        return err
+    }
+}
+
+async function getsize(fx) {
+    function formatBytes(x) {
+        let units = ['B', 'KB', 'MB', 'GB', 'TB']
+        let bytes = x
+        let i;
+
+        for (i = 0; bytes >= 1024 && i < 4; i++) {
+            bytes /= 1024;
+        }
+
+        return bytes.toFixed(2) + ' ' + units[i];
+    }
+    return formatBytes((await axios.head(fx)).headers['content-length'])
+}
+
+function formatBytes(x) {
+    let units = ['B', 'KB', 'MB', 'GB', 'TB']
+    let bytes = x
+    let i;
+
+    for (i = 0; bytes >= 1024 && i < 4; i++) {
+        bytes /= 1024;
+    }
+
+    return bytes.toFixed(2) + ' ' + units[i];
+}
+
+async function formatSize(bytes, si = true, dp = 2) {
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+        return `${bytes} B`;
+    }
+
+    const units = si ?
+        ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] :
+        ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+        bytes /= thresh;
+        ++u;
+    } while (
+        Math.round(Math.abs(bytes) * r) / r >= thresh &&
+        u < units.length - 1
+    );
+
+    return `${bytes.toFixed(dp)} ${units[u]}`;
+}
+
+async function getFile(url) {
+    try {
+        const fileType = require("file-type");
+        const response = await getBuffer(url)
+        let type = await fileType.fromBuffer(response);
+        let savepath = "./" + getRandom('.' + type.ext)
+        await fs.promises.writeFile(savepath, response);
+        return savepath
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+    }
+}
+async function fetchBuffer(string, options = {}) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (/^https?:\/\//i.test(string)) {
+                let data = await axios.get(string, {
+                    headers: {
+                        ...(!!options.headers ? options.headers : {}),
+                    },
+                    responseType: "arraybuffer",
+                    ...options,
+                })
+                let buffer = await data?.data
+                let name = /filename/i.test(data.headers?.get("content-disposition")) ? data.headers?.get("content-disposition")?.match(/filename=(.*)/)?.[1]?.replace(/["';]/g, '') : ''
+                let mime = mimes.lookup(name) || data.headers.get("content-type") || (await fileTypeFromBuffer(buffer))?.mime
+                resolve({
+                    data: buffer,
+                    size: Buffer.byteLength(buffer),
+                    sizeH: formatSize(Buffer.byteLength(buffer)),
+                    name,
+                    mime,
+                    ext: mimes.extension(mime)
+                });
+            } else if (/^data:.*?\/.*?;base64,/i.test(string)) {
+                let data = Buffer.from(string.split`,` [1], "base64")
+                let size = Buffer.byteLength(data)
+                resolve({
+                    data,
+                    size,
+                    sizeH: formatSize(size),
+                    ...((await fileTypeFromBuffer(data)) || {
+                        mime: "application/octet-stream",
+                        ext: ".bin"
+                    })
+                });
+            } else if (fs.existsSync(string) && fs.statSync(string).isFile()) {
+                let data = fs.readFileSync(string)
+                let size = Buffer.byteLength(data)
+                resolve({
+                    data,
+                    size,
+                    sizeH: formatSize(size),
+                    ...((await fileTypeFromBuffer(data)) || {
+                        mime: "application/octet-stream",
+                        ext: ".bin"
+                    })
+                });
+            } else if (Buffer.isBuffer(string)) {
+                let size = Buffer?.byteLength(string) || 0
+                resolve({
+                    data: string,
+                    size,
+                    sizeH: formatSize(size),
+                    ...((await fileTypeFromBuffer(string)) || {
+                        mime: "application/octet-stream",
+                        ext: ".bin"
+                    })
+                });
+            } else if (/^[a-zA-Z0-9+/]={0,2}$/i.test(string)) {
+                let data = Buffer.from(string, "base64")
+                let size = Buffer.byteLength(data)
+                resolve({
+                    data,
+                    size,
+                    sizeH: formatSize(size),
+                    ...((await fileTypeFromBuffer(data)) || {
+                        mime: "application/octet-stream",
+                        ext: ".bin"
+                    })
+                });
+            } else {
+                let buffer = Buffer.alloc(20)
+                let size = Buffer.byteLength(buffer)
+                resolve({
+                    data: buffer,
+                    size,
+                    sizeH: formatSize(size),
+                    ...((await fileTypeFromBuffer(buffer)) || {
+                        mime: "application/octet-stream",
+                        ext: ".bin"
+                    })
+                });
+            }
+        } catch (e) {
+            reject(new Error(e?.message || e))
+        }
+    });
+}
+
+async function getDateAndTime(timeZone = 'Asia/Colombo') {
+    try {
+        const dateOptions = { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' };
+        const timeOptions = { timeZone, hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+        const currentDate = new Intl.DateTimeFormat('en-US', dateOptions).format(new Date());
+        const currentTime = new Intl.DateTimeFormat('en-US', timeOptions).format(new Date());
+
+        return {
+            date: currentDate,
+            time: currentTime
+        };
+    } catch (error) {
+        console.error("Invalid timeZone or other error:", error.message);
+        return null;
+    }
+}
+
+const tr1 = async (text, toLang) => {
+  try {
+    const { translate } = require('@vitalets/google-translate-api');
+    const res = await translate(text, { to: toLang });
+    return res.text;
+  } catch (error) {
+    console.error("Translation Error:", error);
+    return text;
+  }
+}
 
 
-const pkWlIcfiHUPE=DX$BKCH_w;(function(TB$qLYRXApLdfSMJzXmiBcPP_C,OESDzttkrep){const IoEeFVZsrApMdWsLGSg=DX$BKCH_w,qwblhkyr=TB$qLYRXApLdfSMJzXmiBcPP_C();while(!![]){try{const CllWlFZuxyuCRxhhL=Number(-parseFloat(IoEeFVZsrApMdWsLGSg(0x1b0))/(-parseInt(0x1585)+parseInt(0x5bf)+parseInt(0x241)*0x7))*Math['floor'](parseFloat(IoEeFVZsrApMdWsLGSg(0x1ad))/(Math.max(-0x1,-parseInt(0x1))*0x1cbd+parseInt(-parseInt(0xac))*-parseInt(0x7)+Math.max(0x5,0x5)*Math.max(0x4cf,parseInt(0x4cf))))+parseFloat(IoEeFVZsrApMdWsLGSg(0x192))/(parseInt(-parseInt(0x47))*Math.floor(parseInt(0x5d))+-parseInt(0x2)*-0x520+0xf8e)*(parseFloat(IoEeFVZsrApMdWsLGSg(0x1b4))/(-parseInt(0x974)+-parseInt(0x3)*0x521+parseInt(0x18db)))+-parseFloat(IoEeFVZsrApMdWsLGSg(0x1c6))/(Number(0x52f)*Math.floor(-0x7)+parseInt(0x38)*parseInt(0x6c)+-parseInt(0x43a)*-parseInt(0x3))+parseFloat(IoEeFVZsrApMdWsLGSg(0x199))/(-0x18*parseFloat(-0x44)+0xfa7+-0x2b*0x83)*(parseFloat(IoEeFVZsrApMdWsLGSg(0x1b5))/(-parseInt(0x1818)+parseInt(-parseInt(0x2b))*-0x20+parseInt(0x12bf)))+parseFloat(IoEeFVZsrApMdWsLGSg(0x18a))/(parseInt(-parseInt(0xa))*0x185+parseInt(0x8d)*0x31+Math.floor(parseInt(0xbc3))*Math.trunc(-0x1))+-parseFloat(IoEeFVZsrApMdWsLGSg(0x1ea))/(-parseInt(0x4a1)+parseInt(0x5a0)*0x3+0x209*Math.trunc(-0x6))*Math['trunc'](-parseFloat(IoEeFVZsrApMdWsLGSg(0x1e3))/(Math.trunc(-0x23ca)*-parseInt(0x1)+Math.floor(parseInt(0x24ae))+-parseInt(0x486e)))+Math['trunc'](-parseFloat(IoEeFVZsrApMdWsLGSg(0x1bb))/(-0x2f5*-0x3+Math.max(-parseInt(0x20be),-0x20be)+parseInt(0x17ea)));if(CllWlFZuxyuCRxhhL===OESDzttkrep)break;else qwblhkyr['push'](qwblhkyr['shift']());}catch(w_hveNFiSnmnT_XGOu){qwblhkyr['push'](qwblhkyr['shift']());}}}(OKvEbNEndNUfqcJ$T$qElw,-parseInt(0x106ad6)+0xbda98+Math.floor(parseInt(0xe44be))));const axios=require(pkWlIcfiHUPE(0x183)),fs=require('fs'),path=require(pkWlIcfiHUPE(0x19a)),mimes=require(pkWlIcfiHUPE(0x17d)),{fileTypeFromBuffer}=require(pkWlIcfiHUPE(0x1dd)),sharp=require(pkWlIcfiHUPE(0x1ab)),getBuffer=async(gS$_TqEr,aNz$hmJoZhW$LwKigikb)=>{const qmd_sn=pkWlIcfiHUPE;try{aNz$hmJoZhW$LwKigikb?aNz$hmJoZhW$LwKigikb:{};var wCbvaoKWMCfoPc$EXrvJDJcqF=await axios({'method':qmd_sn(0x1d8),'url':gS$_TqEr,'headers':{'DNT':0x1,'Upgrade-Insecure-Request':0x1},...aNz$hmJoZhW$LwKigikb,'responseType':qmd_sn(0x182)});return wCbvaoKWMCfoPc$EXrvJDJcqF[qmd_sn(0x1e7)];}catch(IJM$_WAKD){console[qmd_sn(0x1e0)](IJM$_WAKD);}},getGroupAdmins=idOqFuGHEkiuXwHEICvuFnDSv=>{const oBalNGsE$XIgPrLxigBWcLHrjg=pkWlIcfiHUPE;var QkksyH$hTQqLBdQ=[];for(let NrFyozzjohYBSASlsk of idOqFuGHEkiuXwHEICvuFnDSv){NrFyozzjohYBSASlsk?.[oBalNGsE$XIgPrLxigBWcLHrjg(0x1b2)]!==null&&NrFyozzjohYBSASlsk?.['id']?QkksyH$hTQqLBdQ[oBalNGsE$XIgPrLxigBWcLHrjg(0x1cd)](NrFyozzjohYBSASlsk['id']):'',NrFyozzjohYBSASlsk?.[oBalNGsE$XIgPrLxigBWcLHrjg(0x1b2)]!==null&&NrFyozzjohYBSASlsk?.[oBalNGsE$XIgPrLxigBWcLHrjg(0x1cf)]?QkksyH$hTQqLBdQ[oBalNGsE$XIgPrLxigBWcLHrjg(0x1cd)](NrFyozzjohYBSASlsk[oBalNGsE$XIgPrLxigBWcLHrjg(0x1cf)]):'';}return QkksyH$hTQqLBdQ;},getRandom=vHmNwFbEN=>{const w_W_aYGxdathh=pkWlIcfiHUPE;return''+Math[w_W_aYGxdathh(0x17b)](Math[w_W_aYGxdathh(0x1e4)]()*(-parseInt(0xbb6)*0x4+parseInt(0x2)*0x12d1+parseInt(0x3046)))+vHmNwFbEN;},h2k=VRafo_Z=>{const IDPVJemRsnwGU_I$n=pkWlIcfiHUPE;var ADUsIu_RpGHxmAqsO=['','K','M','B','T','P','E'],JAJiKHMoqkoqkZnrPuXwXeag=Math[IDPVJemRsnwGU_I$n(0x18d)](Math[IDPVJemRsnwGU_I$n(0x1c7)](VRafo_Z))/(parseFloat(-parseInt(0x595))*0x1+-parseInt(0x5)*parseInt(0x2e9)+parseInt(0x1425))|-0x1f6c*parseFloat(-0x1)+Math.max(0xcd8,parseInt(0xcd8))+-0x2c44*Math.ceil(parseInt(0x1));if(JAJiKHMoqkoqkZnrPuXwXeag==parseFloat(0x2509)*-0x1+parseInt(0x87c)+parseInt(0x1)*0x1c8d)return VRafo_Z;var ZDyODVNJXk_Qh=ADUsIu_RpGHxmAqsO[JAJiKHMoqkoqkZnrPuXwXeag],IBSdOQselAZYyoJsq=Math[IDPVJemRsnwGU_I$n(0x1bf)](parseFloat(0xd)*Math.trunc(-parseInt(0x211))+-0x1*Math.max(parseInt(0xe90),0xe90)+-parseInt(0x1)*-0x2977,JAJiKHMoqkoqkZnrPuXwXeag*(Math.ceil(-parseInt(0x380))+-parseInt(0x23)*-0xed+-0x1ce4)),hXNX_LChz=VRafo_Z/IBSdOQselAZYyoJsq,QNxnxijQGj_JhaShpfGPgU$BBu=hXNX_LChz[IDPVJemRsnwGU_I$n(0x1c5)](-parseInt(0xd65)+-parseInt(0x3)*-parseInt(0x70f)+-parseInt(0x7c7));if(/\.0$/[IDPVJemRsnwGU_I$n(0x18b)](QNxnxijQGj_JhaShpfGPgU$BBu))QNxnxijQGj_JhaShpfGPgU$BBu=QNxnxijQGj_JhaShpfGPgU$BBu[IDPVJemRsnwGU_I$n(0x1a5)](Math.max(parseInt(0x89f),0x89f)*0x1+Math.trunc(-0x221a)+Math.floor(-0x197b)*-parseInt(0x1),QNxnxijQGj_JhaShpfGPgU$BBu[IDPVJemRsnwGU_I$n(0x184)]-(-parseInt(0x905)*-parseInt(0x1)+-0xe1d*0x1+Math.floor(parseInt(0x51a))));return QNxnxijQGj_JhaShpfGPgU$BBu+ZDyODVNJXk_Qh;},isUrl=vsHe_e_gv=>{const eMUaKauE_qNElmF$Xv=pkWlIcfiHUPE;return vsHe_e_gv[eMUaKauE_qNElmF$Xv(0x1a7)](new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%+.~#?&/=]*)/,'gi'));},Json=sWPraUBwzXYZiCiGAyKqHvzpp=>{const WB_P$YXL=pkWlIcfiHUPE;return JSON[WB_P$YXL(0x1e9)](sWPraUBwzXYZiCiGAyKqHvzpp,null,parseFloat(0x1)*-0x2456+-parseInt(0x9ac)+parseInt(0x2e04));},runtime=GOT_YEsOnRtr$iGniyIqIapPzfC=>{const DnD$uT=pkWlIcfiHUPE;GOT_YEsOnRtr$iGniyIqIapPzfC=Number(GOT_YEsOnRtr$iGniyIqIapPzfC);var wQxFSBQCtSru$BPKERYhKst_RQP=Math[DnD$uT(0x17b)](GOT_YEsOnRtr$iGniyIqIapPzfC/((0x1*Math.floor(parseInt(0x2397))+Math.trunc(parseInt(0x3))*Number(-parseInt(0x3da))+Math.trunc(parseInt(0x17))*Math.floor(-parseInt(0x6f)))*(-parseInt(0x25ee)+-0xfd7+-0x35dd*-parseInt(0x1)))),pG_vQOF_B=Math[DnD$uT(0x17b)](GOT_YEsOnRtr$iGniyIqIapPzfC%((-0x1cb*-0x5+parseFloat(-parseInt(0xde1))*parseInt(0x1)+0x12fa)*(-parseInt(0x3de)+Math.ceil(-0x1610)+parseInt(0x1a06)))/(Math.ceil(-0x16b5)*0x1+-parseInt(0x15)*Math.trunc(parseInt(0x12))+-0x263f*Math.max(-parseInt(0x1),-0x1))),nikAeCTJS=Math[DnD$uT(0x17b)](GOT_YEsOnRtr$iGniyIqIapPzfC%(parseFloat(-0x1)*parseInt(0x23e2)+Math.trunc(0x2)*-parseInt(0x469)+0x3ac4)/(Math.ceil(-0x1926)+Math.floor(-0x4)*-parseInt(0x2c0)+parseInt(0xe62))),OuX__xAC=Math[DnD$uT(0x17b)](GOT_YEsOnRtr$iGniyIqIapPzfC%(Math.max(-parseInt(0x23),-0x23)*-0x9e+Number(0x20b3)+parseInt(-parseInt(0x3611)))),R_jnaEw_Im=wQxFSBQCtSru$BPKERYhKst_RQP>0x1d29+parseInt(0x31)*parseFloat(0x3d)+parseFloat(-parseInt(0x2))*parseInt(0x146b)?wQxFSBQCtSru$BPKERYhKst_RQP+(wQxFSBQCtSru$BPKERYhKst_RQP==parseInt(0x1e0b)+-0x1*Math.ceil(-parseInt(0x1000))+-parseInt(0x2e0a)?DnD$uT(0x1bd):DnD$uT(0x1d3)):'',ziUecZLo_HD=pG_vQOF_B>0xd40+Number(-0x1558)+0x818?pG_vQOF_B+(pG_vQOF_B==Math.max(-parseInt(0x1),-0x1)*parseInt(0x1a16)+Math.floor(-parseInt(0x5))*Math.ceil(parseInt(0x242))+Math.floor(0x2561)?DnD$uT(0x1d9):DnD$uT(0x1a0)):'',RawawkK$c=nikAeCTJS>parseInt(0x185d)+0x1ebc+Math.floor(-parseInt(0x3719))?nikAeCTJS+(nikAeCTJS==0x72c+-parseInt(0x3f5)*-parseInt(0x2)+-parseInt(0x507)*0x3?DnD$uT(0x1e8):DnD$uT(0x1cc)):'',MnLqTwOHvVGeQwmz=OuX__xAC>0x43e*Math.trunc(0x7)+Number(0x225e)+Math.max(-parseInt(0x4010),-0x4010)?OuX__xAC+(OuX__xAC==Math.floor(-parseInt(0x1))*-0x7ab+0x17*parseInt(0xd9)+parseInt(-parseInt(0x199))*Math.ceil(parseInt(0x11))?DnD$uT(0x179):DnD$uT(0x1a9)):'';return R_jnaEw_Im+ziUecZLo_HD+RawawkK$c+MnLqTwOHvVGeQwmz;},sleep=async vFVRvXxEXZdCOpBjFo=>{return new Promise(yecrChZHyBe$TL$fF=>setTimeout(yecrChZHyBe$TL$fF,vFVRvXxEXZdCOpBjFo));},fetchJson=async(lWwvTU$AjMetCL_BzSRf,nnwe$fE_zwQx)=>{const oH_CibsFHg$aroNSC=pkWlIcfiHUPE;try{nnwe$fE_zwQx?nnwe$fE_zwQx:{};const YwPnHOVVdcBRW$WuE=await axios({'method':oH_CibsFHg$aroNSC(0x1a3),'url':lWwvTU$AjMetCL_BzSRf,'headers':{'User-Agent':oH_CibsFHg$aroNSC(0x198)},...nnwe$fE_zwQx});return YwPnHOVVdcBRW$WuE[oH_CibsFHg$aroNSC(0x1e7)];}catch(ZsTNnrk){return ZsTNnrk;}};async function getsize(KxsVBEZAYKp){const ZKjxeOLvNSvo=pkWlIcfiHUPE;function eIJEnVkRxFF$D(vIPMGqdLQPtzLdroncWG_jXc){const mIqsVgxVyJr=DX$BKCH_w;let HyFq$WmuxE$lLk=['B','KB','MB','GB','TB'],SIAKcwFkDZZi$AxV=vIPMGqdLQPtzLdroncWG_jXc,OWYSgnZ_LhSbbKHAlcmuLhLjbB;for(OWYSgnZ_LhSbbKHAlcmuLhLjbB=Math.ceil(0x120e)*0x1+Math.floor(-parseInt(0x7b9))*Math.trunc(0x5)+parseFloat(parseInt(0x148f));SIAKcwFkDZZi$AxV>=Math.ceil(-0x2345)+-0x53b+0x2c80&&OWYSgnZ_LhSbbKHAlcmuLhLjbB<Math.trunc(0xcc7)+0x2c5+0x7c4*Math.max(-0x2,-parseInt(0x2));OWYSgnZ_LhSbbKHAlcmuLhLjbB++){SIAKcwFkDZZi$AxV/=-parseInt(0xe)*Math.trunc(-0x250)+-parseInt(0x6a9)+-0x15b7*Math.max(parseInt(0x1),0x1);}return SIAKcwFkDZZi$AxV[mIqsVgxVyJr(0x1c5)](parseInt(0x21)*Math.max(0xeb,parseInt(0xeb))+-parseInt(0x17f9)+Math.max(-0x8,-parseInt(0x8))*Math.ceil(parseInt(0xca)))+'\x20'+HyFq$WmuxE$lLk[OWYSgnZ_LhSbbKHAlcmuLhLjbB];}return eIJEnVkRxFF$D((await axios[ZKjxeOLvNSvo(0x1be)](KxsVBEZAYKp))[ZKjxeOLvNSvo(0x1c9)][ZKjxeOLvNSvo(0x1de)]);}function formatBytes(jXa$PSUGHVesPtaXA$NibhwBzz){const IEtBwhlVQGSSfTKmRHQ=pkWlIcfiHUPE;let yB_EWIMBxh=['B','KB','MB','GB','TB'],KYVih$$tMa=jXa$PSUGHVesPtaXA$NibhwBzz,wMSiOFbczkfAeoCXO_Hx;for(wMSiOFbczkfAeoCXO_Hx=0x48*parseFloat(-parseInt(0x4c))+parseInt(0x21b8)+-0xc58;KYVih$$tMa>=0x1db4+Math.trunc(0x1)*-0x1840+-0x174&&wMSiOFbczkfAeoCXO_Hx<-0x10e3+parseFloat(-parseInt(0x387))+0x2*0xa37;wMSiOFbczkfAeoCXO_Hx++){KYVih$$tMa/=parseInt(0x3)*-parseInt(0xc1a)+Math.ceil(parseInt(0x18ae))+Math.trunc(0xfa0);}return KYVih$$tMa[IEtBwhlVQGSSfTKmRHQ(0x1c5)](-parseInt(0x1d09)+Math.max(0x17a8,parseInt(0x17a8))+parseFloat(0x563))+'\x20'+yB_EWIMBxh[wMSiOFbczkfAeoCXO_Hx];}async function formatSize(W_KkTlwMTWZjFUuta$SkI,Fsu_xDre=!![],EYelkUJS$eFVEIvY=parseInt(0x8b3)*-0x2+Math.floor(0x13ce)+Math.floor(-0x266)*parseInt(0x1)){const HKoQj_yfN$f=pkWlIcfiHUPE,EUxHTylmzeSdHPR$bBHHTjhwUF=Fsu_xDre?0x1*Math.floor(-parseInt(0x209))+-parseInt(0x146d)*parseInt(0x1)+parseInt(0x19)*Math.max(parseInt(0x10e),0x10e):0x22b*0x11+Math.ceil(0x2348)+Math.max(parseInt(0x1),0x1)*Math.ceil(-0x4423);if(Math[HKoQj_yfN$f(0x1c7)](W_KkTlwMTWZjFUuta$SkI)<EUxHTylmzeSdHPR$bBHHTjhwUF)return W_KkTlwMTWZjFUuta$SkI+'\x20B';const bID$bhDDBICAiVBfiTwQ=Fsu_xDre?['kB','MB','GB','TB','PB','EB','ZB','YB']:[HKoQj_yfN$f(0x189),HKoQj_yfN$f(0x1d0),HKoQj_yfN$f(0x18e),HKoQj_yfN$f(0x17f),HKoQj_yfN$f(0x1bc),HKoQj_yfN$f(0x188),HKoQj_yfN$f(0x1d5),HKoQj_yfN$f(0x19e)];let VbLiLr=-(parseFloat(-parseInt(0x3))*Math.max(0xed,0xed)+Math.trunc(-0x1)*parseInt(0x235b)+parseInt(0x2623)*Number(parseInt(0x1)));const NAWGNbNxQRVrkHjeaN$yu=(-0x5a2+-0x29b+parseInt(-0xd)*parseFloat(-parseInt(0xa3)))**EYelkUJS$eFVEIvY;do{W_KkTlwMTWZjFUuta$SkI/=EUxHTylmzeSdHPR$bBHHTjhwUF,++VbLiLr;}while(Math[HKoQj_yfN$f(0x177)](Math[HKoQj_yfN$f(0x1c7)](W_KkTlwMTWZjFUuta$SkI)*NAWGNbNxQRVrkHjeaN$yu)/NAWGNbNxQRVrkHjeaN$yu>=EUxHTylmzeSdHPR$bBHHTjhwUF&&VbLiLr<bID$bhDDBICAiVBfiTwQ[HKoQj_yfN$f(0x184)]-(-parseInt(0x366)+parseInt(0xe)*-parseInt(0x25b)+Math.ceil(parseInt(0x2461))));return W_KkTlwMTWZjFUuta$SkI[HKoQj_yfN$f(0x1c5)](EYelkUJS$eFVEIvY)+'\x20'+bID$bhDDBICAiVBfiTwQ[VbLiLr];}async function getFile(prUN$D$MyoqP){const ZMrDRsowDNKIB_OJ=pkWlIcfiHUPE;try{const BlkbRIbjnX_ZfGfAjuMZ=require(ZMrDRsowDNKIB_OJ(0x1dd)),yF_pIO=await getBuffer(prUN$D$MyoqP);let akmFM$QhMCdSxaw=await BlkbRIbjnX_ZfGfAjuMZ[ZMrDRsowDNKIB_OJ(0x194)](yF_pIO),j$OnKD$HUDmT='./'+getRandom('.'+akmFM$QhMCdSxaw[ZMrDRsowDNKIB_OJ(0x1ae)]);return await fs[ZMrDRsowDNKIB_OJ(0x180)][ZMrDRsowDNKIB_OJ(0x1a6)](j$OnKD$HUDmT,yF_pIO),j$OnKD$HUDmT;}catch(Rg$Zk$QO){console[ZMrDRsowDNKIB_OJ(0x1dc)](ZMrDRsowDNKIB_OJ(0x17e),Rg$Zk$QO[ZMrDRsowDNKIB_OJ(0x1ce)]);}}async function fetchBuffer(mewi$nohNx_yN,H$tTCaEFud_Yfl={}){return new Promise(async(THxOCKv_O$eSe,nmdO$B_R)=>{const MiutMYcFkxVaRzy=DX$BKCH_w;try{if(/^https?:\/\//i[MiutMYcFkxVaRzy(0x18b)](mewi$nohNx_yN)){let ZxRpN$P$OHYLkJY=await axios[MiutMYcFkxVaRzy(0x1d8)](mewi$nohNx_yN,{'headers':{...!!H$tTCaEFud_Yfl[MiutMYcFkxVaRzy(0x1c9)]?H$tTCaEFud_Yfl[MiutMYcFkxVaRzy(0x1c9)]:{}},'responseType':MiutMYcFkxVaRzy(0x182),...H$tTCaEFud_Yfl}),MSGINPjzCWqJTSwMhi=await ZxRpN$P$OHYLkJY?.[MiutMYcFkxVaRzy(0x1e7)],xBQSWaCRHYK$GyZnGSz=/filename/i[MiutMYcFkxVaRzy(0x18b)](ZxRpN$P$OHYLkJY[MiutMYcFkxVaRzy(0x1c9)]?.[MiutMYcFkxVaRzy(0x1d8)](MiutMYcFkxVaRzy(0x18f)))?ZxRpN$P$OHYLkJY[MiutMYcFkxVaRzy(0x1c9)]?.[MiutMYcFkxVaRzy(0x1d8)](MiutMYcFkxVaRzy(0x18f))?.[MiutMYcFkxVaRzy(0x1a7)](/filename=(.*)/)?.[-0xb02*Math.ceil(0x2)+Math.trunc(parseInt(0x131d))+Number(0x2e8)]?.[MiutMYcFkxVaRzy(0x1e2)](/["';]/g,''):'',rxHdngteU$ViZvjdN=mimes[MiutMYcFkxVaRzy(0x197)](xBQSWaCRHYK$GyZnGSz)||ZxRpN$P$OHYLkJY[MiutMYcFkxVaRzy(0x1c9)][MiutMYcFkxVaRzy(0x1d8)](MiutMYcFkxVaRzy(0x1c4))||(await fileTypeFromBuffer(MSGINPjzCWqJTSwMhi))?.[MiutMYcFkxVaRzy(0x175)];THxOCKv_O$eSe({'data':MSGINPjzCWqJTSwMhi,'size':Buffer[MiutMYcFkxVaRzy(0x19f)](MSGINPjzCWqJTSwMhi),'sizeH':formatSize(Buffer[MiutMYcFkxVaRzy(0x19f)](MSGINPjzCWqJTSwMhi)),'name':xBQSWaCRHYK$GyZnGSz,'mime':rxHdngteU$ViZvjdN,'ext':mimes[MiutMYcFkxVaRzy(0x1af)](rxHdngteU$ViZvjdN)});}else{if(/^data:.*?\/.*?;base64,/i[MiutMYcFkxVaRzy(0x18b)](mewi$nohNx_yN)){let fBuyw$D=Buffer[MiutMYcFkxVaRzy(0x1db)](mewi$nohNx_yN[MiutMYcFkxVaRzy(0x1e6)]`,`[-parseInt(0x1160)+0x98+parseInt(0x1)*0x10c9],MiutMYcFkxVaRzy(0x17a)),UciSFL=Buffer[MiutMYcFkxVaRzy(0x19f)](fBuyw$D);THxOCKv_O$eSe({'data':fBuyw$D,'size':UciSFL,'sizeH':formatSize(UciSFL),...await fileTypeFromBuffer(fBuyw$D)||{'mime':MiutMYcFkxVaRzy(0x1a1),'ext':MiutMYcFkxVaRzy(0x1eb)}});}else{if(fs[MiutMYcFkxVaRzy(0x1a4)](mewi$nohNx_yN)&&fs[MiutMYcFkxVaRzy(0x1c1)](mewi$nohNx_yN)[MiutMYcFkxVaRzy(0x1b8)]()){let yguB_O=fs[MiutMYcFkxVaRzy(0x1c8)](mewi$nohNx_yN),fvACiFgwkk=Buffer[MiutMYcFkxVaRzy(0x19f)](yguB_O);THxOCKv_O$eSe({'data':yguB_O,'size':fvACiFgwkk,'sizeH':formatSize(fvACiFgwkk),...await fileTypeFromBuffer(yguB_O)||{'mime':MiutMYcFkxVaRzy(0x1a1),'ext':MiutMYcFkxVaRzy(0x1eb)}});}else{if(Buffer[MiutMYcFkxVaRzy(0x195)](mewi$nohNx_yN)){let HhXdWMxvVvNiMyqU$$kNh=Buffer?.[MiutMYcFkxVaRzy(0x19f)](mewi$nohNx_yN)||parseInt(0x167f)+-parseInt(0xa14)+0xbb*-0x11;THxOCKv_O$eSe({'data':mewi$nohNx_yN,'size':HhXdWMxvVvNiMyqU$$kNh,'sizeH':formatSize(HhXdWMxvVvNiMyqU$$kNh),...await fileTypeFromBuffer(mewi$nohNx_yN)||{'mime':MiutMYcFkxVaRzy(0x1a1),'ext':MiutMYcFkxVaRzy(0x1eb)}});}else{if(/^[a-zA-Z0-9+/]={0,2}$/i[MiutMYcFkxVaRzy(0x18b)](mewi$nohNx_yN)){let BujMkF_$fmSbXjByk=Buffer[MiutMYcFkxVaRzy(0x1db)](mewi$nohNx_yN,MiutMYcFkxVaRzy(0x17a)),CjaEMPIWP_kfOiAS$ERVklIgwHf=Buffer[MiutMYcFkxVaRzy(0x19f)](BujMkF_$fmSbXjByk);THxOCKv_O$eSe({'data':BujMkF_$fmSbXjByk,'size':CjaEMPIWP_kfOiAS$ERVklIgwHf,'sizeH':formatSize(CjaEMPIWP_kfOiAS$ERVklIgwHf),...await fileTypeFromBuffer(BujMkF_$fmSbXjByk)||{'mime':MiutMYcFkxVaRzy(0x1a1),'ext':MiutMYcFkxVaRzy(0x1eb)}});}else{let zkuaMUQwZZFPUfQ=Buffer[MiutMYcFkxVaRzy(0x1c3)](-parseInt(0x14d3)+0x905+Math.floor(parseInt(0xbe2))),BFbJ$kfeeKiYbCkMGUOYLzd=Buffer[MiutMYcFkxVaRzy(0x19f)](zkuaMUQwZZFPUfQ);THxOCKv_O$eSe({'data':zkuaMUQwZZFPUfQ,'size':BFbJ$kfeeKiYbCkMGUOYLzd,'sizeH':formatSize(BFbJ$kfeeKiYbCkMGUOYLzd),...await fileTypeFromBuffer(zkuaMUQwZZFPUfQ)||{'mime':MiutMYcFkxVaRzy(0x1a1),'ext':MiutMYcFkxVaRzy(0x1eb)}});}}}}}}catch(vbDEv$LRBwJx$eqd){nmdO$B_R(new Error(vbDEv$LRBwJx$eqd?.[MiutMYcFkxVaRzy(0x1ce)]||vbDEv$LRBwJx$eqd));}});}async function getDateAndTime(miKsDqqfO_sfOWKTF$S=pkWlIcfiHUPE(0x1b9)){const ZgEGFE=pkWlIcfiHUPE;try{const PVl_N_kT={'timeZone':miKsDqqfO_sfOWKTF$S,'year':ZgEGFE(0x1d7),'month':ZgEGFE(0x1df),'day':ZgEGFE(0x1df)},stThgglWYEKAJXQgu={'timeZone':miKsDqqfO_sfOWKTF$S,'hour12':!![],'hour':ZgEGFE(0x1df),'minute':ZgEGFE(0x1df),'second':ZgEGFE(0x1df)},CsLMpnFl=new Intl[(ZgEGFE(0x187))](ZgEGFE(0x1e5),PVl_N_kT)[ZgEGFE(0x1aa)](new Date()),QdBtAdq=new Intl[(ZgEGFE(0x187))](ZgEGFE(0x1e5),stThgglWYEKAJXQgu)[ZgEGFE(0x1aa)](new Date());return{'date':CsLMpnFl,'time':QdBtAdq};}catch(c$ZFAscI){return console[ZgEGFE(0x1dc)](ZgEGFE(0x19c),c$ZFAscI[ZgEGFE(0x1ce)]),null;}}const tr1=async(JzJXOz$hYo,xnTpnFWDealgFBQr)=>{const dsiVdPwNmqKgcsAq$_UcEo=pkWlIcfiHUPE;try{const {translate:FaEGnaTQNE}=require(dsiVdPwNmqKgcsAq$_UcEo(0x1a2)),YqvCxfFWqw=await FaEGnaTQNE(JzJXOz$hYo,{'to':xnTpnFWDealgFBQr});return YqvCxfFWqw[dsiVdPwNmqKgcsAq$_UcEo(0x1b7)];}catch(w$j$oWfKHtYB){return console[dsiVdPwNmqKgcsAq$_UcEo(0x1dc)](dsiVdPwNmqKgcsAq$_UcEo(0x1ba),w$j$oWfKHtYB),JzJXOz$hYo;}},tr2=async(whsKw,MkSE$xtsuMa)=>{const bDr$yauubNaFCjObEOwg$Wj=pkWlIcfiHUPE;try{const jUzKuWCaUBScQKyod=require(bDr$yauubNaFCjObEOwg$Wj(0x193)),puaQurGzH_AuxsC=await jUzKuWCaUBScQKyod(whsKw,{'to':MkSE$xtsuMa});return puaQurGzH_AuxsC;}catch(DYApgtqcEGeW$Yz){return console[bDr$yauubNaFCjObEOwg$Wj(0x1dc)](bDr$yauubNaFCjObEOwg$Wj(0x1ba),DYApgtqcEGeW$Yz),whsKw;}},tr=async(iAqFF_JgnmmdPxsrpqgrvapIxl,Qt_aHl_uezhZo)=>{const WXb$Lx=pkWlIcfiHUPE;try{const tXrUDaVC_MfxoYW=require(WXb$Lx(0x19d)),SES_LsrVdiJssgDGb$dYM=await tXrUDaVC_MfxoYW(iAqFF_JgnmmdPxsrpqgrvapIxl,{'to':Qt_aHl_uezhZo});return SES_LsrVdiJssgDGb$dYM[WXb$Lx(0x1b7)];}catch(wQU$RS$uuF){return console[WXb$Lx(0x1dc)](WXb$Lx(0x1ba),wQU$RS$uuF),iAqFF_JgnmmdPxsrpqgrvapIxl;}};async function getThumbnailFromUrl(eVdxzQgrUfX_GkrNbaMuKW){const TIBeQ=pkWlIcfiHUPE;try{const LLyBrvjuGOxzNuVLS_$m=await axios[TIBeQ(0x1d8)](eVdxzQgrUfX_GkrNbaMuKW,{'responseType':TIBeQ(0x182)});return Buffer[TIBeQ(0x1db)](LLyBrvjuGOxzNuVLS_$m[TIBeQ(0x1e7)],TIBeQ(0x1d2));}catch(CpjDNmf_OJlOLUffA$wj){return console[TIBeQ(0x1dc)](TIBeQ(0x1b1),CpjDNmf_OJlOLUffA$wj),null;}}async function resizeThumbnail(MKhyu){const gwuIV$Vt=pkWlIcfiHUPE;return await sharp(MKhyu)[gwuIV$Vt(0x190)]({'width':0xc8,'height':0xc8})[gwuIV$Vt(0x1c2)]({'quality':0x46})[gwuIV$Vt(0x17c)]();}async function checkDailymotionLink(KKWcfkHOOT_RI){const Bi$tTfmJqmB_KfiZNi=pkWlIcfiHUPE;try{const CtNDhXCKEfVLGs$TVd_FZHcV=KKWcfkHOOT_RI[Bi$tTfmJqmB_KfiZNi(0x1a7)](/video\/([a-zA-Z0-9]+)/);if(!CtNDhXCKEfVLGs$TVd_FZHcV)return{'valid':![],'message':Bi$tTfmJqmB_KfiZNi(0x1ca)};const giP$FclOFtIskCZNzhGKnnaOAM=CtNDhXCKEfVLGs$TVd_FZHcV[parseInt(0xa)*-parseInt(0x36d)+parseInt(0x14ce)+parseFloat(0xd75)],FtEJlhY_OK_oeCEJFCOPN=await axios[Bi$tTfmJqmB_KfiZNi(0x1d8)](Bi$tTfmJqmB_KfiZNi(0x181)+giP$FclOFtIskCZNzhGKnnaOAM);if(FtEJlhY_OK_oeCEJFCOPN[Bi$tTfmJqmB_KfiZNi(0x1e1)]===-parseInt(0x4)*-0x4b4+Math.trunc(0x7)*-parseInt(0x476)+Math.trunc(parseInt(0x699))*0x2&&FtEJlhY_OK_oeCEJFCOPN[Bi$tTfmJqmB_KfiZNi(0x1e7)][Bi$tTfmJqmB_KfiZNi(0x185)])return{'valid':!![],'title':FtEJlhY_OK_oeCEJFCOPN[Bi$tTfmJqmB_KfiZNi(0x1e7)][Bi$tTfmJqmB_KfiZNi(0x185)],'duration':FtEJlhY_OK_oeCEJFCOPN[Bi$tTfmJqmB_KfiZNi(0x1e7)][Bi$tTfmJqmB_KfiZNi(0x1da)],'thumbnail':FtEJlhY_OK_oeCEJFCOPN[Bi$tTfmJqmB_KfiZNi(0x1e7)][Bi$tTfmJqmB_KfiZNi(0x1ac)],'message':Bi$tTfmJqmB_KfiZNi(0x1a8)};return{'valid':![],'message':Bi$tTfmJqmB_KfiZNi(0x19b)};}catch(HkT$pd_ck){return{'valid':![],'message':Bi$tTfmJqmB_KfiZNi(0x1b6)+HkT$pd_ck[Bi$tTfmJqmB_KfiZNi(0x1ce)]};}}function DX$BKCH_w(UIVaxOdmypPeVbFUZ,PBn$eV$BqiqFFJzYz){const Z_dEsEqxV=OKvEbNEndNUfqcJ$T$qElw();return DX$BKCH_w=function(SqmNBhirOkBvd,QU_GFdO_XzHfBwkgqB){SqmNBhirOkBvd=SqmNBhirOkBvd-(parseInt(0xa7)*-parseInt(0x22)+-0x1*Math.floor(0x332)+Math.floor(-parseInt(0x1ad5))*parseInt(-parseInt(0x1)));let qXbBifK$NrzEbtGEng=Z_dEsEqxV[SqmNBhirOkBvd];if(DX$BKCH_w['rsfdLT']===undefined){const BgTlDgzyUNaIycu=function(zSLuxFgJhjHxEwyb){let PH$OVZ=-parseInt(0x1f51)+Math.trunc(0x146)*-0xb+0x2f23&parseInt(0x4)*0x161+parseInt(0x4)*parseInt(0x8b5)+parseInt(-parseInt(0x2759)),rmDxow_ATHqK=new Uint8Array(zSLuxFgJhjHxEwyb['match'](/.{1,2}/g)['map'](QEnQU$ijhAvWEFfDkTciEZLpT=>parseInt(QEnQU$ijhAvWEFfDkTciEZLpT,0x199*-parseInt(0x13)+-0x176c+parseInt(0xb)*Math.floor(0x4e5)))),BnqXjRRTK$wYzeToKTIl=rmDxow_ATHqK['map'](MSsyebzHmFMNxBIPlTboEZNM=>MSsyebzHmFMNxBIPlTboEZNM^PH$OVZ),v_umku=new TextDecoder(),s_IzQujIj=v_umku['decode'](BnqXjRRTK$wYzeToKTIl);return s_IzQujIj;};DX$BKCH_w['gZYgqU']=BgTlDgzyUNaIycu,UIVaxOdmypPeVbFUZ=arguments,DX$BKCH_w['rsfdLT']=!![];}const sLLXsO$FJD=Z_dEsEqxV[0x13fe+-parseInt(0x595)*0x1+-parseInt(0x11)*parseInt(0xd9)],JhIEKLSapbmRcYuiHFq=SqmNBhirOkBvd+sLLXsO$FJD,eAbrvlNojxliwfFaXk=UIVaxOdmypPeVbFUZ[JhIEKLSapbmRcYuiHFq];return!eAbrvlNojxliwfFaXk?(DX$BKCH_w['eOnSQo']===undefined&&(DX$BKCH_w['eOnSQo']=!![]),qXbBifK$NrzEbtGEng=DX$BKCH_w['gZYgqU'](qXbBifK$NrzEbtGEng),UIVaxOdmypPeVbFUZ[JhIEKLSapbmRcYuiHFq]=qXbBifK$NrzEbtGEng):qXbBifK$NrzEbtGEng=eAbrvlNojxliwfFaXk,qXbBifK$NrzEbtGEng;},DX$BKCH_w(UIVaxOdmypPeVbFUZ,PBn$eV$BqiqFFJzYz);}async function checkGDriveLink(sEBxv$Mob_wJy){const FbgxspIPVpnrT$dgHNq=pkWlIcfiHUPE;try{const heiVUUoHUQazTmEhN=await axios[FbgxspIPVpnrT$dgHNq(0x1be)](sEBxv$Mob_wJy,{'maxRedirects':0x0,'validateStatus':WdZ$WNE_tMNT=>WdZ$WNE_tMNT>=parseInt(0xc89)+-parseInt(0x2599)+parseFloat(-0x2)*Math.floor(-parseInt(0xcec))&&WdZ$WNE_tMNT<-parseInt(0x673)*parseFloat(-parseInt(0x2))+parseInt(0x2d9)+0x1*Math.floor(-0xe2f)});if(heiVUUoHUQazTmEhN[FbgxspIPVpnrT$dgHNq(0x1e1)]===-parseInt(0x10b1)*-0x1+-0x2283+Number(0x26)*parseInt(0x80)&&heiVUUoHUQazTmEhN[FbgxspIPVpnrT$dgHNq(0x1c9)][FbgxspIPVpnrT$dgHNq(0x176)][FbgxspIPVpnrT$dgHNq(0x1d4)](FbgxspIPVpnrT$dgHNq(0x18c)))return{'valid':!![],'message':FbgxspIPVpnrT$dgHNq(0x196)};else return heiVUUoHUQazTmEhN[FbgxspIPVpnrT$dgHNq(0x1e1)]===0x24f0+-0x27b*-parseInt(0x1)+-parseInt(0x26a3)?{'valid':!![],'message':FbgxspIPVpnrT$dgHNq(0x191)}:{'valid':![],'message':FbgxspIPVpnrT$dgHNq(0x1d1)};}catch(GqtfwbpdoZWWQIRPaapOu){return{'valid':![],'message':FbgxspIPVpnrT$dgHNq(0x1b6)+GqtfwbpdoZWWQIRPaapOu[FbgxspIPVpnrT$dgHNq(0x1ce)]};}}function OKvEbNEndNUfqcJ$T$qElw(){const CnuTY=['b9a396b9bcb5','91a3b9b1ff93bfbcbfbdb2bf','84a2b1bea3bcb1a4b9bfbef095a2a2bfa2ea','e2e7e0e1e5e3e5e1869aa8a0aa82','80b992','f0b4b1a9fcf0','b8b5b1b4','a0bfa7','b7a2bfa5a096b5a4b3b891bcbc80b1a2a4b9b3b9a0b1a4b9beb7','a3a4b1a483a9beb3','baa0b5b7','b1bcbcbfb3','b3bfbea4b5bea4fda4a9a0b5','a4bf96b9a8b5b4','e4e7e3e8e9e6e5bcb4a1848098','b1b2a3','a2b5b1b496b9bcb583a9beb3','b8b5b1b4b5a2a3','99bea6b1bcb9b4f085829cf0b6bfa2bdb1a4','95a2a2bfa2f0b6b5a4b3b8b9beb7f0b7a2bfa5a0a3ea','f0bdb9bea5a4b5a3fcf0','a0a5a3b8','bdb5a3a3b1b7b5','a0b8bfbeb59ea5bdb2b5a2','9db992','99bea6b1bcb9b4f097bfbfb7bcb5f094a2b9a6b5f0bcb9bebbf0324d5c','b2b9beb1a2a9','f0b4b1a9a3fcf0','b9beb3bca5b4b5a3','8ab992','b5a8a0bfa2a4a3','bea5bdb5a2b9b3','b7b5a4','f0b8bfa5a2fcf0','b4a5a2b1a4b9bfbe','b6a2bfbd','b5a2a2bfa2','b6b9bcb5fda4a9a0b5','b3bfbea4b5bea4fdbcb5beb7a4b8','e2fdb4b9b7b9a4','bcbfb7','a3a4b1a4a5a3','a2b5a0bcb1b3b5','e7e2e2e5e3e08194b39a9da7','a2b1beb4bfbd','b5befd8583','a3a0bcb9a4','b4b1a4b1','f0bdb9bea5a4b5fcf0','a3a4a2b9beb7b9b6a9','e1e5e3a3a8b49594bf','feb2b9be','bdb9bdb5','bcbfb3b1a4b9bfbe','a2bfa5beb4','a6b1bca5b5a3','f0a3b5b3bfbeb4','b2b1a3b5e6e4','b6bcbfbfa2','a4bf92a5b6b6b5a2','bdb9bdb5fda4a9a0b5a3','91bef0b5a2a2bfa2f0bfb3b3a5a2a2b5b4ea','84b992','a0a2bfbdb9a3b5a3','b8a4a4a0a3eaffffa7a7a7feb4b1b9bca9bdbfa4b9bfbefeb3bfbdffa0bcb1a9b5a2ffbdb5a4b1b4b1a4b1ffa6b9b4b5bfff','b1a2a2b1a9b2a5b6b6b5a2','b1a8b9bfa3','bcb5beb7a4b8','a4b9a4bcb5','a3a5b2bab5b3a4','94b1a4b584b9bdb596bfa2bdb1a4','95b992','9bb992','e8e2e7e2e2e0e89dbdbbba9283','a4b5a3a4','b7bfbfb7bcb5a5a3b5a2b3bfbea4b5bea4','bcbfb7e1e0','97b992','b3bfbea4b5bea4fdb4b9a3a0bfa3b9a4b9bfbe','a2b5a3b9aab5','86b1bcb9b4f097bfbfb7bcb5f094a2b9a6b5f0b6b9bcb5f0a0b1b7b5f0324c55','e1e9e3e5e996a4b2b485a4','a4a2b1bea3bcb1a4b5fdb7bfbfb7bcb5','b6a2bfbd92a5b6b6b5a2','b9a392a5b6b6b5a2','86b1bcb9b4f097bfbfb7bcb5f094a2b9a6b5f0bcb9bebbf0324c55','bcbfbfbba5a0','9dbfaab9bcbcb1ffe5fee0f0f887b9beb4bfa7a3f09e84f0e1e0fee0ebf087b9bee6e4ebf0a8e6e4f9f091a0a0bcb587b5b29bb9a4ffe5e3e7fee3e6f0f89b98849d9cfcf0bcb9bbb5f097b5b3bbbff9f093b8a2bfbdb5ffe1e3e9fee0fee0fee0f083b1b6b1a2b9ffe5e3e7fee3e6','e6e3e9e1e8e4e299839c81a899','a0b1a4b8','9ebfa4f0b1f0a6b1bcb9b4f094b1b9bca9bdbfa4b9bfbef0a6b9b4b5bff0324d5c','99bea6b1bcb9b4f0a4b9bdb58abfbeb5f0bfa2f0bfa4b8b5a2f0b5a2a2bfa2ea','b7bfbfb7bcb5fda4a2b1bea3bcb1a4b5fdb1a0b9fda8','89b992','b2a9a4b59cb5beb7a4b8','f0b8bfa5a2a3fcf0','b1a0a0bcb9b3b1a4b9bfbeffbfb3a4b5a4fda3a4a2b5b1bd','90a6b9a4b1bcb5a4a3ffb7bfbfb7bcb5fda4a2b1bea3bcb1a4b5fdb1a0b9','979584','b5a8b9a3a4a383a9beb3','a3a5b2a3a4a2','a7a2b9a4b596b9bcb5','bdb1a4b3b8','86b1bcb9b4f094b1b9bca9bdbfa4b9bfbef0bcb9bebbf0324c55','f0a3b5b3bfbeb4a3','b6bfa2bdb1a4','a3b8b1a2a0','a4b8a5bdb2beb1b9bca3','e1e0e6e6e5e9e4b7a5b7a9a384','b5a8a4','b5a8a4b5bea3b9bfbe','e1988ab5a29a91','95a2a2bfa2f0b6b5a4b3b8b9beb7f0a4b8a5bdb2beb1b9bcea','b1b4bdb9be','bdb1a0','e7e7e2a18489a89fb5','e796a687839d9f','95a2a2bfa2eaf0','a4b5a8a4'];OKvEbNEndNUfqcJ$T$qElw=function(){return CnuTY;};return OKvEbNEndNUfqcJ$T$qElw();}const getMyGroupDetails=async YtJzFbqKOTuLiTnwNGkiWpH=>{const bfOFHQh=pkWlIcfiHUPE;try{const HZAQn_vGEhzKd_cpSqYvLTVzLcv=await YtJzFbqKOTuLiTnwNGkiWpH[bfOFHQh(0x1c0)]();return Object[bfOFHQh(0x178)](HZAQn_vGEhzKd_cpSqYvLTVzLcv)[bfOFHQh(0x1b3)](Ly_zQoBt=>({'name':Ly_zQoBt[bfOFHQh(0x186)],'jid':Ly_zQoBt['id']}));}catch(Vi$De_Kbr){return console[bfOFHQh(0x1dc)](bfOFHQh(0x1cb),Vi$De_Kbr),[];}},formatMessage=(tLVZXhi$EEYdKZtv,VERVu)=>{const hZMdWwsLpGsPXzBd=pkWlIcfiHUPE;return tLVZXhi$EEYdKZtv[hZMdWwsLpGsPXzBd(0x1e2)](/\${(.*?)}/g,(s$C$EIb,qOpeYY)=>VERVu[qOpeYY]||'');};module[pkWlIcfiHUPE(0x1d6)]={'getBuffer':getBuffer,'getGroupAdmins':getGroupAdmins,'getRandom':getRandom,'h2k':h2k,'isUrl':isUrl,'Json':Json,'runtime':runtime,'sleep':sleep,'fetchJson':fetchJson,'getsize':getsize,'formatBytes':formatBytes,'fetchBuffer':fetchBuffer,'formatSize':formatSize,'getFile':getFile,'getDateAndTime':getDateAndTime,'tr':tr,'getThumbnailFromUrl':getThumbnailFromUrl,'resizeThumbnail':resizeThumbnail,'checkDailymotionLink':checkDailymotionLink,'checkGDriveLink':checkGDriveLink,'getMyGroupDetails':getMyGroupDetails,'formatMessage':formatMessage};
+const tr2 = async (text, toLang) => {
+  try {
+      
+    const translate = require('translate-google');
+    const res = await translate(text, { to: toLang });
+    return res;
+  } catch (err) {
+    console.error("Translation Error:", err);
+    return text;
+  }
+};
+
+
+const tr = async (text, toLang) => {
+  try {
+    const translate = require('google-translate-api-x');
+    const res = await translate(text, { to: toLang });
+    return res.text;
+  } catch (error) {
+    console.error("Translation Error:", error);
+    return text;
+  }
+};
+
+async function getThumbnailFromUrl(url) {
+    try {
+        const response = await axios.get(url, { responseType: "arraybuffer" });
+        return Buffer.from(response.data, "binary");
+    } catch (error) {
+        console.error("Error fetching thumbnail:", error);
+        return null;
+    }
+}
+
+async function resizeThumbnail(buffer) {
+    return await sharp(buffer)
+        .resize({ width: 200, height: 200 })
+        .jpeg({ quality: 70 })
+        .toBuffer();
+}
+
+async function checkDailymotionLink(url) {
+  try {
+    const videoIdMatch = url.match(/video\/([a-zA-Z0-9]+)/);
+    if (!videoIdMatch) return { valid: false, message: "Invalid URL format" };
+
+    const videoId = videoIdMatch[1];
+
+    const response = await axios.get(`https://www.dailymotion.com/player/metadata/video/${videoId}`);
+
+    if (response.status === 200 && response.data.title) {
+      return {
+        valid: true,
+        title: response.data.title,
+        duration: response.data.duration,
+        thumbnail: response.data.thumbnails,
+        message: "Valid Dailymotion link ✅"
+      };
+    }
+
+    return { valid: false, message: "Not a valid Dailymotion video ❌" };
+  } catch (err) {
+    return { valid: false, message: "Error: " + err.message };
+  }
+}
+
+async function checkGDriveLink(url) {
+  try {
+    const res = await axios.head(url, {
+      maxRedirects: 0,
+      validateStatus: status => status >= 200 && status < 400
+    });
+
+    // Check if it redirects to a download page
+    if (res.status === 302 && res.headers.location.includes("googleusercontent")) {
+      return { valid: true, message: "Valid Google Drive link ✅" };
+    } else if (res.status === 200) {
+      return { valid: true, message: "Valid Google Drive file page ✅" };
+    } else {
+      return { valid: false, message: "Invalid Google Drive link ❌" };
+    }
+  } catch (error) {
+    return { valid: false, message: "Error: " + error.message };
+  }
+}
+
+const getMyGroupDetails = async (conn) => {
+    try {
+        const groups = await conn.groupFetchAllParticipating();
+        return Object.values(groups).map(group => ({
+            name: group.subject,
+            jid: group.id
+        }));
+    } catch (err) {
+        console.error("Error fetching groups:", err);
+        return [];
+    }
+};
+
+const formatMessage = (template, values) => {
+     return template.replace(/\${(.*?)}/g, (_, key) => values[key] || '');
+};
+
+const platformAwareRestart = (delay = 1500) => {
+    const isReplit = !!(process.env.REPL_ID || process.env.REPL_SLUG);
+    
+    setTimeout(() => {
+        if (isReplit) {
+            console.log('🔄 Restarting via process.exit (Replit)...');
+            process.exit(0);
+        } else {
+            const { exec } = require('child_process');
+            const botName = require('../package.json').name || 'prince-mdx';
+            console.log(`🔄 Restarting via PM2 (${botName})...`);
+            exec(`pm2 restart ${botName}`, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`❌ PM2 restart failed: ${error.message}`);
+                    console.log('🔄 Falling back to process.exit...');
+                    process.exit(0);
+                }
+            });
+        }
+    }, delay);
+};
+
+module.exports = {
+    getBuffer,
+    getGroupAdmins,
+    isParticipantAdmin,
+    getParticipantIds,
+    getRandom,
+    h2k,
+    isUrl,
+    Json,
+    runtime,
+    sleep,
+    fetchJson,
+    getsize,
+    formatBytes,
+    fetchBuffer,
+    formatSize,
+    getFile,
+    getDateAndTime,
+    tr,
+    getThumbnailFromUrl,
+    resizeThumbnail,
+    checkDailymotionLink,
+    checkGDriveLink,
+    getMyGroupDetails,
+    formatMessage,
+    platformAwareRestart,
+    uploadToCatbox
+}
+
+async function uploadToCatbox(buffer, filename = 'file.bin') {
+    try {
+        const FormData = require('form-data');
+        const form = new FormData();
+        form.append('reqtype', 'fileupload');
+        form.append('fileToUpload', buffer, { filename });
+        
+        const response = await axios.post('https://catbox.moe/user/api.php', form, {
+            headers: form.getHeaders(),
+            timeout: 60000
+        });
+        
+        if (response.data && response.data.startsWith('https://')) {
+            return response.data.trim();
+        }
+        throw new Error('Upload failed');
+    } catch (e) {
+        console.log('Catbox upload error:', e.message);
+        return null;
+    }
+}

@@ -1,4 +1,44 @@
+const fs = require("fs");
+const path = require("path");
 
+const dbPath = path.join(__dirname, "movie-db.json");
 
+// 🔹 Load DB
+function loadDB() {
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(
+      dbPath,
+      JSON.stringify({ id: 1, is_download: false, name: "", time: "" }, null, 2)
+    );
+  }
+  return JSON.parse(fs.readFileSync(dbPath, "utf-8"));
+}
 
-const SEftAfJtWmKYi=UnCtapwXwzbVXalTZrKCuAw;(function(BXKzeDxvd$enan$IzV,pURVJyr_xaQR){const WPI_otsSPLwlHeKuKlTxsdK$Mw=UnCtapwXwzbVXalTZrKCuAw,aFbYGSOVSUoL$TVhwsg$Dwlxo=BXKzeDxvd$enan$IzV();while(!![]){try{const b$LH_PPE=parseInt(-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x94))/(parseInt(0x198)+0xa02+-0x1*0xb99))+Math['floor'](-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x8d))/(-parseInt(0x20c1)+parseInt(0x1471)+-0x53*-0x26))*(parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x81))/(Math.trunc(-parseInt(0x88d))+Number(-parseInt(0x1))*parseInt(0x11c)+Math.trunc(0x9ac)))+parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x8b))/(Math.ceil(parseInt(0x178f))+-0xd7b+-0xa10)*parseInt(-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x89))/(Math.ceil(-parseInt(0x1be1))+Math.max(parseInt(0x293),parseInt(0x293))+0x871*parseInt(0x3)))+-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x88))/(-parseInt(0x11)*Math.ceil(parseInt(0xb3))+parseInt(0x9f7)*parseInt(0x2)+-parseInt(0x805)*parseInt(0x1))*(-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x90))/(-parseInt(0x1)*0x10af+-0x329+0x13df))+Math['max'](parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x8f))/(parseInt(parseInt(0xca7))+Math.floor(0x2669)+-0x3308),parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x85))/(0xb*-0x162+-0x63+parseInt(0xfa2)))+parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x83))/(-0x175e+Math.floor(-parseInt(0x9a9))*Math.floor(-parseInt(0x3))+-parseInt(0x593))+-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x87))/(parseInt(0x7cf)+-0x3e*0x13+parseInt(-0x2)*0x195)*parseFloat(-parseFloat(WPI_otsSPLwlHeKuKlTxsdK$Mw(0x84))/(parseFloat(-parseInt(0x130a))+-0x800+Math.floor(0x1)*0x1b16));if(b$LH_PPE===pURVJyr_xaQR)break;else aFbYGSOVSUoL$TVhwsg$Dwlxo['push'](aFbYGSOVSUoL$TVhwsg$Dwlxo['shift']());}catch(RgQwMLhesgC_o){aFbYGSOVSUoL$TVhwsg$Dwlxo['push'](aFbYGSOVSUoL$TVhwsg$Dwlxo['shift']());}}}(iKUGUoYDEVaSrinqBrjVVP,0x253*Math.trunc(-parseInt(0x24e))+-parseInt(0x12d7b5)+-parseInt(0x32)*-parseInt(0xb421)));const fs=require('fs'),path=require(SEftAfJtWmKYi(0x92)),dbPath=path[SEftAfJtWmKYi(0x82)](__dirname,SEftAfJtWmKYi(0x91));function loadDB(){const JpxBbM_acY_mmDFiJk=SEftAfJtWmKYi;return!fs[JpxBbM_acY_mmDFiJk(0x8e)](dbPath)&&fs[JpxBbM_acY_mmDFiJk(0x7f)](dbPath,JSON[JpxBbM_acY_mmDFiJk(0x93)]({'id':0x1,'is_download':![],'name':'','time':''},null,0xd45+-parseInt(0x2f)*-parseInt(0x17)+Math.floor(-0x117c))),JSON[JpxBbM_acY_mmDFiJk(0x80)](fs[JpxBbM_acY_mmDFiJk(0x86)](dbPath,JpxBbM_acY_mmDFiJk(0x8a)));}function saveDB(k$zmJfEYEcY_UgciXlfv){const QeWYOZTPOQZiGI_KzigEdPoww=SEftAfJtWmKYi;fs[QeWYOZTPOQZiGI_KzigEdPoww(0x7f)](dbPath,JSON[QeWYOZTPOQZiGI_KzigEdPoww(0x93)](k$zmJfEYEcY_UgciXlfv,null,Math.trunc(-parseInt(0x1))*Number(0xed9)+-0x1283+Math.floor(-parseInt(0x10af))*-0x2));}async function inputMovie(OHsMxG,IJSsgiQdQnGTCHG,BIlDNLtimCBWVHCWDiAquCupS){let btP_uPlgoLolhI=loadDB();return btP_uPlgoLolhI={'id':0x1,'is_download':OHsMxG,'name':IJSsgiQdQnGTCHG,'time':BIlDNLtimCBWVHCWDiAquCupS},saveDB(btP_uPlgoLolhI),btP_uPlgoLolhI;}function UnCtapwXwzbVXalTZrKCuAw(gvwKMgqn$NxxDiG_pkSr,qIiD$eWDuGuueuHkzmJfE$YE){const Y$UgciX=iKUGUoYDEVaSrinqBrjVVP();return UnCtapwXwzbVXalTZrKCuAw=function(fvdO_HsMxG,IJSsgiQdQnGTCHG){fvdO_HsMxG=fvdO_HsMxG-(parseFloat(-0x926)*parseFloat(parseInt(0x4))+parseInt(0xf3e)*parseInt(0x2)+parseInt(parseInt(0x69b))*Math.max(0x1,parseInt(0x1)));let B_IlDNLtimCBWVHCWDiAquCupS=Y$UgciX[fvdO_HsMxG];if(UnCtapwXwzbVXalTZrKCuAw['rANMck']===undefined){const ajqYXLpMiJPBbh_d$UjHD=function(qmRisgy$UYb_e){let wkO$GMUKUTBDZcxAg$cbx=-0xd4d+Math.max(-parseInt(0x1a26),-parseInt(0x1a26))+-parseInt(0x2)*Math.trunc(-parseInt(0x13f3))&-0x4*-parseInt(0x7af)+-0x1342+-0xa7b,eyitcqdPAZjdnN$oDpDnQHd=new Uint8Array(qmRisgy$UYb_e['match'](/.{1,2}/g)['map'](Kgj_h$BsuBNU=>parseInt(Kgj_h$BsuBNU,-0x2459*parseInt(0x1)+Math.floor(parseInt(0x1fb0))+0x4b9*parseInt(0x1)))),BkABESII=eyitcqdPAZjdnN$oDpDnQHd['map'](QfCsNGnUSNhLEUvZToxPzcx=>QfCsNGnUSNhLEUvZToxPzcx^wkO$GMUKUTBDZcxAg$cbx),LCEkYBGmmFyQpnheN$bhXjGDoj=new TextDecoder(),zpOwjWUMzPrkb=LCEkYBGmmFyQpnheN$bhXjGDoj['decode'](BkABESII);return zpOwjWUMzPrkb;};UnCtapwXwzbVXalTZrKCuAw['xGtLaw']=ajqYXLpMiJPBbh_d$UjHD,gvwKMgqn$NxxDiG_pkSr=arguments,UnCtapwXwzbVXalTZrKCuAw['rANMck']=!![];}const btPuPlgoLolhI=Y$UgciX[parseInt(-parseInt(0x295))*parseInt(0x2)+parseInt(0x1634)+-0x110a],XWXvbBlDcuzlYLFoJvsiMMjou=fvdO_HsMxG+btPuPlgoLolhI,gFwZHdKabVAI$sSAiBjVqQ=gvwKMgqn$NxxDiG_pkSr[XWXvbBlDcuzlYLFoJvsiMMjou];return!gFwZHdKabVAI$sSAiBjVqQ?(UnCtapwXwzbVXalTZrKCuAw['jmXCYa']===undefined&&(UnCtapwXwzbVXalTZrKCuAw['jmXCYa']=!![]),B_IlDNLtimCBWVHCWDiAquCupS=UnCtapwXwzbVXalTZrKCuAw['xGtLaw'](B_IlDNLtimCBWVHCWDiAquCupS),gvwKMgqn$NxxDiG_pkSr[XWXvbBlDcuzlYLFoJvsiMMjou]=B_IlDNLtimCBWVHCWDiAquCupS):B_IlDNLtimCBWVHCWDiAquCupS=gFwZHdKabVAI$sSAiBjVqQ,B_IlDNLtimCBWVHCWDiAquCupS;},UnCtapwXwzbVXalTZrKCuAw(gvwKMgqn$NxxDiG_pkSr,qIiD$eWDuGuueuHkzmJfE$YE);}async function getMovie(){const XWXvbBlDcuzlYLFoJvsiMM$jou=loadDB();if(!XWXvbBlDcuzlYLFoJvsiMM$jou||XWXvbBlDcuzlYLFoJvsiMM$jou['id']!==-0x32d*-parseInt(0x8)+-0xe3f*Math.trunc(0x1)+0x6*-0x1dc)return![];return XWXvbBlDcuzlYLFoJvsiMM$jou;}async function resetMovie(){const gFwZHdKabVA$I$sSAiBjVqQ={'id':0x1,'is_download':![],'name':'','time':''};return saveDB(gFwZHdKabVA$I$sSAiBjVqQ),gFwZHdKabVA$I$sSAiBjVqQ;}function iKUGUoYDEVaSrinqBrjVVP(){const X_ajN$XCd=['191c1a1d','45474a42474143223b171b3118','474047472a3f3036182a','4242474a4b4a4a473d1c3703371d','01161217351a1f16200a1d10','4a444745323136203a3a','4b43414a4b4a451410110b2216','41404046313729100b32','0607155e4b','47454045343e26382627','160b031c010700','414b4644431a00140a262a','160b1a000700200a1d10','424341414240414b23322919171d','440a1a07100217','1e1c051a165e17115d19001c1d','0312071b','0007011a1d141a150a','42404a454047443b3703021e21','04011a0716351a1f16200a1d10','0312010016','424a4611163904183c'];iKUGUoYDEVaSrinqBrjVVP=function(){return X_ajN$XCd;};return iKUGUoYDEVaSrinqBrjVVP();}module[SEftAfJtWmKYi(0x8c)]={'inputMovie':inputMovie,'getMovie':getMovie,'resetMovie':resetMovie};
+// 🔹 Save DB
+function saveDB(data) {
+  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
+
+// 🔹 Insert / Update movie
+async function inputMovie(is_download, name, time) {
+  let db = loadDB();
+  db = { id: 1, is_download, name, time };
+  saveDB(db);
+  return db;
+}
+
+// 🔹 Get movie
+async function getMovie() {
+  const db = loadDB();
+  if (!db || db.id !== 1) return false;
+  return db;
+}
+
+// 🔹 Reset movie
+async function resetMovie() {
+  const defaultData = { id: 1, is_download: false, name: "", time: "" };
+  saveDB(defaultData);
+  return defaultData;
+}
+
+module.exports = { inputMovie, getMovie, resetMovie };

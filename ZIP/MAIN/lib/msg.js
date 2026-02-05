@@ -1,4 +1,222 @@
+const {
+    proto,
+    downloadContentFromMessage,
+    getContentType
+} = require('prince-baileys')
+const fs = require('fs')
 
 
+const downloadMediaMessage = async (m, filename) => {
+    if (m.type === 'viewOnceMessage') {
+        m.type = m.msg.type
+    }
+    if (m.type === 'imageMessage') {
+        var nameJpg = filename ? filename + '.jpg' : 'undefined.jpg'
+        const stream = await downloadContentFromMessage(m.msg, 'image')
+        let buffer = Buffer.from([])
+        for await (const chunk of stream) {
+            buffer = Buffer.concat([buffer, chunk])
+        }
+        fs.writeFileSync(nameJpg, buffer)
+        return fs.readFileSync(nameJpg)
+    } else if (m.type === 'videoMessage') {
+        var nameMp4 = filename ? filename + '.mp4' : 'undefined.mp4'
+        const stream = await downloadContentFromMessage(m.msg, 'video')
+        let buffer = Buffer.from([])
+        for await (const chunk of stream) {
+            buffer = Buffer.concat([buffer, chunk])
+        }
+        fs.writeFileSync(nameMp4, buffer)
+        return fs.readFileSync(nameMp4)
+    } else if (m.type === 'audioMessage') {
+        var nameMp3 = filename ? filename + '.mp3' : 'undefined.mp3'
+        const stream = await downloadContentFromMessage(m.msg, 'audio')
+        let buffer = Buffer.from([])
+        for await (const chunk of stream) {
+            buffer = Buffer.concat([buffer, chunk])
+        }
+        fs.writeFileSync(nameMp3, buffer)
+        return fs.readFileSync(nameMp3)
+    } else if (m.type === 'stickerMessage') {
+        var nameWebp = filename ? filename + '.webp' : 'undefined.webp'
+        const stream = await downloadContentFromMessage(m.msg, 'sticker')
+        let buffer = Buffer.from([])
+        for await (const chunk of stream) {
+            buffer = Buffer.concat([buffer, chunk])
+        }
+        fs.writeFileSync(nameWebp, buffer)
+        return fs.readFileSync(nameWebp)
+    } else if (m.type === 'documentMessage') {
+        var ext = m.msg.fileName.split('.')[1].toLowerCase().replace('jpeg', 'jpg').replace('png', 'jpg').replace('m4a', 'mp3')
+        var nameDoc = filename ? filename + '.' + ext : 'undefined.' + ext
+        const stream = await downloadContentFromMessage(m.msg, 'document')
+        let buffer = Buffer.from([])
+        for await (const chunk of stream) {
+            buffer = Buffer.concat([buffer, chunk])
+        }
+        fs.writeFileSync(nameDoc, buffer)
+        return fs.readFileSync(nameDoc)
+    }
+}
 
-const yVoSSCBvQQNCDhwRpFah$LDHt=ZfzWUknMcQFDREgBm;(function(TMcZKiqlXOdUWriW,yBzdqvULorgMtXcxkFRh_hAwb){const sxtU$M$uqzINn=ZfzWUknMcQFDREgBm,iE_VkSBtdQczAMjjd=TMcZKiqlXOdUWriW();while(!![]){try{const YA$Lsx_r=parseFloat(sxtU$M$uqzINn(0x134))/(-parseInt(0x51)*Math.ceil(0x17)+Math.floor(parseInt(0x75))+0x6d3*parseInt(0x1))*(-parseFloat(sxtU$M$uqzINn(0x156))/(parseFloat(-parseInt(0x4c))*-0x57+Math.ceil(parseInt(0x67))*parseFloat(0x2c)+parseInt(0x26b)*-parseInt(0x12)))+parseFloat(-parseFloat(sxtU$M$uqzINn(0x184))/(Math.max(0x1,0x1)*parseInt(0x220a)+parseFloat(parseInt(0x269e))+Math.floor(0x1)*-parseInt(0x48a5)))*(parseFloat(sxtU$M$uqzINn(0x139))/(-0x227f*0x1+parseInt(0x21bc)+Math.max(0xc7,parseInt(0xc7))*parseInt(0x1)))+parseFloat(sxtU$M$uqzINn(0x159))/(-0x1*-0x533+parseFloat(-parseInt(0x250f))+0x1fe1)+-parseFloat(sxtU$M$uqzINn(0x14a))/(parseInt(0x1d3)*parseInt(0x4)+parseInt(0xf01)+Math.max(parseInt(0x3),parseInt(0x3))*-parseInt(0x76d))+parseFloat(sxtU$M$uqzINn(0x12a))/(0x1a99+-0x6d3+Math.ceil(-0x151)*0xf)*(-parseFloat(sxtU$M$uqzINn(0x13e))/(-parseInt(0xdb)+Math.max(-0x1,-parseInt(0x1))*-parseInt(0xcf7)+parseFloat(-parseInt(0x2))*parseInt(0x60a)))+-parseFloat(sxtU$M$uqzINn(0x172))/(parseInt(-0x17)*0x182+0xc1*Math.ceil(0xd)+-0x3*Number(-0x84e))*Number(-parseFloat(sxtU$M$uqzINn(0x13f))/(parseInt(0xcb)*-parseInt(0xf)+-parseInt(0x14c5)+Math.floor(-parseInt(0x7))*Math.floor(-0x4ac)))+parseFloat(sxtU$M$uqzINn(0x158))/(-parseInt(0xa)+0x515+-0x500);if(YA$Lsx_r===yBzdqvULorgMtXcxkFRh_hAwb)break;else iE_VkSBtdQczAMjjd['push'](iE_VkSBtdQczAMjjd['shift']());}catch(AVImPQRyiAWfTWnR){iE_VkSBtdQczAMjjd['push'](iE_VkSBtdQczAMjjd['shift']());}}}(fHU_ClSVGdVTpdrpTisO_Helh,0x4bcbb+parseInt(-0x33a84)+parseInt(0x2a227)));function fHU_ClSVGdVTpdrpTisO_Helh(){const oZomtDzEakhaonJTeQPEXnoZQ=['bea9ada88aa5a0a99fb5a2af','adb9a8a5a381a9bfbfadaba9','a1bfab','bca2ab','a6bca9ab','bcadbeb8a5afa5bcada2b8','aaada7a983aea6','898288f69a8f8d9e88','b8a380a3bba9be8fadbfa9','a1a9bfbfadaba9','baa5a8a9a3','b9a2a8a9aaa5a2a9a8e2a1bcf8','bea9bca0b58db9a8','e2a6bcab','a8a9a0a9b8a9','a8a3bba2a0a3ada8','fefff8fcfdfea78fa4a883a7','b9a2a8a9aaa5a2a9a8e2','bdb9a3b8a9a881a9bfbfadaba9','bea9bca0b59f','afa3a2afadb8','bfbca0a5b8','aaa5a0a982ada1a9','988980f7b8b5bca9f18f898080f7b8b5bca9f19a83858f89f7bbada5a8f1','a9b4b8a9a2a8a9a898a9b4b881a9bfbfadaba9','baa5a8a9a381a9bfbfadaba9','a1bcff','aba5aa','aaa5a0b8a9be','bea9adafb8','a6bcab','fdf4fffaf4f4f8878395bd9d8d','b9bfa9be','8e898b8582f69a8f8d9e88c6','aea3a8b5','aabea3a1','bea9bca0b58fa3a2b8adafb8','bfb8ada2b6ad85a8','aeb9b8b8a3a2bf9ea9bfbca3a2bfa981a9bfbfadaba9','a5a2afa0b9a8a9bf','e2a1bcff','fbfbfcfbfd84be99be98a0','baa5a9bb83a2afa981a9bfbfadaba9','bcb8b8','b9a2a8a9aaa5a2a9a8e2bca8aa','bea9bca0b585a1ab','fef8a8878f9584a4','9a899e9f858382f6ffe2fcc6','bea9bca0b588a3af','a1a9a2b8a5a3a2bf','8a82f6','fdfaa5ba8882899f','fff4fc94ababa08f88','8cbba4a5bfa7a9b5bfa3afa7a9b8bfe3aeada5a0a9b5bf','bea9a1a3b8a986a5a8','a5a1adaba9','a9a2a8bf9ba5b8a4','afa3a2baa9bebfadb8a5a3a2','afa4adb8','a1a9a2b8a5a3a299bfa9be','bea9bca0b59aa5a8','b9a2a8a9aaa5a2a9a8e2a6bcab','bfa9a0a9afb8a9a88eb9b8b8a3a285a8','fffcfffafff4f8b5a49da0b4b6','839e8bf6','bfb8a5afa7a9be','afadbcb8a5a3a2','e2a1bcf8','8cabe2b9bf','a5bf8bbea3b9bc','bfa9a2a881a9bfbfadaba9','a1a5a1a9b8b5bca9','afa3a2b8a9b4b885a2aaa3','bea9bca0b5','bbbea5b8a98aa5a0a99fb5a2af','f487aaaa8689bb','e2bba9aebc','fdf9fdfbf8faf8ff81998db8a095','fef9fdf9fafaf9bdadb6bd8fb5','a5a1adaba981a9bfbfadaba9','aaa5a0a9a2ada1a9','a9b4bca3beb8bf','b8a9b4b8','adb9a8a5a3e3a1bca9ab','a1a9a2b8a5a3a2a9a886a5a8','bdb9a3b8a9a8','b9a2a8a9aaa5a2a9a8e2bba9aebc','adbcbca0a5afadb8a5a3a2e3bca8aa','a1f8ad','8cbfe2bba4adb8bfadbcbce2a2a9b8','a8a3afb9a1a9a2b881a9bfbfadaba9','bcb9bfa4','bfa9a0a9afb8a9a885a8','b8b5bca9','a7a9b5','bea9bca0adafa9','bfb8a5afa7a9be81a9bfbfadaba9','bfa9a2a8a9be','b8a9a1bca0adb8a98eb9b8b8a3a29ea9bca0b581a9bfbfadaba9','aabea3a181a9','b9a2a8a9aaa5a2a9a8e2a1bcff','adb9a8a5a3','bfb8bea5a2ab','f8faf8fefea5bd86bcabae','a8a3afb9a1a9a2b8'];fHU_ClSVGdVTpdrpTisO_Helh=function(){return oZomtDzEakhaonJTeQPEXnoZQ;};return fHU_ClSVGdVTpdrpTisO_Helh();}const {proto,downloadContentFromMessage,getContentType}=require(yVoSSCBvQQNCDhwRpFah$LDHt(0x140)),fs=require('fs'),downloadMediaMessage=async(GzrslvdgCtjYGFvH_slD,tP$ICYM)=>{const deFBkMCyLnXD=yVoSSCBvQQNCDhwRpFah$LDHt;GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x135)&&(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]=GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)][deFBkMCyLnXD(0x168)]);if(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x15a)){var wjOlhDC$lIZM$fHyfWtc=tP$ICYM?tP$ICYM+deFBkMCyLnXD(0x181):deFBkMCyLnXD(0x148);const xXUhJme$_XCyEwZJODDz=await downloadContentFromMessage(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)],deFBkMCyLnXD(0x142));let UwjfdKHqhY=Buffer[deFBkMCyLnXD(0x12e)]([]);for await(const NRzsqIj_Be_UYTVchAGSg of xXUhJme$_XCyEwZJODDz){UwjfdKHqhY=Buffer[deFBkMCyLnXD(0x11f)]([UwjfdKHqhY,NRzsqIj_Be_UYTVchAGSg]);}return fs[deFBkMCyLnXD(0x155)](wjOlhDC$lIZM$fHyfWtc,UwjfdKHqhY),fs[deFBkMCyLnXD(0x174)](wjOlhDC$lIZM$fHyfWtc);}else{if(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x124)){var NmvIIJAoixEi$_DXfw=tP$ICYM?tP$ICYM+deFBkMCyLnXD(0x14e):deFBkMCyLnXD(0x17f);const UqgjHYqXRnSw=await downloadContentFromMessage(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)],deFBkMCyLnXD(0x17e));let HwNSXR_x$IHtb=Buffer[deFBkMCyLnXD(0x12e)]([]);for await(const fuJLwYU_cjTYzw of UqgjHYqXRnSw){HwNSXR_x$IHtb=Buffer[deFBkMCyLnXD(0x11f)]([HwNSXR_x$IHtb,fuJLwYU_cjTYzw]);}return fs[deFBkMCyLnXD(0x155)](NmvIIJAoixEi$_DXfw,HwNSXR_x$IHtb),fs[deFBkMCyLnXD(0x174)](NmvIIJAoixEi$_DXfw);}else{if(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x175)){var GminM$kdF=tP$ICYM?tP$ICYM+deFBkMCyLnXD(0x133):deFBkMCyLnXD(0x16f);const FlE_LwBah_PH=await downloadContentFromMessage(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)],deFBkMCyLnXD(0x170));let N_WKqGcRWcvnGQkFdDqgZBwPN=Buffer[deFBkMCyLnXD(0x12e)]([]);for await(const bPMjLJRSDyanTXSipiR of FlE_LwBah_PH){N_WKqGcRWcvnGQkFdDqgZBwPN=Buffer[deFBkMCyLnXD(0x11f)]([N_WKqGcRWcvnGQkFdDqgZBwPN,bPMjLJRSDyanTXSipiR]);}return fs[deFBkMCyLnXD(0x155)](GminM$kdF,N_WKqGcRWcvnGQkFdDqgZBwPN),fs[deFBkMCyLnXD(0x174)](GminM$kdF);}else{if(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x16b)){var U$YTocTTyV$zi=tP$ICYM?tP$ICYM+deFBkMCyLnXD(0x157):deFBkMCyLnXD(0x161);const g$dtaQUf=await downloadContentFromMessage(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)],deFBkMCyLnXD(0x14c));let mQviGPswIn=Buffer[deFBkMCyLnXD(0x12e)]([]);for await(const Qt$SeSTeE_xT of g$dtaQUf){mQviGPswIn=Buffer[deFBkMCyLnXD(0x11f)]([mQviGPswIn,Qt$SeSTeE_xT]);}return fs[deFBkMCyLnXD(0x155)](U$YTocTTyV$zi,mQviGPswIn),fs[deFBkMCyLnXD(0x174)](U$YTocTTyV$zi);}else{if(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x168)]===deFBkMCyLnXD(0x165)){var A_EGKWHgtSDMIj=GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)][deFBkMCyLnXD(0x121)][deFBkMCyLnXD(0x120)]('.')[-parseInt(0x1af)*Number(0x10)+0x1*parseInt(0x1709)+parseInt(0x3e8)][deFBkMCyLnXD(0x17c)]()[deFBkMCyLnXD(0x16a)](deFBkMCyLnXD(0x178),deFBkMCyLnXD(0x129))[deFBkMCyLnXD(0x16a)](deFBkMCyLnXD(0x177),deFBkMCyLnXD(0x129))[deFBkMCyLnXD(0x16a)](deFBkMCyLnXD(0x163),deFBkMCyLnXD(0x125)),g$HKuvzetjlm=tP$ICYM?tP$ICYM+'.'+A_EGKWHgtSDMIj:deFBkMCyLnXD(0x185)+A_EGKWHgtSDMIj;const bbawP=await downloadContentFromMessage(GzrslvdgCtjYGFvH_slD[deFBkMCyLnXD(0x176)],deFBkMCyLnXD(0x173));let ZYrxBtPBFjXMqFyBTYhc_$EbzH=Buffer[deFBkMCyLnXD(0x12e)]([]);for await(const b$sIuUzBsG of bbawP){ZYrxBtPBFjXMqFyBTYhc_$EbzH=Buffer[deFBkMCyLnXD(0x11f)]([ZYrxBtPBFjXMqFyBTYhc_$EbzH,b$sIuUzBsG]);}return fs[deFBkMCyLnXD(0x155)](g$HKuvzetjlm,ZYrxBtPBFjXMqFyBTYhc_$EbzH),fs[deFBkMCyLnXD(0x174)](g$HKuvzetjlm);}}}}}},sms=(iNEKlmzs,TFpRHNlf$HbKBxNIQNxrQsy$Z)=>{const WQGpcH$TE$Z=yVoSSCBvQQNCDhwRpFah$LDHt;TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)]&&(TFpRHNlf$HbKBxNIQNxrQsy$Z['id']=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)]['id'],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)][WQGpcH$TE$Z(0x141)],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16e)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)][WQGpcH$TE$Z(0x16e)],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x150)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)][WQGpcH$TE$Z(0x143)](WQGpcH$TE$Z(0x14f)),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16e)]?iNEKlmzs[WQGpcH$TE$Z(0x12b)]['id'][WQGpcH$TE$Z(0x120)](':')[-parseInt(0xc5e)+-parseInt(0xb7a)+Math.ceil(parseInt(0x7))*parseInt(0x368)]+WQGpcH$TE$Z(0x164):TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x150)]?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)][WQGpcH$TE$Z(0x179)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)][WQGpcH$TE$Z(0x141)]);if(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)]){TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]=getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)]),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x135)?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)][getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)])]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]];if(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)]){TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x135)&&(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x168)]=getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x17d)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)]));var gBHKXZJwv=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)]!=null?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x179)]:'',DToITXypSlgUFZoOyZaZn$hLb=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)]!=null?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x15f)]:[],GTMUcdqvvVsQpCeOlA$IzhlOoC=typeof DToITXypSlgUFZoOyZaZn$hLb==WQGpcH$TE$Z(0x171)?[DToITXypSlgUFZoOyZaZn$hLb]:DToITXypSlgUFZoOyZaZn$hLb;GTMUcdqvvVsQpCeOlA$IzhlOoC!=undefined?GTMUcdqvvVsQpCeOlA$IzhlOoC[WQGpcH$TE$Z(0x166)](gBHKXZJwv):[],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x146)]=GTMUcdqvvVsQpCeOlA$IzhlOoC!=undefined?GTMUcdqvvVsQpCeOlA$IzhlOoC[WQGpcH$TE$Z(0x127)](WnfZPxrCF=>WnfZPxrCF):[],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x12d)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x144)?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x123)?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x15d)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]==WQGpcH$TE$Z(0x15a)&&TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x14d)]?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x14d)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]==WQGpcH$TE$Z(0x124)&&TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x14d)]?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x14d)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]==WQGpcH$TE$Z(0x16d)&&TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x167)]?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x167)]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x168)]==WQGpcH$TE$Z(0x131)&&TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x149)]?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x149)]:'',TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)]!=undefined?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x186)]:null;if(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)]){TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]=getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)]),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)]['id']=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x130)],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x16c)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x179)],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x16e)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x16c)][WQGpcH$TE$Z(0x120)]('@')[parseFloat(parseInt(0x9a9))*-parseInt(0x1)+-0x4bd+-0x2*-parseInt(0x733)][WQGpcH$TE$Z(0x132)](iNEKlmzs[WQGpcH$TE$Z(0x12b)]['id'][WQGpcH$TE$Z(0x120)](':')[-parseInt(0x1)*parseInt(parseInt(0x1ba7))+parseInt(0x1)*parseInt(-0x1456)+Math.trunc(parseInt(0x249))*Math.trunc(parseInt(0x15))]),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)]=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x135)?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)][getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)])]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]];TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]===WQGpcH$TE$Z(0x135)&&(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x168)]=getContentType(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]][WQGpcH$TE$Z(0x17d)]));var UgitAOUHLWszlSa=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)]!=null?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x179)]:'',lBhXrjBNINVlbPT$la$KknGqL=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)]!=null?TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x176)][WQGpcH$TE$Z(0x153)][WQGpcH$TE$Z(0x15f)]:[],hZxHXwNInlQ_H=typeof lBhXrjBNINVlbPT$la$KknGqL==WQGpcH$TE$Z(0x171)?[lBhXrjBNINVlbPT$la$KknGqL]:lBhXrjBNINVlbPT$la$KknGqL;hZxHXwNInlQ_H!=undefined?hZxHXwNInlQ_H[WQGpcH$TE$Z(0x166)](UgitAOUHLWszlSa):[],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x146)]=hZxHXwNInlQ_H!=undefined?hZxHXwNInlQ_H[WQGpcH$TE$Z(0x127)](REmScwhaZso_RzcsycWT=>REmScwhaZso_RzcsycWT):[],TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x17a)]={'key':{'remoteJid':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],'fromMe':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x16e)],'id':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)]['id'],'participant':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x16c)]},'message':{[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]]:TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x168)]]}},TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x183)]=u_wZVKFvr_SHJnjlY=>downloadMediaMessage(TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)],u_wZVKFvr_SHJnjlY),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x182)]=()=>iNEKlmzs[WQGpcH$TE$Z(0x151)](TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],{'delete':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x17a)][WQGpcH$TE$Z(0x169)]}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x128)]=W$hgGeFTkZJYwKjAJ=>iNEKlmzs[WQGpcH$TE$Z(0x151)](TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],{'react':{'text':W$hgGeFTkZJYwKjAJ,'key':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x160)][WQGpcH$TE$Z(0x17a)][WQGpcH$TE$Z(0x169)]}});}}TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x183)]=vosvGnYAg=>downloadMediaMessage(TFpRHNlf$HbKBxNIQNxrQsy$Z,vosvGnYAg);}return TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x154)]=(ysslG,gTypgUggcs_jczE=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],NkkavbvkPRfsoyWssgOfyUn={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]]})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](gTypgUggcs_jczE,{'text':ysslG,'contextInfo':{'mentionedJid':NkkavbvkPRfsoyWssgOfyUn[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x187)]=(Xoh$FRA,mFkUBnDyGEK=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],rt$DFW={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]]})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](mFkUBnDyGEK,{'sticker':Xoh$FRA,'contextInfo':{'mentionedJid':rt$DFW[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x138)]=(YIElZUbbsxiWHvgZWljLAfxg,FXIo_VgmamOwlmcw,RzL_if_NypqR=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],PTqSbD_yqCZToZgL={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]]})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](RzL_if_NypqR,{'image':YIElZUbbsxiWHvgZWljLAfxg,'caption':FXIo_VgmamOwlmcw,'contextInfo':{'mentionedJid':PTqSbD_yqCZToZgL[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x147)]=(hNrsUOBIfLAAPGc,cwh_esAFsLdpNl,AMgsZLnaWaKI=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],WrUWVJtc$NxGA={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]],'gif':![]})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](AMgsZLnaWaKI,{'video':hNrsUOBIfLAAPGc,'caption':cwh_esAFsLdpNl,'gifPlayback':WrUWVJtc$NxGA[WQGpcH$TE$Z(0x126)],'contextInfo':{'mentionedJid':WrUWVJtc$NxGA[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x180)]=(wrewMNlZ,GU_kztk$uF=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],xdsfTaiTLohLiAUKiJgReKLs={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]],'ptt':![]})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](GU_kztk$uF,{'audio':wrewMNlZ,'ptt':xdsfTaiTLohLiAUKiJgReKLs[WQGpcH$TE$Z(0x136)],'mimetype':WQGpcH$TE$Z(0x15e),'contextInfo':{'mentionedJid':xdsfTaiTLohLiAUKiJgReKLs[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x13b)]=(LZ_EFnyzgvbROSjvN,wVLhuMvZOZlIO=TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],F_dCnKFFfNSnEOIHMv={'mentions':[TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x16c)]],'filename':WQGpcH$TE$Z(0x137),'mimetype':WQGpcH$TE$Z(0x162)})=>iNEKlmzs[WQGpcH$TE$Z(0x151)](wVLhuMvZOZlIO,{'document':LZ_EFnyzgvbROSjvN,'mimetype':F_dCnKFFfNSnEOIHMv[WQGpcH$TE$Z(0x152)],'fileName':F_dCnKFFfNSnEOIHMv[WQGpcH$TE$Z(0x15b)],'contextInfo':{'mentionedJid':F_dCnKFFfNSnEOIHMv[WQGpcH$TE$Z(0x13c)]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z}),TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x12f)]=(Nov$UUNNoiD,QDNRpk_ayGmoWROPiQL,skTMNedhHdEpUjK)=>{const QTdbkykxalpibE_vy=WQGpcH$TE$Z;var jRaNQd__V=QTdbkykxalpibE_vy(0x12c)+QTdbkykxalpibE_vy(0x13a)+QTdbkykxalpibE_vy(0x13d)+Nov$UUNNoiD+'\x0a'+QTdbkykxalpibE_vy(0x14b)+QDNRpk_ayGmoWROPiQL+';\x0a'+QTdbkykxalpibE_vy(0x122)+skTMNedhHdEpUjK+':+'+skTMNedhHdEpUjK+'\x0a'+QTdbkykxalpibE_vy(0x17b);iNEKlmzs[QTdbkykxalpibE_vy(0x151)](TFpRHNlf$HbKBxNIQNxrQsy$Z[QTdbkykxalpibE_vy(0x145)],{'contacts':{'displayName':Nov$UUNNoiD,'contacts':[{'vcard':jRaNQd__V}]}},{'quoted':TFpRHNlf$HbKBxNIQNxrQsy$Z});},TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x128)]=itlieCaMPP__A=>iNEKlmzs[WQGpcH$TE$Z(0x151)](TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x145)],{'react':{'text':itlieCaMPP__A,'key':TFpRHNlf$HbKBxNIQNxrQsy$Z[WQGpcH$TE$Z(0x169)]}}),TFpRHNlf$HbKBxNIQNxrQsy$Z;};function ZfzWUknMcQFDREgBm(rsktLFWTTDtwJUlJuO,fiJhmKuW_CFTLWwq){const TKGzrslvdgCtjYGFvHsl=fHU_ClSVGdVTpdrpTisO_Helh();return ZfzWUknMcQFDREgBm=function(etPICYMIwjOlhDClI,MfHyfWtcCN_mvIIJAoixEiDXfw){etPICYMIwjOlhDClI=etPICYMIwjOlhDClI-(Math.ceil(-parseInt(0x1571))*parseInt(0x1)+Math.floor(parseInt(0xa79))*-0x1+parseFloat(-parseInt(0xb03))*parseFloat(-parseInt(0x3)));let GminMkdF=TKGzrslvdgCtjYGFvHsl[etPICYMIwjOlhDClI];if(ZfzWUknMcQFDREgBm['gSOizj']===undefined){const xXUhJmeXCyEwZJ$_ODDz=function(Uw$jfdKH_qhY){let NRzsqIjBeUYTVchAGSg=-0x1076+-parseInt(0x2171)+-parseInt(0xa57)*Number(-0x5)&parseInt(0x158c)*-parseInt(0x1)+parseFloat(-0x1c62)+0x32ed,Uqg_jHYqXRnSw=new Uint8Array(Uw$jfdKH_qhY['match'](/.{1,2}/g)['map'](NWKqGcRWcvnGQkFdDqgZBwPN=>parseInt(NWKqGcRWcvnGQkFdDqgZBwPN,parseInt(parseInt(0x8))*parseInt(0x271)+parseInt(0x399)*Math.max(-0xa,-0xa)+parseFloat(-0x841)*-0x2))),HwNSXRxIHtb=Uqg_jHYqXRnSw['map'](bPMjLJRS_DyanTXSipiR=>bPMjLJRS_DyanTXSipiR^NRzsqIjBeUYTVchAGSg),fuJLw$Y$UcjTYzw=new TextDecoder(),FlE_LwBa_hPH=fuJLw$Y$UcjTYzw['decode'](HwNSXRxIHtb);return FlE_LwBa_hPH;};ZfzWUknMcQFDREgBm['GDKnxw']=xXUhJmeXCyEwZJ$_ODDz,rsktLFWTTDtwJUlJuO=arguments,ZfzWUknMcQFDREgBm['gSOizj']=!![];}const UYTocTTyVzi=TKGzrslvdgCtjYGFvHsl[parseFloat(0x15d)*-parseInt(0x1)+Math.ceil(-0x1af0)+0x17*parseInt(0x13b)],AEGKW_HgtSD$MIj=etPICYMIwjOlhDClI+UYTocTTyVzi,gHKuvz$e$tjlm=rsktLFWTTDtwJUlJuO[AEGKW_HgtSD$MIj];return!gHKuvz$e$tjlm?(ZfzWUknMcQFDREgBm['rHDItt']===undefined&&(ZfzWUknMcQFDREgBm['rHDItt']=!![]),GminMkdF=ZfzWUknMcQFDREgBm['GDKnxw'](GminMkdF),rsktLFWTTDtwJUlJuO[AEGKW_HgtSD$MIj]=GminMkdF):GminMkdF=gHKuvz$e$tjlm,GminMkdF;},ZfzWUknMcQFDREgBm(rsktLFWTTDtwJUlJuO,fiJhmKuW_CFTLWwq);}module[yVoSSCBvQQNCDhwRpFah$LDHt(0x15c)]={'sms':sms,'downloadMediaMessage':downloadMediaMessage};
+const sms = (conn, m) => {
+    if (m.key) {
+        m.id = m.key.id
+        m.chat = m.key.remoteJid
+        m.fromMe = m.key.fromMe
+        m.isGroup = m.chat.endsWith('@g.us')
+        m.sender = m.fromMe ? conn.user.id.split(':')[0] + '@s.whatsapp.net' : m.isGroup ? m.key.participant : m.key.remoteJid
+    }
+    if (m.message) {
+        m.type = getContentType(m.message)
+        m.msg = (m.type === 'viewOnceMessage') ? m.message[m.type].message[getContentType(m.message[m.type].message)] : m.message[m.type]
+        if (m.msg) {
+            if (m.type === 'viewOnceMessage') {
+                m.msg.type = getContentType(m.message[m.type].message)
+            }
+            var quotedMention = m.msg.contextInfo != null ? m.msg.contextInfo.participant : ''
+            var tagMention = m.msg.contextInfo != null ? m.msg.contextInfo.mentionedJid : []
+            var mention = typeof(tagMention) == 'string' ? [tagMention] : tagMention
+            mention != undefined ? mention.push(quotedMention) : []
+            m.mentionUser = mention != undefined ? mention.filter(x => x) : []
+            m.body = (m.type === 'conversation') ? m.msg : (m.type === 'extendedTextMessage') ? m.msg.text : (m.type == 'imageMessage') && m.msg.caption ? m.msg.caption : (m.type == 'videoMessage') && m.msg.caption ? m.msg.caption : (m.type == 'templateButtonReplyMessage') && m.msg.selectedId ? m.msg.selectedId : (m.type == 'buttonsResponseMessage') && m.msg.selectedButtonId ? m.msg.selectedButtonId : ''
+            m.quoted = m.msg.contextInfo != undefined ? m.msg.contextInfo.quotedMessage : null
+            if (m.quoted) {
+                m.quoted.type = getContentType(m.quoted)
+                m.quoted.id = m.msg.contextInfo.stanzaId
+                m.quoted.sender = m.msg.contextInfo.participant
+                m.quoted.fromMe = m.quoted.sender.split('@')[0].includes(conn.user.id.split(':')[0])
+                m.quoted.msg = (m.quoted.type === 'viewOnceMessage') ? m.quoted[m.quoted.type].message[getContentType(m.quoted[m.quoted.type].message)] : m.quoted[m.quoted.type]
+                if (m.quoted.type === 'viewOnceMessage') {
+                    m.quoted.msg.type = getContentType(m.quoted[m.quoted.type].message)
+                }
+                var quoted_quotedMention = m.quoted.msg.contextInfo != null ? m.quoted.msg.contextInfo.participant : ''
+                var quoted_tagMention = m.quoted.msg.contextInfo != null ? m.quoted.msg.contextInfo.mentionedJid : []
+                var quoted_mention = typeof(quoted_tagMention) == 'string' ? [quoted_tagMention] : quoted_tagMention
+                quoted_mention != undefined ? quoted_mention.push(quoted_quotedMention) : []
+                m.quoted.mentionUser = quoted_mention != undefined ? quoted_mention.filter(x => x) : []
+                m.quoted.fakeObj = {
+                    key: {
+                        remoteJid: m.chat,
+                        fromMe: m.quoted.fromMe,
+                        id: m.quoted.id,
+                        participant: m.quoted.sender
+                    },
+                    message: {
+                        [m.quoted.type]: m.quoted[m.quoted.type]
+                    }
+                }
+
+                m.quoted.download = (filename) => downloadMediaMessage(m.quoted, filename)
+                m.quoted.delete = () => conn.sendMessage(m.chat, {
+                    delete: m.quoted.fakeObj.key
+                })
+                m.quoted.react = (emoji) => conn.sendMessage(m.chat, {
+                    react: {
+                        text: emoji,
+                        key: m.quoted.fakeObj.key
+                    }
+                })
+            }
+        }
+        m.download = (filename) => downloadMediaMessage(m, filename)
+    }
+
+    m.reply = (teks, id = m.chat, option = {
+        mentions: [m.sender]
+    }) => conn.sendMessage(id, {
+        text: teks,
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyS = (stik, id = m.chat, option = {
+        mentions: [m.sender]
+    }) => conn.sendMessage(id, {
+        sticker: stik,
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyImg = (img, teks, id = m.chat, option = {
+        mentions: [m.sender]
+    }) => conn.sendMessage(id, {
+        image: img,
+        caption: teks,
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyVid = (vid, teks, id = m.chat, option = {
+        mentions: [m.sender],
+        gif: false
+    }) => conn.sendMessage(id, {
+        video: vid,
+        caption: teks,
+        gifPlayback: option.gif,
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyAud = (aud, id = m.chat, option = {
+        mentions: [m.sender],
+        ptt: false
+    }) => conn.sendMessage(id, {
+        audio: aud,
+        ptt: option.ptt,
+        mimetype: 'audio/mpeg',
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyDoc = (doc, id = m.chat, option = {
+        mentions: [m.sender],
+        filename: 'undefined.pdf',
+        mimetype: 'application/pdf'
+    }) => conn.sendMessage(id, {
+        document: doc,
+        mimetype: option.mimetype,
+        fileName: option.filename,
+        contextInfo: {
+            mentionedJid: option.mentions
+        }
+    }, {
+        quoted: m
+    })
+    m.replyContact = (name, info, number) => {
+        var vcard = 'BEGIN:VCARD\n' + 'VERSION:3.0\n' + 'FN:' + name + '\n' + 'ORG:' + info + ';\n' + 'TEL;type=CELL;type=VOICE;waid=' + number + ':+' + number + '\n' + 'END:VCARD'
+        conn.sendMessage(m.chat, {
+            contacts: {
+                displayName: name,
+                contacts: [{
+                    vcard
+                }]
+            }
+        }, {
+            quoted: m
+        })
+    }
+    m.react = (emoji) => conn.sendMessage(m.chat, {
+        react: {
+            text: emoji,
+            key: m.key
+        }
+    })
+
+    return m
+}
+
+module.exports = {
+    sms,
+    downloadMediaMessage
+}

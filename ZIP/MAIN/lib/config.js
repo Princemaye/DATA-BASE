@@ -1,5 +1,3 @@
-
-
 module.exports = {
   
 torrentApi: "https://seedr-new.vercel.app",
@@ -15,3 +13,4 @@ buttonDesc: "ᴘʀɪɴᴄᴇ ᴛᴇᴄʜ",
 buttonTitle: "Click Here 📲"
   
 };
+

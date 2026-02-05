@@ -1,4 +1,1156 @@
+const axios = require('axios');
+const crypto = require('crypto');
+const cheerio = require('cheerio');
+const qs = require('querystring');
+const file_size_url = (...args) => import('file_size_url').then(({ default: file_size_url }) => file_size_url(...args));
+const yts = require("yt-search");
+const creator = "Dark-Yasiya";
+const { promises } = require('fs');
+const { join } = require('path');
+const { spawn } = require('child_process');
+
+// ====================================== D O W N L O A D ======================================
+async function ytmp3_v2(set) { 
+  try {
+    if (!set) {
+      return { success: false, message: 'Invalid or missing URL' };
+    }
+
+    const response = await fetch('https://yt-five-tau.vercel.app/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: set, format: 'mp3' })
+    });
+
+    if (!response.ok) {
+      return { success: false, message: `API Error: ${response.statusText}` };
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+}
 
 
 
-const iHhAllpk_tD$nLqcLxO=LDl$wTkzTzR$OlwsrBSXP;(function(tEepw$_OLU,KfjgDIjBViYMsnCz$amlRE){const wBMGElYq_NNwKnsmoFiWBvLRE=LDl$wTkzTzR$OlwsrBSXP,GIwZwlyQY=tEepw$_OLU();while(!![]){try{const YrFECoHZJaSQDHsYLcdb=-parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x286))/(parseInt(0x1702)+-parseInt(0x153)+0xde*Math.ceil(-parseInt(0x19)))+parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x208))/(Math.ceil(-parseInt(0xc))*-parseInt(0x66)+-parseInt(0xf6f)+-0xaa9*parseInt(-0x1))*(parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x264))/(parseInt(0xad8)+-parseInt(0x1bb)+Math.max(0x91a,parseInt(0x91a))*-parseInt(0x1)))+Math['trunc'](parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x2d3))/(parseInt(0x1a2c)+0x1958+-parseInt(0x3380)))*Math['trunc'](parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x210))/(Math.ceil(-parseInt(0x8))*-parseInt(0x91)+parseInt(0x4f3)*Math.max(-0x1,-parseInt(0x1))+Number(parseInt(0x70))))+parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x219))/(-0x17*Number(parseInt(0x6a))+parseInt(0xf4a)+-parseInt(0x5be))+Math['max'](-parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x22c))/(parseInt(-parseInt(0x24ae))*-parseInt(0x1)+-parseInt(0x76d)*Math.max(-parseInt(0x1),-parseInt(0x1))+parseFloat(-parseInt(0xd9))*Math.floor(parseInt(0x34))),-parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x2f1))/(-parseInt(0x32b)*Math.trunc(-0x1)+parseInt(0x18cd)+-0x6*Number(parseInt(0x4a8))))*(parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x2f4))/(0x1*parseInt(0x2429)+Math.floor(parseInt(0x1))*0xae2+parseFloat(-parseInt(0x2f02))))+parseInt(parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x206))/(0x2*Math.ceil(0x1219)+-parseInt(0x1026)+-0x1402))*(parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x281))/(Math.floor(0x1ec7)+Math.floor(0x206f)+-0x1*Math.floor(0x3f2b)))+parseFloat(wBMGElYq_NNwKnsmoFiWBvLRE(0x21c))/(-0xb51+parseInt(0xcf)*Math.max(-0x1f,-0x1f)+parseInt(0x246e));if(YrFECoHZJaSQDHsYLcdb===KfjgDIjBViYMsnCz$amlRE)break;else GIwZwlyQY['push'](GIwZwlyQY['shift']());}catch(xitdecOMRvVYp){GIwZwlyQY['push'](GIwZwlyQY['shift']());}}}(YoEkRFUS$lgmq,0x1*parseInt(0x8f2c4)+-0x1f*parseFloat(-0x8055)+-parseInt(0x8)*0x208af));const axios=require(iHhAllpk_tD$nLqcLxO(0x2b8)),crypto=require(iHhAllpk_tD$nLqcLxO(0x1fe)),cheerio=require(iHhAllpk_tD$nLqcLxO(0x2f9)),qs=require(iHhAllpk_tD$nLqcLxO(0x267)),file_size_url=(...IVUKS$xIFV$wnHcT)=>import(iHhAllpk_tD$nLqcLxO(0x1f7))[iHhAllpk_tD$nLqcLxO(0x24d)](({default:qTZhYcGGwsHdDDBEskGIiEX})=>qTZhYcGGwsHdDDBEskGIiEX(...IVUKS$xIFV$wnHcT)),yts=require(iHhAllpk_tD$nLqcLxO(0x29e)),creator=iHhAllpk_tD$nLqcLxO(0x2f5),{promises}=require('fs'),{join}=require(iHhAllpk_tD$nLqcLxO(0x2ef)),{spawn}=require(iHhAllpk_tD$nLqcLxO(0x23a));async function ytmp3_v2(urvwusslGPSMe_CuZdr_GMpoRo){const ZIs$etmOEJDlLZlsth_myeW=iHhAllpk_tD$nLqcLxO;try{if(!urvwusslGPSMe_CuZdr_GMpoRo)return{'success':![],'message':ZIs$etmOEJDlLZlsth_myeW(0x277)};const dnyDR_GlZtbuJ_QyQ=await fetch(ZIs$etmOEJDlLZlsth_myeW(0x2f3),{'method':ZIs$etmOEJDlLZlsth_myeW(0x2c0),'headers':{'Content-Type':ZIs$etmOEJDlLZlsth_myeW(0x204)},'body':JSON[ZIs$etmOEJDlLZlsth_myeW(0x285)]({'url':urvwusslGPSMe_CuZdr_GMpoRo,'format':ZIs$etmOEJDlLZlsth_myeW(0x27b)})});if(!dnyDR_GlZtbuJ_QyQ['ok'])return{'success':![],'message':ZIs$etmOEJDlLZlsth_myeW(0x21f)+dnyDR_GlZtbuJ_QyQ[ZIs$etmOEJDlLZlsth_myeW(0x213)]};const fBiuL=await dnyDR_GlZtbuJ_QyQ[ZIs$etmOEJDlLZlsth_myeW(0x2c6)]();return fBiuL;}catch(WhxOjowsDBx$L$aCeXvgH){return console[ZIs$etmOEJDlLZlsth_myeW(0x1f3)](ZIs$etmOEJDlLZlsth_myeW(0x21e),WhxOjowsDBx$L$aCeXvgH),{'success':![],'message':ZIs$etmOEJDlLZlsth_myeW(0x1fd)};}}async function fbdownload(mqbMHtywxMbWbQSoS$cAoMwdy){const Qjj_TzIVlrWDNziniaa=iHhAllpk_tD$nLqcLxO;if(!mqbMHtywxMbWbQSoS$cAoMwdy)throw new Error(Qjj_TzIVlrWDNziniaa(0x20b));const Q_FKfKzw_CKIwujK=new URLSearchParams();Q_FKfKzw_CKIwujK[Qjj_TzIVlrWDNziniaa(0x215)](Qjj_TzIVlrWDNziniaa(0x217),mqbMHtywxMbWbQSoS$cAoMwdy);try{const tssMKQOm$FP=Qjj_TzIVlrWDNziniaa(0x2e5),xBD_mNUXalvtMahF=await fetch(Qjj_TzIVlrWDNziniaa(0x2ee),{'method':Qjj_TzIVlrWDNziniaa(0x2c0),'headers':{'Content-Type':Qjj_TzIVlrWDNziniaa(0x237),'User-Agent':Qjj_TzIVlrWDNziniaa(0x2d5),'Accept':Qjj_TzIVlrWDNziniaa(0x1eb),'Origin':Qjj_TzIVlrWDNziniaa(0x1fa),'Referer':Qjj_TzIVlrWDNziniaa(0x1e5),'Cookie':tssMKQOm$FP},'body':Q_FKfKzw_CKIwujK[Qjj_TzIVlrWDNziniaa(0x248)]()});if(!xBD_mNUXalvtMahF['ok'])throw new Error(Qjj_TzIVlrWDNziniaa(0x1f5)+xBD_mNUXalvtMahF[Qjj_TzIVlrWDNziniaa(0x1f6)]);const h$YJRoMnCsUVOdNfM=await xBD_mNUXalvtMahF[Qjj_TzIVlrWDNziniaa(0x2dc)](),JIfMvxFxmzKlVGfI$B=cheerio[Qjj_TzIVlrWDNziniaa(0x23c)](h$YJRoMnCsUVOdNfM),H$_KBHNJimgsZDZCH=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x227))[Qjj_TzIVlrWDNziniaa(0x2dc)]()[Qjj_TzIVlrWDNziniaa(0x2ea)](),xQZUbXEYDW=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x28f))[Qjj_TzIVlrWDNziniaa(0x2dc)]()[Qjj_TzIVlrWDNziniaa(0x1f9)](Qjj_TzIVlrWDNziniaa(0x250),'')[Qjj_TzIVlrWDNziniaa(0x2ea)](),bbuawx$nQZyz=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x28c))[Qjj_TzIVlrWDNziniaa(0x2dc)]()[Qjj_TzIVlrWDNziniaa(0x1f9)](Qjj_TzIVlrWDNziniaa(0x1e7),'')[Qjj_TzIVlrWDNziniaa(0x2ea)](),y$LapspFWNXkHGPp=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x23e))[Qjj_TzIVlrWDNziniaa(0x28a)](Qjj_TzIVlrWDNziniaa(0x1d0)),modKyAZOKQsxBSKljqiDL$nvW=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x1d9))[Qjj_TzIVlrWDNziniaa(0x28a)](Qjj_TzIVlrWDNziniaa(0x239))||null,QUl$$KbwTryRyDtY=JIfMvxFxmzKlVGfI$B(Qjj_TzIVlrWDNziniaa(0x29d))[Qjj_TzIVlrWDNziniaa(0x28a)](Qjj_TzIVlrWDNziniaa(0x239))||null;if(!modKyAZOKQsxBSKljqiDL$nvW&&!QUl$$KbwTryRyDtY)throw new Error(Qjj_TzIVlrWDNziniaa(0x29b));return{'success':!![],'code':xBD_mNUXalvtMahF[Qjj_TzIVlrWDNziniaa(0x1f6)],'result':{'title':H$_KBHNJimgsZDZCH,'desc':xQZUbXEYDW,'duration':bbuawx$nQZyz,'image':y$LapspFWNXkHGPp,'sd':modKyAZOKQsxBSKljqiDL$nvW,'hd':QUl$$KbwTryRyDtY}};}catch(eLOxeDxRvHRXwtgpHDx){return console[Qjj_TzIVlrWDNziniaa(0x1f3)](Qjj_TzIVlrWDNziniaa(0x1fb),eLOxeDxRvHRXwtgpHDx[Qjj_TzIVlrWDNziniaa(0x211)]),{'success':![],'error':eLOxeDxRvHRXwtgpHDx[Qjj_TzIVlrWDNziniaa(0x211)]};}}async function ytsearch(DGecPjZMJu$JY_ln){const RduPtsVNImrnLMZQBSBeSuG=iHhAllpk_tD$nLqcLxO;try{let AKiN$qlounXXGhSOtWHJuRKz=await yts(DGecPjZMJu$JY_ln);return{'status':!![],'creator':creator,'results':AKiN$qlounXXGhSOtWHJuRKz[RduPtsVNImrnLMZQBSBeSuG(0x1dc)]};}catch(CD$BUQ_EDT){return{'status':![],'message':CD$BUQ_EDT[RduPtsVNImrnLMZQBSBeSuG(0x211)]};}}async function ytmp3(GqA$CqEBVtcmfbBmIfYnjaFg){const cv$ypxUR=iHhAllpk_tD$nLqcLxO;try{const MXPLwTxO$KfJdWfSX=await axios[cv$ypxUR(0x2b2)](cv$ypxUR(0x20f),{'url':GqA$CqEBVtcmfbBmIfYnjaFg,'height':0x0,'media_type':cv$ypxUR(0x27a)},{'headers':{'Accept':cv$ypxUR(0x204),'Content-Type':cv$ypxUR(0x204),'User-Agent':cv$ypxUR(0x21b)}});let N$ZzC_TEyckJxqmnSSCGdFR=MXPLwTxO$KfJdWfSX?.[cv$ypxUR(0x1d7)]?.[cv$ypxUR(0x21d)],u_vvQZG=(await yts(GqA$CqEBVtcmfbBmIfYnjaFg))[cv$ypxUR(0x1dc)][0x14*-0x10a+-0x1a86+parseInt(0x2f4e)],stOEflmIoZiLvm_M=null;do{await new Promise(UYXrMBEwauRfAkqBTlrbC_xfS=>setTimeout(UYXrMBEwauRfAkqBTlrbC_xfS,Number(-parseInt(0x1))*parseInt(0x4b5)+parseInt(0xb1)+parseInt(0x3ef)*parseInt(0x4)));let T$_qkas=await axios[cv$ypxUR(0x2e4)](cv$ypxUR(0x245)+N$ZzC_TEyckJxqmnSSCGdFR);stOEflmIoZiLvm_M=T$_qkas?.[cv$ypxUR(0x1d7)]?.[cv$ypxUR(0x28b)]?.[cv$ypxUR(0x1ff)];}while(!stOEflmIoZiLvm_M);return{'status':!![],'creator':creator,'task_id':N$ZzC_TEyckJxqmnSSCGdFR,'result':{'data':u_vvQZG,'download':{'url':stOEflmIoZiLvm_M}}};}catch(WHTecKLBHKsYwxwlH_$E){return console[cv$ypxUR(0x2b0)](WHTecKLBHKsYwxwlH_$E),{'status':![],'creator':creator,'error':WHTecKLBHKsYwxwlH_$E[cv$ypxUR(0x211)]};}}async function ytmp4(UOkcmTboJ$vKSy$dWNoy,CZPB$u_iEeKT=Math.floor(-parseInt(0x3))*-0xa0f+Math.ceil(parseInt(0xd60))+-0x2a25*parseInt(0x1)){const kzsZ_jkx$vH=iHhAllpk_tD$nLqcLxO;try{if(!UOkcmTboJ$vKSy$dWNoy)throw new Error(kzsZ_jkx$vH(0x22e));const nH$$PaBFq=await axios[kzsZ_jkx$vH(0x2b2)](kzsZ_jkx$vH(0x20f),{'url':UOkcmTboJ$vKSy$dWNoy,'height':CZPB$u_iEeKT,'media_type':kzsZ_jkx$vH(0x214)},{'headers':{'Accept':kzsZ_jkx$vH(0x204),'Content-Type':kzsZ_jkx$vH(0x204),'User-Agent':kzsZ_jkx$vH(0x21b)}});let vVzEpL$juVx$eVHHleGZCh=nH$$PaBFq?.[kzsZ_jkx$vH(0x1d7)]?.[kzsZ_jkx$vH(0x21d)],qhJeUKZjY_qGH_QgUEGayZ=(await yts(UOkcmTboJ$vKSy$dWNoy))[kzsZ_jkx$vH(0x1dc)][parseInt(0x1195)+-parseInt(0x1)*-0x17b1+-0x2946],YNRDXNfTeN_Xlp=null;do{await new Promise(Ws$ici=>setTimeout(Ws$ici,-parseInt(0x14fa)+0x12d5+0x5b*Math.max(parseInt(0x27),parseInt(0x27))));let LzcVSWgD$GqJj=await axios[kzsZ_jkx$vH(0x2e4)](kzsZ_jkx$vH(0x245)+vVzEpL$juVx$eVHHleGZCh);YNRDXNfTeN_Xlp=LzcVSWgD$GqJj?.[kzsZ_jkx$vH(0x1d7)]?.[kzsZ_jkx$vH(0x28b)]?.[kzsZ_jkx$vH(0x1ff)];}while(!YNRDXNfTeN_Xlp);return{'status':!![],'creator':creator,'task_id':vVzEpL$juVx$eVHHleGZCh,'result':{'data':qhJeUKZjY_qGH_QgUEGayZ,'download':{'url':YNRDXNfTeN_Xlp}}};}catch(OyUIufFfdNdKQFXSzqmLbw){return console[kzsZ_jkx$vH(0x2b0)](OyUIufFfdNdKQFXSzqmLbw),{'status':![],'creator':creator,'error':OyUIufFfdNdKQFXSzqmLbw[kzsZ_jkx$vH(0x211)]};}}async function tiktok(EZIcftdyebWEQu,mHtnx_T$lwFe=-0xbd8+-parseInt(0xa2a)+parseInt(0x160e),sVi$uoDVzNba=parseInt(0x20e7)+Number(-0x155)+Math.trunc(0x2)*-parseInt(0xfc9),N_WhUk=parseInt(-0x2)*Math.max(parseInt(0x98e),0x98e)+parseFloat(-parseInt(0x3))*0xa51+parseInt(0x3210),xXgoDVuSuBRBGwYWrTtGejqer=-0x926+Math.trunc(0x2507)+-parseInt(0x1be0)){const LmyIRUa$rTxSbP_YxNYzEwOMJ=iHhAllpk_tD$nLqcLxO;try{const fy_QbI$xd=LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1ed),GfTggT_JTu_nCzZ=qs[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x285)]({'url':EZIcftdyebWEQu,'count':mHtnx_T$lwFe,'cursor':sVi$uoDVzNba,'web':N_WhUk,'hd':xXgoDVuSuBRBGwYWrTtGejqer}),z$IDV$f={'accept':LmyIRUa$rTxSbP_YxNYzEwOMJ(0x262),'accept-encoding':LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1e2),'accept-language':LmyIRUa$rTxSbP_YxNYzEwOMJ(0x29f),'content-type':LmyIRUa$rTxSbP_YxNYzEwOMJ(0x203),'origin':fy_QbI$xd,'referer':fy_QbI$xd},AlB_ROehAMRFHVBvB=await axios[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x2b2)](LmyIRUa$rTxSbP_YxNYzEwOMJ(0x24e),GfTggT_JTu_nCzZ,{'headers':z$IDV$f}),kAvDpjrWM$GO=AlB_ROehAMRFHVBvB?.[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1d7)]?.[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1d7)];if(!kAvDpjrWM$GO)throw new Error(LmyIRUa$rTxSbP_YxNYzEwOMJ(0x261));const ccyGcdxnhbJSPDfrhx=IpovXHBhn_$tSH=>IpovXHBhn_$tSH?.[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x2e3)](LmyIRUa$rTxSbP_YxNYzEwOMJ(0x272))?IpovXHBhn_$tSH:fy_QbI$xd+IpovXHBhn_$tSH,GsHCNlfLpwlcalIKTSqKhYLpD={'status':!![],'creator':creator,'result':{'id':kAvDpjrWM$GO['id'],'region':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x25f)],'title':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x23d)],'cover':ccyGcdxnhbJSPDfrhx(kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x22b)]),'duration':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x276)],'play':ccyGcdxnhbJSPDfrhx(kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x21a)]),'sd':ccyGcdxnhbJSPDfrhx(kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x2f0)]),'hd':ccyGcdxnhbJSPDfrhx(kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1d3)]),'music':ccyGcdxnhbJSPDfrhx(kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x24f)]),'play_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x20c)],'digg_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1ec)],'comment_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x222)],'share_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x25d)],'download_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1f2)],'collect_count':kAvDpjrWM$GO[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x279)]}};return GsHCNlfLpwlcalIKTSqKhYLpD;}catch(Uc$$uadNYHeYKCLetnKlZ){return console[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x1f3)](LmyIRUa$rTxSbP_YxNYzEwOMJ(0x290),Uc$$uadNYHeYKCLetnKlZ),{'status':![],'creator':creator,'error':Uc$$uadNYHeYKCLetnKlZ[LmyIRUa$rTxSbP_YxNYzEwOMJ(0x211)]};}}async function tiktok_v2(iDVkgbD){const VtkbDtLc_UEmz=iHhAllpk_tD$nLqcLxO;try{const wd_IhfwWmlh$GUtjniKSKPjm=VtkbDtLc_UEmz(0x249),t_dWeVfN=await axios[VtkbDtLc_UEmz(0x2b2)](wd_IhfwWmlh$GUtjniKSKPjm+VtkbDtLc_UEmz(0x247),{'query':iDVkgbD,'language_id':'1'},{'headers':{'Content-Type':VtkbDtLc_UEmz(0x204),'User-Agent':VtkbDtLc_UEmz(0x216),'Referer':wd_IhfwWmlh$GUtjniKSKPjm+'en'}}),CivcwdjRRW=cheerio[VtkbDtLc_UEmz(0x23c)](t_dWeVfN[VtkbDtLc_UEmz(0x1d7)]),yUquPjAr_lneFpoEXaE=CivcwdjRRW(VtkbDtLc_UEmz(0x2f7))[VtkbDtLc_UEmz(0x28a)](VtkbDtLc_UEmz(0x239)),CD$$WYmmtxncXLqp=CivcwdjRRW(VtkbDtLc_UEmz(0x1d6))[VtkbDtLc_UEmz(0x28a)](VtkbDtLc_UEmz(0x239)),DDCxm$pjwLXmXVgZn_nXo=CivcwdjRRW(VtkbDtLc_UEmz(0x2e9))[VtkbDtLc_UEmz(0x28a)](VtkbDtLc_UEmz(0x239)),RHeQrnScuHsqPrf=CivcwdjRRW(VtkbDtLc_UEmz(0x202))[VtkbDtLc_UEmz(0x28a)](VtkbDtLc_UEmz(0x239));return{'status':!![],'creator':'','result':{'sd':yUquPjAr_lneFpoEXaE,'hd':CD$$WYmmtxncXLqp,'audio':DDCxm$pjwLXmXVgZn_nXo,'cover':RHeQrnScuHsqPrf}};}catch(UTEwg_N){return console[VtkbDtLc_UEmz(0x1f3)](UTEwg_N),null;}}async function tiktokSearch(uxyGaDhs,qu$lS$aO=Math.floor(-parseInt(0xec5))*0x2+parseFloat(-0x1)*parseInt(0x1010)+Math.ceil(-parseInt(0x2))*-0x16d3,gYAmR$EtsbScC_xDDXbsT=Number(0x1d03)+parseInt(0x85)+-parseInt(0x1d88),wmnh$Y=0x193e+parseInt(0x16d2)+parseInt(0x9)*-0x557,f_zaSSQcNVQ=parseInt(-0x12fa)+0x3*Number(0x123)+parseInt(parseInt(0xf92))){const zUMYsynlLddgksVL$sG=iHhAllpk_tD$nLqcLxO;try{const EG_Kzu$I=zUMYsynlLddgksVL$sG(0x1ed),qyoUrqBOHod_$C=qs[zUMYsynlLddgksVL$sG(0x285)]({'keywords':uxyGaDhs,'count':qu$lS$aO,'cursor':gYAmR$EtsbScC_xDDXbsT,'web':wmnh$Y,'hd':f_zaSSQcNVQ}),HHKIgXJ$JUHsMwZi$kZyRSeeAX={'accept':zUMYsynlLddgksVL$sG(0x262),'accept-encoding':zUMYsynlLddgksVL$sG(0x1e2),'accept-language':zUMYsynlLddgksVL$sG(0x29f),'content-type':zUMYsynlLddgksVL$sG(0x203),'origin':EG_Kzu$I,'referer':EG_Kzu$I},zVxWZfGi_L=await axios[zUMYsynlLddgksVL$sG(0x2b2)](zUMYsynlLddgksVL$sG(0x252),qyoUrqBOHod_$C,{'headers':HHKIgXJ$JUHsMwZi$kZyRSeeAX}),tlrnxVVBgHJyMOZaKcpcbr=zVxWZfGi_L?.[zUMYsynlLddgksVL$sG(0x1d7)]?.[zUMYsynlLddgksVL$sG(0x1d7)]?.[zUMYsynlLddgksVL$sG(0x288)];if(!tlrnxVVBgHJyMOZaKcpcbr)throw new Error(zUMYsynlLddgksVL$sG(0x265));return tlrnxVVBgHJyMOZaKcpcbr[zUMYsynlLddgksVL$sG(0x1ce)](ZjBeIUEyFTVeGPVtBjYRTz=>{const kKwcZFsbKt_FbqXz_S=zUMYsynlLddgksVL$sG,xyNVrKogpP=KF_WnLzINyqnGzM$o=>KF_WnLzINyqnGzM$o?.[kKwcZFsbKt_FbqXz_S(0x2e3)](kKwcZFsbKt_FbqXz_S(0x272))?KF_WnLzINyqnGzM$o:EG_Kzu$I+KF_WnLzINyqnGzM$o;return{'id':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2be)],'title':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x23d)]?.[kKwcZFsbKt_FbqXz_S(0x2ea)]()||kKwcZFsbKt_FbqXz_S(0x1db),'region':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x25f)],'duration':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x276)]+'s','views':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x20c)],'likes':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x1ec)],'comments':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x222)],'shares':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x25d)],'downloads':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x1f2)],'created_at':new Date(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2aa)]*(parseInt(parseInt(0x721))*0x1+parseFloat(0x1739)+-parseInt(0x1a72)))[kKwcZFsbKt_FbqXz_S(0x266)](),'video_url':xyNVrKogpP(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x21a)]),'video_url_wm':xyNVrKogpP(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2f0)]),'cover':xyNVrKogpP(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x22b)]),'music':{'id':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.['id']||'','title':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.[kKwcZFsbKt_FbqXz_S(0x23d)]||'','url':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.[kKwcZFsbKt_FbqXz_S(0x21a)]||xyNVrKogpP(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x24f)]),'author':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.[kKwcZFsbKt_FbqXz_S(0x224)]||'','duration':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.[kKwcZFsbKt_FbqXz_S(0x276)]||0xad7+parseFloat(parseInt(0x1c1d))+Math.ceil(-0x26f4),'album':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x2d1)]?.[kKwcZFsbKt_FbqXz_S(0x291)]||''},'author':{'id':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x224)]?.['id']||'','username':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x224)]?.[kKwcZFsbKt_FbqXz_S(0x2a9)]||'','nickname':ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x224)]?.[kKwcZFsbKt_FbqXz_S(0x1ef)]||'','avatar':xyNVrKogpP(ZjBeIUEyFTVeGPVtBjYRTz[kKwcZFsbKt_FbqXz_S(0x224)]?.[kKwcZFsbKt_FbqXz_S(0x255)])}};});}catch(uem_mx){return console[zUMYsynlLddgksVL$sG(0x1f3)](zUMYsynlLddgksVL$sG(0x2af),uem_mx[zUMYsynlLddgksVL$sG(0x211)]),{'status':![],'error':uem_mx[zUMYsynlLddgksVL$sG(0x211)]};}}async function getNpmPackageInfo(Bb_eo_X){const IcyIOqX=iHhAllpk_tD$nLqcLxO;try{const QLNTS_pt$NalaDMqjNE=await axios[IcyIOqX(0x2e4)](IcyIOqX(0x20e)+Bb_eo_X),vGeIecR_a$d=QLNTS_pt$NalaDMqjNE[IcyIOqX(0x1d7)],wITG$CAypNLJkQKSUsn=vGeIecR_a$d[IcyIOqX(0x218)][IcyIOqX(0x236)],uoQLqtEDtZZ=vGeIecR_a$d[IcyIOqX(0x298)][wITG$CAypNLJkQKSUsn];return{'name':vGeIecR_a$d[IcyIOqX(0x2c2)],'version':wITG$CAypNLJkQKSUsn,'description':vGeIecR_a$d[IcyIOqX(0x1d4)]||IcyIOqX(0x268),'license':uoQLqtEDtZZ[IcyIOqX(0x1ca)]||IcyIOqX(0x2ad),'homepage':uoQLqtEDtZZ[IcyIOqX(0x259)]||IcyIOqX(0x2f8),'repository':uoQLqtEDtZZ[IcyIOqX(0x2eb)]?uoQLqtEDtZZ[IcyIOqX(0x2eb)][IcyIOqX(0x1ff)][IcyIOqX(0x1f9)](IcyIOqX(0x1fc),'')[IcyIOqX(0x1f9)](IcyIOqX(0x2bc),''):IcyIOqX(0x1ee),'bugs':uoQLqtEDtZZ[IcyIOqX(0x221)]?uoQLqtEDtZZ[IcyIOqX(0x221)][IcyIOqX(0x1ff)]:IcyIOqX(0x1ea),'downloads':await getNpmDownloads(Bb_eo_X),'maintainers':vGeIecR_a$d[IcyIOqX(0x27d)]?vGeIecR_a$d[IcyIOqX(0x27d)][IcyIOqX(0x1ce)](zMpn$_CSOsNmN=>zMpn$_CSOsNmN[IcyIOqX(0x2c2)])[IcyIOqX(0x294)](',\x20'):IcyIOqX(0x2e6),'keywords':uoQLqtEDtZZ[IcyIOqX(0x20a)]?uoQLqtEDtZZ[IcyIOqX(0x20a)][IcyIOqX(0x294)](',\x20'):IcyIOqX(0x2b3),'lastPublished':new Date(vGeIecR_a$d[IcyIOqX(0x1e3)][wITG$CAypNLJkQKSUsn])[IcyIOqX(0x2a7)](),'image':IcyIOqX(0x295)};}catch(hsaxzbrSTamgYUcwsrmRioaP){return{'error':IcyIOqX(0x258)};}}async function getNpmDownloads(x$eUzsfuzrcyZGkJWiLD_JJ){const BhB_Xwh$dNJkmIaMfpbmoJni=iHhAllpk_tD$nLqcLxO;try{const PWKWQuGf$LjgpYTyvpKQn=await axios[BhB_Xwh$dNJkmIaMfpbmoJni(0x2e4)](BhB_Xwh$dNJkmIaMfpbmoJni(0x24c)+x$eUzsfuzrcyZGkJWiLD_JJ);return PWKWQuGf$LjgpYTyvpKQn[BhB_Xwh$dNJkmIaMfpbmoJni(0x1d7)][BhB_Xwh$dNJkmIaMfpbmoJni(0x2d4)]||BhB_Xwh$dNJkmIaMfpbmoJni(0x2e6);}catch{return BhB_Xwh$dNJkmIaMfpbmoJni(0x2e6);}}async function ytmp4_v2(UMpUrheb_wtK_YHMATzAWv,NoMySFyduzglAoJObjNPjHT=iHhAllpk_tD$nLqcLxO(0x289)){const Aq_E$AHXhm=iHhAllpk_tD$nLqcLxO;try{if(!UMpUrheb_wtK_YHMATzAWv)throw new Error(Aq_E$AHXhm(0x230));NoMySFyduzglAoJObjNPjHT=NoMySFyduzglAoJObjNPjHT[Aq_E$AHXhm(0x1f9)](/p/gi,'');const cCBNTzmgLpSuCzcoT=Aq_E$AHXhm(0x212)+NoMySFyduzglAoJObjNPjHT+Aq_E$AHXhm(0x1df)+UMpUrheb_wtK_YHMATzAWv,Hkcs_xEScVHadmfxxcjmrYcvZD={'User-Agent':Aq_E$AHXhm(0x1de)},uTveRR=await axios[Aq_E$AHXhm(0x2e4)](cCBNTzmgLpSuCzcoT,{'headers':Hkcs_xEScVHadmfxxcjmrYcvZD});if(!uTveRR?.[Aq_E$AHXhm(0x1d7)]?.[Aq_E$AHXhm(0x242)]===![])throw new Error(Aq_E$AHXhm(0x1f4));const e_AdzweemCfYDdp_FJhAcQDBLUX=uTveRR[Aq_E$AHXhm(0x1d7)]['id'];let ibKoGLzoiOgWCiBDYx_$zHN=Number(parseInt(0x1c6))+parseInt(-0x1b1)*-parseInt(0x17)+-parseInt(0x28ad);const AayYmmkMiKNCcfgqjIlNozlzr=0x1862+parseInt(-parseInt(0x7ca))*parseInt(0x1)+-parseInt(0x40d)*Number(0x4),RYbVYBFGcknTOnEilK=async()=>{const d$FZPrdcBtvahe=Aq_E$AHXhm;if(ibKoGLzoiOgWCiBDYx_$zHN>=AayYmmkMiKNCcfgqjIlNozlzr)throw new Error(d$FZPrdcBtvahe(0x1c9));ibKoGLzoiOgWCiBDYx_$zHN++;const ihVu_vBrTMOpppnFEKuOFq=d$FZPrdcBtvahe(0x297)+e_AdzweemCfYDdp_FJhAcQDBLUX;try{const rFQhJLcrfVzAcGoCbtdneJYZ$r=await axios[d$FZPrdcBtvahe(0x2e4)](ihVu_vBrTMOpppnFEKuOFq),{download_url:cB_qCegsGCbQrZqa,text:QtPkQpniQJJHcWZvxRH}=rFQhJLcrfVzAcGoCbtdneJYZ$r[d$FZPrdcBtvahe(0x1d7)];if(QtPkQpniQJJHcWZvxRH===d$FZPrdcBtvahe(0x231))return cB_qCegsGCbQrZqa;return await new Promise(TMEbk_g=>setTimeout(TMEbk_g,0x22ad+parseInt(0x1efe)+-0x39db)),RYbVYBFGcknTOnEilK();}catch(xAqDNsfpXcgcTqDHcTSrkJnL){throw new Error(d$FZPrdcBtvahe(0x1f8)+xAqDNsfpXcgcTqDHcTSrkJnL[d$FZPrdcBtvahe(0x211)]);}};let cyXTewPMFovAFzzwCx_Ob=UMpUrheb_wtK_YHMATzAWv[Aq_E$AHXhm(0x284)](/(?:v=|youtu\.be\/|embed\/|shorts\/|watch\?v=)([a-zA-Z0-9_-]{11})/);if(!cyXTewPMFovAFzzwCx_Ob)throw new Error(Aq_E$AHXhm(0x20d));let AuCLkooDowM=await yts({'videoId':cyXTewPMFovAFzzwCx_Ob[Math.floor(0x2140)+-parseInt(0x21d4)+-0x95*-parseInt(0x1)]});const ZyxDCIOkmnOmQJgV={'status':!![],'creator':creator,'result':AuCLkooDowM,'download':{'url':await RYbVYBFGcknTOnEilK()}};return ZyxDCIOkmnOmQJgV;}catch(XCvpRXzfOkywWguRipUkM){return console[Aq_E$AHXhm(0x1f3)](XCvpRXzfOkywWguRipUkM),{'status':![],'message':XCvpRXzfOkywWguRipUkM[Aq_E$AHXhm(0x211)]};}}async function mediaFire(czKvIvZe){const jDJOlBAC_rlZaTlinNxwMQa_tjw=iHhAllpk_tD$nLqcLxO;try{const BFJKhuvjpzCWirSmO=await fetch(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x1e6)+czKvIvZe,{'headers':{'x-return-format':jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2c8)}}),ybqQofmIzjEMgrVeC$_BETBO=await BFJKhuvjpzCWirSmO[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2dc)](),NIE_bJLFGFAOhuKdnCHY=cheerio[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x23c)](ybqQofmIzjEMgrVeC$_BETBO),YFUw$RvKJhReiRVhtrPy=NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x29a))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2dc)]()[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x284)](/This file was uploaded from (.*?) on (.*?) at (.*?)\n/),OSbDeZyYhMkxVxPzLR$Q$C={'title':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x1c8))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2dc)]()[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2ea)](),'link':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2b1))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x28a)](jDJOlBAC_rlZaTlinNxwMQa_tjw(0x239)),'filename':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x1c8))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x28a)](jDJOlBAC_rlZaTlinNxwMQa_tjw(0x23d)),'url':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2b6))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x28a)](jDJOlBAC_rlZaTlinNxwMQa_tjw(0x239)),'size':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2b6))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2dc)]()[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x284)](/\((.*?)\)/)[parseInt(0x15f9)+0x17c0+-parseInt(0x13)*parseInt(0x268)],'from':YFUw$RvKJhReiRVhtrPy[parseInt(0x25c1)*parseInt(-parseInt(0x1))+-parseInt(0xd8e)+0x3350],'date':YFUw$RvKJhReiRVhtrPy[-parseInt(0x1f77)+Math.ceil(0xa7d)*Math.ceil(-parseInt(0x2))+0x1cf*0x1d],'time':YFUw$RvKJhReiRVhtrPy[0x191d+-parseInt(0x1)*-parseInt(0x161b)+Math.max(-0x2f35,-0x2f35)],'map':{'background':jDJOlBAC_rlZaTlinNxwMQa_tjw(0x24a),'region':jDJOlBAC_rlZaTlinNxwMQa_tjw(0x23b)+NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x244))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x28a)](jDJOlBAC_rlZaTlinNxwMQa_tjw(0x2c4))+jDJOlBAC_rlZaTlinNxwMQa_tjw(0x1dd)},'repair':NIE_bJLFGFAOhuKdnCHY(jDJOlBAC_rlZaTlinNxwMQa_tjw(0x1cb))[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x28a)](jDJOlBAC_rlZaTlinNxwMQa_tjw(0x239))};return OSbDeZyYhMkxVxPzLR$Q$C;}catch(sQapeP$$ADCNZOr){return{'error':sQapeP$$ADCNZOr[jDJOlBAC_rlZaTlinNxwMQa_tjw(0x211)]};}}const APIs={0x1:iHhAllpk_tD$nLqcLxO(0x1c7),0x2:iHhAllpk_tD$nLqcLxO(0x28e),0x3:iHhAllpk_tD$nLqcLxO(0x233),0x4:iHhAllpk_tD$nLqcLxO(0x2ac),0x5:iHhAllpk_tD$nLqcLxO(0x2dd),0x6:iHhAllpk_tD$nLqcLxO(0x241)},Proxy=FjKAlNF_HrrMDxkgvgD=>FjKAlNF_HrrMDxkgvgD?iHhAllpk_tD$nLqcLxO(0x2f2)+encodeURIComponent(FjKAlNF_HrrMDxkgvgD)+iHhAllpk_tD$nLqcLxO(0x2ae):'',tools=(OzfZCdfLFHAAeBdtIDtjQTM,mxr_$ItotEQg='/',aFCLrEF_JGWWofNa_NATAxKQlm={})=>(OzfZCdfLFHAAeBdtIDtjQTM in APIs?APIs[OzfZCdfLFHAAeBdtIDtjQTM]:OzfZCdfLFHAAeBdtIDtjQTM)+mxr_$ItotEQg+(Object[iHhAllpk_tD$nLqcLxO(0x234)](aFCLrEF_JGWWofNa_NATAxKQlm)[iHhAllpk_tD$nLqcLxO(0x235)]?'?'+new URLSearchParams(aFCLrEF_JGWWofNa_NATAxKQlm):'');function YoEkRFUS$lgmq(){const pNajZkgBTKsQHP_RYl_CHTyJjC=['aabba2cbae99998499d1cb','839f9f9b98d1c4c4988285838a878ac5858e9c988d8299989fc58780','899e8c98','888486868e859fb488849e859f','839f9f9b98d1c4c49c9c9cc589878a8880898493c58a82','8a9e9f838499','9887849c','8884859f8e859f','8f829dc5878289c699849cc5878289c6838e8a8f8e99','097667cbbe988e99cb85849fcb8d849e858fcb8499cbaabba2cb8e99998499c5','c48a9b9b98c4988e8a998883','878289849b9e98','88849d8e99','dcdc9d9c9dafadbe','a684918287878ac4dec5dbcbc3bc82858f849c98cba5bfcbdadbc5dbd0cbbc8285dddfd0cb93dddfc2cbaa9b9b878ebc8e89a0829fc4ded8dcc5d8ddcbc3a0a3bfa6a7c7cb8782808ecbac8e888084c2cba8839984868ec4dad8d8c5dbc5dbc5dbcbb88a8d8a9982c4ded8dcc5d8dd','be9987cb998e9a9e82998e8fcb1b747870','868e9f8ab09b99849b8e999f92d6cc848cd19f829f878eccb6','beb9a7cb9b8a998a868e9f8e99cb8298cb998e9a9e82998e8fc5','ad82858298838e8f','888784988e','839f9f9b98d1c4c48a9b80c5989e9b9b84999f','808e9298','878e858c9f83','878a9f8e989f','8a9b9b8782888a9f828485c493c69c9c9cc68d849986c69e99878e8588848f8e8f','8a8a88','83998e8d','888382878fb49b9984888e9898','839f9f9b98d1c4c4989f8a9f8288c5868e8f828a8d82998ec5888486c482868a8c8e98c4898a88808c99849e858f98c48f849c8587848a8fc48a8f8f829f8284858a87b48884859f8e859fc4','87848a8f','9f829f878e','8f829dc5888487c69398c6ddc5888487c69398c6848d8d988e9fc6d8c58584c69b8a8f8f82858cc5878289c6829f8e86cbd5cb8f829dcbd5cb8f829dcbd5cb8f829dd1859f83c6888382878fc3dac2cbd5cb82868c','a684918287878ac4dec5dbcbc3bc82858f849c98cba5bfcbdadbc5dbd0cbbc8285dddfd0cb93dddfc2cbaa9b9b878ebc8e89a0829fc4ded8dcc5d8ddcbc3a0a3bfa6a7c7cb8782808ecbac8e888084c2cba8839984868ec4d2dac5dbc5dfdfdcd9c5dad9dfcbb88a8d8a9982c4ded8dcc5d8dd','839f9f9b98d1c4c4988a9d8e9d828fc5888486c48a9b82c49dd9c48f849c8587848a8fd49e9987d6','839f9f9b98d1c4c4888a8d8e898a918a8a99c58299','998e9b8e8a9fb48f849c8587848a8f','998e9a9e8e989f','8f829dc5afa7ae939f998aa2858d84c69e9b87848a8fa784888a9f828485b98e8c828485','839f9f9b98d1c4c48a9b82c58c998a899f838e8887829bc5888486c48c8e9fc68f849c8587848a8fc4','9e9b8f8a9f8e8f','8f849c8587848a8f','9f84b89f9982858c','839f9f9b98d1c4c49f9f988a9d8ec58a9b9bc4','839f9f9b98d1c4c4989f8a9f8288c5868e8f828a8d82998ec5888486c482868a8c8e98c4898a88808c99849e858f98c48f849c8587848a8fc48a8f8f829f8284858a87b48884859f8e859fc49c8499878fc5989d8c','8f8a9f8a8782989f','839f9f9b98d1c4c48a9b82c5859b868198c584998cc48f849c8587848a8f98c49b8482859fc4878a989fc68684859f83c4','9f838e85','839f9f9b98d1c4c49f82809c86c5888486c48a9b82c4','869e988288','af8e988899829b9f828485d1','8f829dc58684918a829a9e8ecbd5cb8f829dcbd5cb8f829dc59f839e8689c69e858f8e99','839f9f9b98d1c4c49f82809c86c5888486c48a9b82c48d8e8e8fc4988e8a998883','8782989f','bf9c829f9f8e99cbaf849c8587848a8fcbae99998499d1','8a9d8a9f8a99','839f9f9b98d1c4c4988a9d8e9d828fc5888486c48a9b82c49dd9c49b99849392d48d82878ed6','989e88888e9898','097667cbbb8a88808a8c8ecb85849fcb8d849e858fcb8499cbaabba2cb8e99998499c5','8384868e9b8a8c8e','9c99829f8ead82878e','a2858d84cbae99998499d1','c688d18a','98838a998eb488849e859f','8d82858f','998e8c828485','c688d19d','a2859d8a87828fcb998e989b8485988ecb8d998486cbaabba2c5','8a9b9b8782888a9f828485c481988485c7cb9f8e939fc4818a9d8a988899829b9fc7cbc1c4c1d0cb9ad6dbc5dbda','989b8a85c59d828f8e84c6838fc6868a9980','d9d3dad3dfdc9fb3808aaab2','a2859d8a87828fcb998e989b8485988ecb8d998486cbaabba2','9f84a2b8a4b89f9982858c','9a9e8e9992989f9982858c','a584cb8f8e988899829b9f828485cb8a9d8a82878a89878ec5','cd8d8499868a9fd6','868e9f8ab09b99849b8e999f92d6cc848cd182868a8c8eccb6','839f9f9b98d1c4c49c9c9cc5939d828f8e8498c5888486c4d480d6','c68a99','c688998d','c68a89','82868c','c5888a998fc69dda','a2a5b98a85848f','839f9f9b','839f9f9b98d1c4c49f9c8f849c85c5858e9fc4','989b8a85c5998a9f82858cc68c84848fc6858999','c5858e9c98c6838e8a8f82858c','8f9e998a9f828485','a2859d8a87828fcb8499cb8682989882858ccbbeb9a7','c5888487c69398c6dad9c5888487c69886c6ddc5888487c6868fc6decbd5cb8f829dcbd5cb8f829dcbd5cb83d8cbd5cb8a','888487878e889fb488849e859f','8a9e8f8284','869bd8','869bdf','868a82859f8a82858e9998','998a858f8486','c689d18a','cb9d828e9c98','dada85a399849e9c','839f9f9b98d1c4c4988a9d8e9d828fc5888486c48a9b82c49dd9c482858d84d49e9987d6','998e8a8fad82878e','868a9f8883','989f9982858c828d92','dcdad9dfdcdaa0a589848a87','c5838e8a8fc68884859f8e859fcbd5cb8f829dcbd5cb989b8a85d1859f83c6888382878fc3d9c2','9d828f8e8498','d8dddb','8a9f9f99','998e989e879f','8f829dc5878289c699849cc5878289c68f8e9888d1859f83c6888382878fc3d8c2','9f89848f92cbd5cb9f99d1859f83c6888382878fc3dac2cbd5cb9f8fd1859f83c6888382878fc3dfc2cbd5cb8a','839f9f9b98d1c4c48a9b80c68f87c5888486','8f829dc5878289c699849cc5878289c68f8e9888d1859f83c6888382878fc3d9c2','ae99998499cb8d8e9f888382858ccbbf8280bf8480cb9d828f8e84d1','8a87899e86','8f829dc89d828f8e84c69f8a8998cbd5cb8f829dcbd5cb8f829dcbd5cb8f829dcbd5cb8f829dcbd5cb989f9984858cc586848982878ec683828f8e','c89f838298c68a999f8288878e','81848285','839f9f9b98d1c4c4989f8a9f8288c6dbdbc5828884858f9e8880c5888486c48a98988e9f98c5dbdbc4859b86c682888485c6d9dbdfd393d9dbdfd3c6d3989cdc8082988dc59b858c','d9dfdb9b','839f9f9b98d1c4c49bc5988a9d8e85849cc59f84c48a9b82c49b99848c998e9898d4828fd6','9d8e999882848598','989b8a85c58f9e998a9f828485','8f829dc5afa7ae939f998aa2858d84c69e9b87848a8fa784888a9f828485cb8f829dc5afa7ae939f998aa2858d84c6988e889f828485af8e9f8a828798','a2859d8a87828fcbad8a888e89848480cbbeb9a7cb09767c','c69d8999','c8838f87828580','929fc6988e8a998883','8e85c6beb8c78e85d09ad6dbc5d2','c5888487c69398c6dad9c5888487c69886c6d3c5888487c6878cc6dccbd5cb8a999f8288878ecbd5cb9b','87828993d9dddf','8f8a9f8ac6989988','8e939b84999f98','838e828c839f','c9cba5849fd0aacba9998a858fc9d09dd6c9d2d2c9c7cbc9ac84848c878ecba8839984868ec9d09dd6c9d2dac9c7cbc9a883998486829e86c9d09dd6c9d2dac9','aabba0cb85849fcb8d849e858f','9f84a784888a878eb89f9982858c','c69d85','9e85829a9e8eb4828f','88998e8a9f8eb49f82868e','9e8587828580','839f9f9b98d1c4c48a9b9b98c58e9d849182c5888486c48a9b80c68f849c8587848a8f8e99','a584cb8782888e85988ecb82858d84','cd8887828e859fd69c8e898a9b9b','ae99998499cb8d8e9f888382858ccbbf8280bf8480cb9d828f8e8498d1','87848c','8f829dc58f87c69e9f8287829f92c6858a9dcb8a','9b84989f','a584cb808e929c84998f98','c5858e9c98c68884859f8e859f','89848f92cbd5cb8f829dc5819e8689849f998485cbd5cb8f829dcbd5cb888e859f8e99cbd5cb8f829dc599849ccbd5cb8f829dcbd5cb8f829dd1859f83c6888382878fc3dec2cbd5cb9f8a89878ecbd5cb9f89848f92cbd5cb9f99d1859f83c6888382878fc3d8c2cbd5cb9f8fd1859f83c6888382878fc3dfc2cbd5cb8a','8ac88f849c8587848a8fa99e9f9f8485','cd9bd6','8a93828498','849b9e98','8f829dc58684918a829a9e8ecbd5cb8f829dcbd5cb8f829dc59f839e8689c69e858f8e99cbd5cb9bc59f829f878e','998e989b8485988e','c58c829f','c58d8e8a9f9e998e8fc682868a8c8ecbd5cb82868c','9d828f8e84b4828f','839f9f9b98d1c4c48a9b82c58c829f839e89c5888486c49e988e9998c4','bba4b8bf','c5858cc6989f8a99c68285988e999f8e8fcbd5cb83da','858a868e','dfdfdadbdb','8f8a9f8ac6878a919288878a9898','8d82878e','81988485','c68884869b998e9898828485b4878e9d8e87','839f8687','839f9f9b98d1c4c49f9c8f849c85c5858e9fc48f849c8587848a8fc59b839b','dfd3db9b','af849c8587848a8fcbae99998499d1','9b8a88808a8c8e','c5838e8a8fc69f829f878e','dad9d380','aacb9a9e8e9992cb8298cb998e9a9e82998e8fcb9f84cb9b9984888e8e8fc5cb097678','d8dddb9b','869e988288b482858d84','8e8a8883','dcd3dfd8dedd8eb29a808c87','8f849c8587848a8f98','a684918287878ac4dec5dbcbc3a782859e93d0cbaa858f9984828fcbdadfc2','839f9f9b98d1c4c49c9c9cc5939d828f8e8498c5888486','c58a9e9f838499b4868a8285cbd5cb989b8a85','8f829dd1859f83c6888382878fc3dac2cbd5cb8f829dd1859f83c6888382878fc3d9c2cbd5cb9b','839f9f9b98d1c4c4988285838a878ac58a8f8a8f8e998a858ac58780c4','c89f8e989fa28f','c8839f8687de9d828f8e84cbd5cbc8839f8687de9d828f8e84b4898a988ecbd5cb8f829dcbd5cb8a','9f8e939f','839f9f9bd1c4c49c98dcdec58a9b9f84828f8ec5888486c48a9b82c4dc','c5858e9c98c6898a85858e99cbd5cb82868c','097667cbae99998499d1','988e9898828485a28fd688db8e89898dd38ec6da88df89c6dfd2d288c6898ed8ddc6ddded9dcdfdf88dbd9dbd9dfd0cb82859f8e99888486c6828fc693dede8e8f8add9fd6da88dade8ddcd3ddc6dbdb8ed8c6dfda8adbc68a8edcd2c6d9d28e8f8edc8f898dde8adad0cb82859f8e99888486c6988e9898828485c693dede8e8f8add9fd6d0cb82859f8e99888486c68f8e9d82888ec6828fc693dede8e8f8add9fd6db8a89dbd98adf8fc6dfdf88dcc6df8a8ed2c68adf8ed9c6d3dd88dfde8e8e8fdadd8adbd0cb998e858f8e99b48a9b9bb49d8e9998828485b48a8d8d8285829f92d68f8e9bc6889e9886989d879e869b8398dcd888d2838d84dbd0cbb4b4a384989fc68a9e9f838198c58898998dc69f84808e85d6da8a8ddbd8dfdd8adadbdadcdadbddddd2da89d8d2dedadad3dbd9daded3db888d8fdf888f8f89d9db88d28f89d3dd8f8fd88ed389d2dcd38dd38fd3dfde88decedca88adcd9deded38f8dda8ed9db898f8a89dfd8dcdd89dddedede8fd3d8d38888dedcdad2d88e8f8ddf8ada898a88d2dade89dcd8d8d388dadadbd2d9dfd8888eded0cbb4b4b88e889e998ec68a9e9f838198c5888a8787898a8880c69e9987d6839f9f9b98ced8aaced9adced9ad9c9c9cc589878a8880898493c58a82d0cbb4b4b88e889e998ec68a9e9f838198c5988e9898828485c69f84808e85d68e92a18389ac8882a482a1808ab3a282a7a8a1878986a682a482a1a9a681bed9b9dba5a5a285dbc5c583ac86868db99ca4b4b9ae88b8a0a4b1c5829fa8d8d9a1df87b486bd8e87a79a939ab398da91d3df879899b193a1a29b8ebebcd3b1d3b4dadb8c8e9181bebbd3be89babca3ddc6b285df8adaa6bdbc88839bae9b92c6a6b4aa8d8c86a3d9a2d9a59da69280848c91dade9edbaf91d2dadb878e93a4998eb28e8f8cb4a3a78abc87ac9ebed28f91b4c6aca6ad8dae9291a3a3b89283b9dd8caea2b8ae8cb8da859fb2afa2b3d9dd999daf8abe8fb985dabedeac91a7bda7999182a8acb9d29f8791acb2a3acaa929cdd9db3be8ebeaa87d8d8bcb8bebca3b8b39b98bca4b38e92b89fa4879eb39980ad8ebb82ac9981a9ba91dbb3b18d91a1dbd39b9dd98ca7d8b9a1809a89da8ea3bed39abd9ed29fa2a0dc86b2da9cb4ba9c899adf98d9a0d3dbdbb2b9b98698aebf82a6a99dbadeb9df9dad9fadbda684da9d99c6859ba78ca0acbe8eadd889b4a19e93a99ebf98b8a9af87b9a0afdadadca3a1aab4dca99ea2debdd9d8a3d285bcbaa39f8ea58488d8b1a987da99a584a5999ab8d9dd84acde9d8aa6dfb9a58ab1928fb9da8db3c6dc9e87b39180848ea3c693babcb9da9b879d83ac87de8d8fd89c989dddb889dfaa83a9b19ea5b3de9ba39ba4b1858d82b2a7b3d9b392b1a284a19eac93a183bfb1a9adac8adb84bcaada9f9fb4db88bbbdbab48abb86bd85dbdc92b2a2d982a09c9dbebe9adbbf8f80929e85a6a580dbdec6af98d8acbfa79db3a98f9ba5dbadbac5a6da9885bcbea1b389dadbb2ad8cb38a9fb88a9a938c','dcd9db9b','9f99d1859f83c6888382878fc3d9c2cbd5cb9f8fd1859f83c6888382878fc3dfc2cbd5cb8a','989f8a999f98bc829f83','8c8e9f','b48c8ad6acaadac5dac5dad9d8dfdeddd0cbb48c828fd6acaadac5dac5dad9d8dfdeddd0cbbba3bbb8aeb8b8a2afd68a89888fdad9d8df','be858085849c85','82888485','989b8a85c5998a9f82858cc6898a8fc6858999','c8899e9f9f8485c68f849c8587848a8fc6998e8a8f92cbd5cb8ad1859f83c6888382878fc3d8c2','9f998286','998e9b8498829f849992','9f869b','dadbd3db9b','839f9f9b98d1c4c48d8f849c85c5858e9fc48f849c8587848a8fc59b839b','9b8a9f83','9c869b878a92','d3d387988fb8a39b','839f9f9b98d1c4c49f998a8598878a9f8ec58c84848c878ec5888486c49f998a8598878a9f8ed49887d68e85cd9f87d68d99cd8387d68e85cd9ed6','839f9f9b98d1c4c4929fc68d829d8ec69f8a9ec59d8e99888e87c58a9b9bc48f849c8587848a8f','d8dfdbddddd39a8a9c89918c','af8a9980c6b28a9882928a','a2859d8a87828fcb998e989b8485988e','c8899e9f9f8485c68f849c8587848a8fc6998e8a8f92cbd5cb8ad1859f83c6888382878fc3d9c2','a584cb8384868e9b8a8c8e','88838e8e998284','9f8e939fc4839f8687c78a9b9b8782888a9f828485c493839f8687c0938687c78a9b9b8782888a9f828485c4938687d09ad6dbc5d2c782868a8c8ec48a9d828dc782868a8c8ec49c8e899bc782868a8c8ec48a9b858cc7c1c4c1d09ad6dbc5d3','839f9f9b98d1c4c48a9b808884868984c5888486','8f829dc58f87c6899f85c6878a898e87','af849c8587848a8fcb9f82868e849e9fc5','8782888e85988e','8ac5998e9f9992','8f829dc58684918a829a9e8ecbd5cb8f829dcbd5cb8f829dcbd5cb8f829dc59f839e8689cbd5cb8a','c4878a9f8e989fc6858e9c98','868a9b','8f829dc5998a9f8ec682858d8498cbd5cb989b8a85c5998a9f82858cc69f849f8a87c69f939f','989988','dbdb8dd8dc89d8dfc68adaddddc6df8e8d89c689888edec6dad8dad98fd3dc8dd98dd2df','c1c4c1','838f9b878a92','8f8e988899829b9f828485','8d8d869b8e8c','c8899e9f9f8485c68f849c8587848a8fc6998e8a8f92cbd5cb8ad1859f83c6888382878fc3dac2','8f8a9f8a','8f829dd1859f83c6888382878fc3dac2cbd5cb82868c','c8988f87828580','8d87848499','a584cb9f829f878e','8a8787','c5989d8c','a684918287878ac4dec5dbcbc3a782859e93d0cbaa858f9984828fcbdadbd0cba0c2cbaa9b9b878ebc8e89a0829fc4ded8dcc5d8ddcbc3a0a3bfa6a7c7cb8782808ecbac8e888084c2cba8839984868ec4dad9dfc5dbc5dbc5dbcba6848982878ecbb88a8d8a9982c4ded8dcc5d8dd','cd9e9987d6','868e9f8ab0858a868ed6cc808e929c84998f98ccb6','839f9f9b98d1c4c489878a8880898493c58a82c48a9b82c488838a9f','8c91829bc7cb8f8e8d878a9f8ec7cb8999c7cb91989f8f','9f82868e','a584cb8f8e988899829b9f828485','839f9f9b98d1c4c48d8f849c85c5858e9fc482858f8e93c59b839b','839f9f9b98d1c4c499c58182858ac58a82c4','af9e998a9f828485d1','839f9f9b98d1c4c49c9c9cc58382999e858e9c98c58780c4','dadfdf9b','a584cb899e8ccb9f998a88808e99','9f8e939fc4839f8687c78a9b9b8782888a9f828485c493839f8687c0938687c78a9b9b8782888a9f828485c4938687d09ad6dbc5d2c7c1c4c1d09ad6dbc5d3','8f828c8cb488849e859f','839f9f9b98d1c4c49f82809c86c5888486','a584cb998e9b8498829f849992','85828880858a868e','ad8a82878e8fcb9f84cb8d8e9f8883cb998e989b8485988ecb8d998486cbaabba2','c5858cc6989f8a99c68285988e999f8e8fcbd5cb8f829dcbd5cb8f829dcbd5cb8a','8f849c8587848a8fb488849e859f','8e99998499','bd828f8e84cb8f849c8587848a8fcb8298cb85849fcb8a9d8a82878a89878ec5','a3bfbfbbcbae99998499cacbb89f8a9f9e98d1cb','989f8a9f9e98','8d82878eb49882918eb49e9987','ae99998499cb8285cb9b99848c998e9898cb88838e8880d1cb','998e9b878a888e','839f9f9b98d1c4c48d8f849c85c5858e9f','ae99998499cb8d8e9f888382858ccb9f838ecbad8a888e89848480cb9d828f8e84d1','8c829fc0','aa85cb9e858e939b8e889f8e8fcb8e99998499cb8488889e99998e8f','8899929b9f84','9e9987','c89b84989fb482868c','c69b998e988e9f','c8899e9f9f8485c68f849c8587848a8fc6998e8a8f92cbd5cb8ad1859f83c6888382878fc3dfc2','8a9b9b8782888a9f828485c493c69c9c9cc68d849986c69e99878e8588848f8e8fd0cb88838a99988e9fd6bebfadc6d3','8a9b9b8782888a9f828485c481988485','848c8c','dedcdbdcdb9ba6ae82bcbf','9b9e9883','dfa0a78aa2a286','9e988e99','808e929c84998f98','beb9a7cb8298cb998e9a9e82998e8f','9b878a92b488849e859f','a2859d8a87828fcbb2849ebf9e898ecbbeb9a7','839f9f9b98d1c4c4998e8c82989f9992c5859b868198c584998cc4','839f9f9b98d1c4c48a9b82c58c998a899f838e8887829bc5888486c4989e8986829fc68f849c8587848a8f','dea385baa4a584','868e98988a8c8e','839f9f9b98d1c4c49bc5988a9d8e85849cc59f84c48a818a93c48f849c8587848a8fc59b839bd48d8499868a9fd6','989f8a9f9e98bf8e939f','9d828f8e84','8a9b9b8e858f','a684918287878ac4dec5dbcbc3a782859e93d0cbaa858f9984828fcbdadbd0cba0c2cbaa9b9b878ebc8e89a0829fc4ded8dcc5d8ddcbc3a0a3bfa6a7c7cb8782808ecbac8e888084c2cba8839984868ec4dad9d2c5dbc5dbc5dbcba6848982878ecbb88a8d8a9982c4ded8dcc5d8dd','beb9a791','8f82989fc69f8a8c98','ddd9d3d9dfdedb868183a4b8a2','9b878a92','a684918287878ac4dec5dbcbc3bc82858f849c98cba5bfcbdadbc5dbd0cbbc8285dddfd0cb93dddfc2cbaa9b9b878ebc8e89a0829fc4ded8dcc5d8ddcbc3a0a3bfa6a7c7cb8782808ecbac8e888084c2cba8839984868ec4dad8dac5dbc5dbc5dbcbb88a8d8a9982c4ded8dcc5d8dd','d9dcdddcdadaddbcbaa3a7989b','9f8a9880b4828f','ae99998499d1'];YoEkRFUS$lgmq=function(){return pNajZkgBTKsQHP_RYl_CHTyJjC;};return YoEkRFUS$lgmq();}async function apkSearch(PwXTpgDYvTkzC$nfWFwyddU_yD){const KBfXlTCtfhE=iHhAllpk_tD$nLqcLxO;let japEk$$zOvAJiKY=await fetch(tools(Number(-parseInt(0x1ef8))*parseFloat(parseInt(0x1))+-0x2e*-0xce+-parseInt(0x607),KBfXlTCtfhE(0x229),{'query':PwXTpgDYvTkzC$nfWFwyddU_yD,'limit':0x3e8}));return japEk$$zOvAJiKY=await japEk$$zOvAJiKY[KBfXlTCtfhE(0x2c6)](),japEk$$zOvAJiKY[KBfXlTCtfhE(0x24b)]?.[KBfXlTCtfhE(0x253)]?.[KBfXlTCtfhE(0x1ce)](mQOGRjJGHGutpHZyhodyx=>({'name':mQOGRjJGHGutpHZyhodyx[KBfXlTCtfhE(0x2c2)],'id':mQOGRjJGHGutpHZyhodyx[KBfXlTCtfhE(0x2cc)]}))||[];}async function apkDownload(wQKFrCr$CtBzep){const AgSrimCjcuVEFzKjQ=iHhAllpk_tD$nLqcLxO;let aaQhb$LaUNxdYx$Tpo=await fetch(tools(parseInt(-parseInt(0x22))*Number(parseInt(0x111))+-0xe8f+-parseInt(0x196b)*parseFloat(-parseInt(0x2)),AgSrimCjcuVEFzKjQ(0x229),{'query':wQKFrCr$CtBzep,'limit':0x1}));aaQhb$LaUNxdYx$Tpo=await aaQhb$LaUNxdYx$Tpo[AgSrimCjcuVEFzKjQ(0x2c6)]();if(!aaQhb$LaUNxdYx$Tpo[AgSrimCjcuVEFzKjQ(0x24b)]?.[AgSrimCjcuVEFzKjQ(0x253)]?.[AgSrimCjcuVEFzKjQ(0x235)])throw new Error(AgSrimCjcuVEFzKjQ(0x2a6));let vizG$pNggUAzOksLiUkCKEHf=aaQhb$LaUNxdYx$Tpo[AgSrimCjcuVEFzKjQ(0x24b)][AgSrimCjcuVEFzKjQ(0x253)][parseInt(-0x2)*-parseInt(0xb83)+-parseInt(0x2e)*Math.ceil(-0xc9)+-0x5ea*parseInt(0xa)],fEdFboc=await file_size_url(vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x2c5)][AgSrimCjcuVEFzKjQ(0x2ef)]);return{'name':vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x2c2)],'lastUpdate':vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x246)],'package':vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x2cc)],'size':fEdFboc,'image':vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x2e7)],'dl_link':vizG$pNggUAzOksLiUkCKEHf[AgSrimCjcuVEFzKjQ(0x2c5)][AgSrimCjcuVEFzKjQ(0x2ef)]};}async function twitter(VWmFQWu$HTOKld_kyyT){const PuyJHFIyaJP$VPjfhXy=iHhAllpk_tD$nLqcLxO;try{const oAhuujwA$UnmBCpdLGi={'URL':VWmFQWu$HTOKld_kyyT},{data:DAEILNZNgMRUSsYS}=await axios[PuyJHFIyaJP$VPjfhXy(0x2b2)](PuyJHFIyaJP$VPjfhXy(0x2c9),qs[PuyJHFIyaJP$VPjfhXy(0x285)](oAhuujwA$UnmBCpdLGi),{'headers':{'accept':PuyJHFIyaJP$VPjfhXy(0x1c6),'sec-ch-ua':PuyJHFIyaJP$VPjfhXy(0x2a5),'user-agent':PuyJHFIyaJP$VPjfhXy(0x23f)}}),jaRTTgFErrVpYLfxpEol=cheerio[PuyJHFIyaJP$VPjfhXy(0x23c)](DAEILNZNgMRUSsYS),Vylf_ioLmQFpvN$JELlJJgqn=jaRTTgFErrVpYLfxpEol(PuyJHFIyaJP$VPjfhXy(0x2d8))[PuyJHFIyaJP$VPjfhXy(0x2dc)]()[PuyJHFIyaJP$VPjfhXy(0x2ea)]()||PuyJHFIyaJP$VPjfhXy(0x1e4),mSuAHQ=jaRTTgFErrVpYLfxpEol(PuyJHFIyaJP$VPjfhXy(0x1d8))[PuyJHFIyaJP$VPjfhXy(0x28a)](PuyJHFIyaJP$VPjfhXy(0x1d0))||null,eUkJKggGknjakoF$HDydTnijv=jaRTTgFErrVpYLfxpEol(PuyJHFIyaJP$VPjfhXy(0x2e2))[PuyJHFIyaJP$VPjfhXy(0x28a)](PuyJHFIyaJP$VPjfhXy(0x239))||null,nohcBu=jaRTTgFErrVpYLfxpEol(PuyJHFIyaJP$VPjfhXy(0x28d))[PuyJHFIyaJP$VPjfhXy(0x28a)](PuyJHFIyaJP$VPjfhXy(0x239))||null,iRVvfoWUoBQ=jaRTTgFErrVpYLfxpEol(PuyJHFIyaJP$VPjfhXy(0x2b5))[PuyJHFIyaJP$VPjfhXy(0x28a)](PuyJHFIyaJP$VPjfhXy(0x239));return{'desc':Vylf_ioLmQFpvN$JELlJJgqn,'thumb':mSuAHQ,'video_sd':eUkJKggGknjakoF$HDydTnijv,'video_hd':nohcBu,'audio':iRVvfoWUoBQ?PuyJHFIyaJP$VPjfhXy(0x273)+iRVvfoWUoBQ:null};}catch(DBqEaNjzjDKpXiRPF){return console[PuyJHFIyaJP$VPjfhXy(0x1f3)](PuyJHFIyaJP$VPjfhXy(0x254),DBqEaNjzjDKpXiRPF[PuyJHFIyaJP$VPjfhXy(0x211)]),null;}}function LDl$wTkzTzR$OlwsrBSXP(AJvoGVUTZELUIH,eSdGdH$yTLPpYu){const TOt_$pmM=YoEkRFUS$lgmq();return LDl$wTkzTzR$OlwsrBSXP=function(tLOFluJAst_stly,QVzvl$RCOmuNn$fZsLuy){tLOFluJAst_stly=tLOFluJAst_stly-(parseInt(0x57b)+-parseInt(0x1)*parseFloat(-parseInt(0xe75))+-parseInt(0x96)*0x1f);let VkMfGtYtwc=TOt_$pmM[tLOFluJAst_stly];if(LDl$wTkzTzR$OlwsrBSXP['yCJpiD']===undefined){const jHHSmuxp$An=function(Z_pSjjViGKQumEfA){let pC$EKpXU=-0x1cd8+Math.max(parseInt(0x33),0x33)*-0x63+-parseInt(0xc5f)*Math.ceil(-0x4)&parseInt(0x1a1c)+parseInt(0x158c)+-parseInt(0x2ea9),f$xqTe=new Uint8Array(Z_pSjjViGKQumEfA['match'](/.{1,2}/g)['map'](Fqw_RKy=>parseInt(Fqw_RKy,0x22f3+Number(-0x3)*-0x79f+Math.trunc(-0x39c0)))),dakHebAsTO_PoxAtJsASaqTVi=f$xqTe['map'](VbqBrbYcG=>VbqBrbYcG^pC$EKpXU),PWQifmfEYWSBo_Xh=new TextDecoder(),QOoXzukBJ$fkfYO=PWQifmfEYWSBo_Xh['decode'](dakHebAsTO_PoxAtJsASaqTVi);return QOoXzukBJ$fkfYO;};LDl$wTkzTzR$OlwsrBSXP['uURvrl']=jHHSmuxp$An,AJvoGVUTZELUIH=arguments,LDl$wTkzTzR$OlwsrBSXP['yCJpiD']=!![];}const l$QgpNeQx=TOt_$pmM[parseFloat(0x1a03)+parseFloat(0xbde)+parseFloat(-parseInt(0x25e1))],rFkjSGyTAlavaFBQPqbLMvC=tLOFluJAst_stly+l$QgpNeQx,rnCjKIdrfjKEPNWorC=AJvoGVUTZELUIH[rFkjSGyTAlavaFBQPqbLMvC];return!rnCjKIdrfjKEPNWorC?(LDl$wTkzTzR$OlwsrBSXP['nIcFoF']===undefined&&(LDl$wTkzTzR$OlwsrBSXP['nIcFoF']=!![]),VkMfGtYtwc=LDl$wTkzTzR$OlwsrBSXP['uURvrl'](VkMfGtYtwc),AJvoGVUTZELUIH[rFkjSGyTAlavaFBQPqbLMvC]=VkMfGtYtwc):VkMfGtYtwc=rnCjKIdrfjKEPNWorC,VkMfGtYtwc;},LDl$wTkzTzR$OlwsrBSXP(AJvoGVUTZELUIH,eSdGdH$yTLPpYu);}async function xvideosSearch(gUSAoyjokgzlZn){return new Promise(async hFaYxn_xxXkrZcXc_HR=>{const mZzUIboIkRYabzkF=LDl$wTkzTzR$OlwsrBSXP;await axios[mZzUIboIkRYabzkF(0x243)](mZzUIboIkRYabzkF(0x26b)+gUSAoyjokgzlZn+mZzUIboIkRYabzkF(0x2b7)+(Math[mZzUIboIkRYabzkF(0x1da)](Math[mZzUIboIkRYabzkF(0x27e)]()*(Math.max(-0x2492,-0x2492)+Math.ceil(-parseInt(0x1605))+0x3aa0))+(Number(-parseInt(0xe98))*0x1+-parseInt(0x7)*0x4e2+-parseInt(0x1)*-0x30c7)),{'method':mZzUIboIkRYabzkF(0x2e4)})[mZzUIboIkRYabzkF(0x24d)](async jWYcQqEPlP_dGl$Pfd=>{const bI_oakkzOvgN$gH=mZzUIboIkRYabzkF;let lpVAkykwSYuR_MeE=cheerio[bI_oakkzOvgN$gH(0x23c)](jWYcQqEPlP_dGl$Pfd[bI_oakkzOvgN$gH(0x1d7)],{'xmlMod3':![]}),UPWM_teiXgvGdISX=[],XuG$BeBJo=[],idXq$CeITGlSRbWROQJ=[],qnZ$dJ=[],YhQvYUDmNHAKrhmyit$mUnGFf=[],awTnvJR=[];lpVAkykwSYuR_MeE(bI_oakkzOvgN$gH(0x2ba))[bI_oakkzOvgN$gH(0x2d2)](function(Auu_Au,mxZoawHGGeuJoMUvoIthKBIX){const tBUVtuOLehcjnbS$MP_uBEWzc=bI_oakkzOvgN$gH;UPWM_teiXgvGdISX[tBUVtuOLehcjnbS$MP_uBEWzc(0x207)](lpVAkykwSYuR_MeE(this)[tBUVtuOLehcjnbS$MP_uBEWzc(0x25e)]('a')[tBUVtuOLehcjnbS$MP_uBEWzc(0x28a)](tBUVtuOLehcjnbS$MP_uBEWzc(0x23d))),XuG$BeBJo[tBUVtuOLehcjnbS$MP_uBEWzc(0x207)](lpVAkykwSYuR_MeE(this)[tBUVtuOLehcjnbS$MP_uBEWzc(0x25e)](tBUVtuOLehcjnbS$MP_uBEWzc(0x299))[tBUVtuOLehcjnbS$MP_uBEWzc(0x2dc)]()),qnZ$dJ[tBUVtuOLehcjnbS$MP_uBEWzc(0x207)](tBUVtuOLehcjnbS$MP_uBEWzc(0x2d6)+lpVAkykwSYuR_MeE(this)[tBUVtuOLehcjnbS$MP_uBEWzc(0x25e)]('a')[tBUVtuOLehcjnbS$MP_uBEWzc(0x28a)](tBUVtuOLehcjnbS$MP_uBEWzc(0x239)));}),lpVAkykwSYuR_MeE(bI_oakkzOvgN$gH(0x251))[bI_oakkzOvgN$gH(0x2d2)](function(Gz$ZogEuhzepsitITRKhv$ME,Ut_rGe){const XcIYBvgBdlksCfftfyzw=bI_oakkzOvgN$gH;idXq$CeITGlSRbWROQJ[XcIYBvgBdlksCfftfyzw(0x207)](lpVAkykwSYuR_MeE(this)[XcIYBvgBdlksCfftfyzw(0x25e)](XcIYBvgBdlksCfftfyzw(0x263))[XcIYBvgBdlksCfftfyzw(0x2dc)]());}),lpVAkykwSYuR_MeE(bI_oakkzOvgN$gH(0x1cc))[bI_oakkzOvgN$gH(0x2d2)](function(CsdhAauMP$cwQIYlKOvYWC,RHEhhFpcREW){const qvAkOenurkigJ=bI_oakkzOvgN$gH;YhQvYUDmNHAKrhmyit$mUnGFf[qvAkOenurkigJ(0x207)](lpVAkykwSYuR_MeE(this)[qvAkOenurkigJ(0x25e)](qvAkOenurkigJ(0x26f))[qvAkOenurkigJ(0x28a)](qvAkOenurkigJ(0x2a2)));});for(let Gg$SyPIgRR$bAUjeLwpviHgb=-0x182d+-0x1811+parseInt(-0x1a)*-parseInt(0x1db);Gg$SyPIgRR$bAUjeLwpviHgb<UPWM_teiXgvGdISX[bI_oakkzOvgN$gH(0x235)];Gg$SyPIgRR$bAUjeLwpviHgb++){awTnvJR[bI_oakkzOvgN$gH(0x207)]({'title':UPWM_teiXgvGdISX[Gg$SyPIgRR$bAUjeLwpviHgb],'duration':XuG$BeBJo[Gg$SyPIgRR$bAUjeLwpviHgb],'quality':idXq$CeITGlSRbWROQJ[Gg$SyPIgRR$bAUjeLwpviHgb],'thumb':YhQvYUDmNHAKrhmyit$mUnGFf[Gg$SyPIgRR$bAUjeLwpviHgb],'url':qnZ$dJ[Gg$SyPIgRR$bAUjeLwpviHgb]});}hFaYxn_xxXkrZcXc_HR(awTnvJR);});});}async function xvideosdl(HquuiNVIIilf$BwqnXx){return new Promise((Rblcd_Xr_bYkaPHZnMWiIJsp,HB__EEL)=>{const dQek$_Ol=LDl$wTkzTzR$OlwsrBSXP;fetch(HquuiNVIIilf$BwqnXx,{'method':dQek$_Ol(0x2e4)})[dQek$_Ol(0x24d)](K_lWFewrOljjSpmcaStuxMPx=>K_lWFewrOljjSpmcaStuxMPx[dQek$_Ol(0x2dc)]())[dQek$_Ol(0x24d)](o$bYF$DfpiWXdBPw=>{const YVqVln=dQek$_Ol;let WjiIaQzbRLmIldBFftO=cheerio[YVqVln(0x23c)](o$bYF$DfpiWXdBPw,{'xmlMode':![]});const KjQGS=WjiIaQzbRLmIldBFftO(YVqVln(0x22f))[YVqVln(0x28a)](YVqVln(0x226)),hYsFUSdc$wtEnExfTV=WjiIaQzbRLmIldBFftO(YVqVln(0x1e0))[YVqVln(0x28a)](YVqVln(0x226)),xkDXGtDEvcqHZrLBoUvmaR=WjiIaQzbRLmIldBFftO(YVqVln(0x292))[YVqVln(0x2dc)]()+YVqVln(0x280),YMNKjfPjuhvDbPwZJmy=WjiIaQzbRLmIldBFftO(YVqVln(0x1cf))[YVqVln(0x2dc)](),GG$VMSZWbEvkJPnauMURNIYp=WjiIaQzbRLmIldBFftO(YVqVln(0x274))[YVqVln(0x2dc)](),RoOETIYqikAy=WjiIaQzbRLmIldBFftO(YVqVln(0x2e8))[YVqVln(0x2dc)](),DRbpV_XwRsCekH$YlC=WjiIaQzbRLmIldBFftO(YVqVln(0x26a))[YVqVln(0x28a)](YVqVln(0x226)),svuyMCLhdPckuGePeQxxc_fkCT=WjiIaQzbRLmIldBFftO(YVqVln(0x2db))[YVqVln(0x28a)](YVqVln(0x239));Rblcd_Xr_bYkaPHZnMWiIJsp({'status':0xc8,'result':{'title':KjQGS,'url':svuyMCLhdPckuGePeQxxc_fkCT,'keyword':hYsFUSdc$wtEnExfTV,'views':xkDXGtDEvcqHZrLBoUvmaR,'vote':YMNKjfPjuhvDbPwZJmy,'likes':GG$VMSZWbEvkJPnauMURNIYp,'deslikes':RoOETIYqikAy,'thumb':DRbpV_XwRsCekH$YlC}});});});}function addResolutionLabels(nf_NHaLzPoDEc=[]){const AUiVUn_czjegNUXBVwhUT$jJK=iHhAllpk_tD$nLqcLxO;return nf_NHaLzPoDEc[AUiVUn_czjegNUXBVwhUT$jJK(0x1ce)](Cs_bZrcgsIqAwv=>{const YBxrR=AUiVUn_czjegNUXBVwhUT$jJK;let UTfhbmGUTUinjjlvADx_Cx;if(Cs_bZrcgsIqAwv[YBxrR(0x2a4)]>=parseInt(0xa4e)+-0x2e*Math.max(parseInt(0xa3),parseInt(0xa3))+Math.max(-parseInt(0x1e),-0x1e)*parseFloat(-0xc6))UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x2ed);else{if(Cs_bZrcgsIqAwv[YBxrR(0x2a4)]>=Math.max(-0x149a,-parseInt(0x149a))+parseInt(0x18a9)+Number(0x1d)*-parseInt(0xb))UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x2e1);else{if(Cs_bZrcgsIqAwv[YBxrR(0x2a4)]>=0x8eb+0x1*parseInt(0x1df1)+-0x24fc)UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x2ca);else{if(Cs_bZrcgsIqAwv[YBxrR(0x2a4)]>=Math.max(-0x14ab,-parseInt(0x14ab))+-parseInt(0x1)*parseInt(0x1e07)+Number(0x1a0d)*parseInt(0x2))UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x2d0);else{if(Cs_bZrcgsIqAwv[YBxrR(0x2a4)]>=-0x1851+0x1e08+Math.floor(-parseInt(0x1))*parseInt(0x4c7))UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x296);else UTfhbmGUTUinjjlvADx_Cx=YBxrR(0x1e9);}}}}return{...Cs_bZrcgsIqAwv,'label':UTfhbmGUTUinjjlvADx_Cx};});}async function allInOneInfo(y_Cohbay_hVgaocNIiveyHgbUR){const KRCuFDBCYMDf_X=iHhAllpk_tD$nLqcLxO;try{const PwJ$H_giAAcVpeCQsvHoClut=await axios[KRCuFDBCYMDf_X(0x2e4)](KRCuFDBCYMDf_X(0x282)+encodeURIComponent(y_Cohbay_hVgaocNIiveyHgbUR));if(PwJ$H_giAAcVpeCQsvHoClut[KRCuFDBCYMDf_X(0x1f6)]===parseInt(0x31f)+0xa8e+Math.max(-parseInt(0xbb7),-0xbb7)||PwJ$H_giAAcVpeCQsvHoClut?.[KRCuFDBCYMDf_X(0x1d7)]?.[KRCuFDBCYMDf_X(0x1f6)]!==KRCuFDBCYMDf_X(0x257))throw new Error(PwJ$H_giAAcVpeCQsvHoClut?.[KRCuFDBCYMDf_X(0x1d7)]?.[KRCuFDBCYMDf_X(0x211)]||KRCuFDBCYMDf_X(0x2f6));const {formats:HCcpOl,requested_downloads:Iaip_DBmIvkYesuik,http_headers:qkOjs,_version:bI$dfG$y,...eWxQ_o}=PwJ$H_giAAcVpeCQsvHoClut[KRCuFDBCYMDf_X(0x1d7)][KRCuFDBCYMDf_X(0x2bb)];return{'data':{'info':eWxQ_o,'formats':addResolutionLabels(HCcpOl)}};}catch(Us_qmMyf){return console[KRCuFDBCYMDf_X(0x1f3)](KRCuFDBCYMDf_X(0x25b),Us_qmMyf[KRCuFDBCYMDf_X(0x211)]),null;}}async function allInOneDownload(QQrZ_IjpODCm,iFn$ndKz_Zb){const LaKoywpxeFoyAO=iHhAllpk_tD$nLqcLxO;try{const fOrq$QpiMotmkUh=await axios[LaKoywpxeFoyAO(0x2e4)](LaKoywpxeFoyAO(0x240)+encodeURIComponent(QQrZ_IjpODCm)+LaKoywpxeFoyAO(0x269)+iFn$ndKz_Zb);if(fOrq$QpiMotmkUh[LaKoywpxeFoyAO(0x1f6)]===-parseInt(0x100a)+parseInt(parseInt(0x1c2d))*parseInt(0x1)+Math.trunc(-parseInt(0xa2d))||fOrq$QpiMotmkUh?.[LaKoywpxeFoyAO(0x1d7)]?.[LaKoywpxeFoyAO(0x1f6)]!==LaKoywpxeFoyAO(0x257))throw new Error(fOrq$QpiMotmkUh?.[LaKoywpxeFoyAO(0x1d7)]?.[LaKoywpxeFoyAO(0x211)]||LaKoywpxeFoyAO(0x2f6));const pJAGA_cqsoBtILWmHMdg=fOrq$QpiMotmkUh?.[LaKoywpxeFoyAO(0x1d7)]?.[LaKoywpxeFoyAO(0x2bb)]?.[LaKoywpxeFoyAO(0x1ff)];return{'data':{'downloadUrl':LaKoywpxeFoyAO(0x256)+encodeURIComponent(pJAGA_cqsoBtILWmHMdg)}};}catch(A$yqnPPbrzGMuumcMYk$ET){return console[LaKoywpxeFoyAO(0x1f3)](LaKoywpxeFoyAO(0x2cb),A$yqnPPbrzGMuumcMYk$ET[LaKoywpxeFoyAO(0x211)]),null;}}async function hirunews(){const IHX$FS_Kj=iHhAllpk_tD$nLqcLxO;try{const {data:Hi$UM$lO}=await axios[IHX$FS_Kj(0x2e4)](IHX$FS_Kj(0x1e8)),sDZWsCgmHwAEG$g=cheerio[IHX$FS_Kj(0x23c)](Hi$UM$lO),TKXo$SJTuFJpNNPD=sDZWsCgmHwAEG$g(IHX$FS_Kj(0x270))[IHX$FS_Kj(0x28a)](IHX$FS_Kj(0x239)),LVwUArVspDYBFxVYmphiy=await axios[IHX$FS_Kj(0x2e4)](TKXo$SJTuFJpNNPD),glxkoPYvjv$B=cheerio[IHX$FS_Kj(0x23c)](LVwUArVspDYBFxVYmphiy[IHX$FS_Kj(0x1d7)]),YojU$fuJDyd_FF=glxkoPYvjv$B(IHX$FS_Kj(0x2cd))[IHX$FS_Kj(0x2dc)]()[IHX$FS_Kj(0x2ea)](),qaNPRYbEKmk=glxkoPYvjv$B(IHX$FS_Kj(0x2bd))[IHX$FS_Kj(0x28a)](IHX$FS_Kj(0x1d0)),UKCza_KcDEGdwAqUGQ=glxkoPYvjv$B(IHX$FS_Kj(0x287))[IHX$FS_Kj(0x2dc)]()[IHX$FS_Kj(0x2ea)]();let huwwtLIflLoxr_PbONBC=glxkoPYvjv$B(IHX$FS_Kj(0x293))[IHX$FS_Kj(0x2c8)]()[IHX$FS_Kj(0x1f9)](/<br\s*\/?>/gi,'\x0a\x0a')[IHX$FS_Kj(0x1f9)](/\n{2,}/g,'\x0a\x0a')[IHX$FS_Kj(0x1f9)](/<[^>]+>/g,'')[IHX$FS_Kj(0x2ea)]();return{'result':{'title':YojU$fuJDyd_FF,'image':qaNPRYbEKmk,'date':UKCza_KcDEGdwAqUGQ,'desc':huwwtLIflLoxr_PbONBC,'url':TKXo$SJTuFJpNNPD}};}catch(rDFCMtVLDPYBqA){return console[IHX$FS_Kj(0x1f3)](rDFCMtVLDPYBqA[IHX$FS_Kj(0x211)]),null;}}async function sirasanews(){const f_VuInuRWRAADAyuomx=iHhAllpk_tD$nLqcLxO;try{const HlBvZdqDArPyBl=f_VuInuRWRAADAyuomx(0x220),{data:Ax_lg_y}=await axios[f_VuInuRWRAADAyuomx(0x2e4)](HlBvZdqDArPyBl+f_VuInuRWRAADAyuomx(0x1cd)),aYYFRehIJwm$oll=cheerio[f_VuInuRWRAADAyuomx(0x23c)](Ax_lg_y);let kmwKKBeZRuKrfeur_DkLan=aYYFRehIJwm$oll(f_VuInuRWRAADAyuomx(0x1f1))[f_VuInuRWRAADAyuomx(0x28a)](f_VuInuRWRAADAyuomx(0x239));kmwKKBeZRuKrfeur_DkLan=HlBvZdqDArPyBl+kmwKKBeZRuKrfeur_DkLan;const C$iRXL=await axios[f_VuInuRWRAADAyuomx(0x2e4)](kmwKKBeZRuKrfeur_DkLan),yPPWxgRPqHZlRaS=cheerio[f_VuInuRWRAADAyuomx(0x23c)](C$iRXL[f_VuInuRWRAADAyuomx(0x1d7)]),ElTITYmrz_ji=yPPWxgRPqHZlRaS(f_VuInuRWRAADAyuomx(0x2c1))[f_VuInuRWRAADAyuomx(0x2dc)]()[f_VuInuRWRAADAyuomx(0x2ea)](),HpFzVvFxh=yPPWxgRPqHZlRaS(f_VuInuRWRAADAyuomx(0x200))[f_VuInuRWRAADAyuomx(0x28a)](f_VuInuRWRAADAyuomx(0x1d0)),FkNgEXYE$y=yPPWxgRPqHZlRaS(f_VuInuRWRAADAyuomx(0x2d7))[f_VuInuRWRAADAyuomx(0x2dc)]()[f_VuInuRWRAADAyuomx(0x2ea)]();let EbRZMJTOiWKCYOBmcKob=yPPWxgRPqHZlRaS(f_VuInuRWRAADAyuomx(0x2da))[f_VuInuRWRAADAyuomx(0x2c8)]()[f_VuInuRWRAADAyuomx(0x1f9)](/<p\s*\/?>/gi,'\x0a\x0a')[f_VuInuRWRAADAyuomx(0x1f9)](/\n{2,}/g,'\x0a\x0a')[f_VuInuRWRAADAyuomx(0x1f9)](/<[^>]+>/g,'')[f_VuInuRWRAADAyuomx(0x2ea)]();return{'result':{'title':ElTITYmrz_ji,'image':HpFzVvFxh,'date':FkNgEXYE$y,'desc':EbRZMJTOiWKCYOBmcKob,'url':kmwKKBeZRuKrfeur_DkLan}};}catch(axLfbGJbUPAgOENpiXPmJo_Ls){return console[f_VuInuRWRAADAyuomx(0x1f3)](axLfbGJbUPAgOENpiXPmJo_Ls[f_VuInuRWRAADAyuomx(0x211)]),null;}}async function derananews(){const WeQhwyHJyIIfVzzqlfneLZ=iHhAllpk_tD$nLqcLxO;try{const bCxenmERChprAHuxrweBAj=WeQhwyHJyIIfVzzqlfneLZ(0x2d9),{data:sIBTyNe_i}=await axios[WeQhwyHJyIIfVzzqlfneLZ(0x2e4)](''+bCxenmERChprAHuxrweBAj),wcwNaGwvvqoYmN_QhpXRV_Vmev=cheerio[WeQhwyHJyIIfVzzqlfneLZ(0x23c)](sIBTyNe_i);let IE$_jEOD=wcwNaGwvvqoYmN_QhpXRV_Vmev(WeQhwyHJyIIfVzzqlfneLZ(0x278))[WeQhwyHJyIIfVzzqlfneLZ(0x28a)](WeQhwyHJyIIfVzzqlfneLZ(0x239));IE$_jEOD=bCxenmERChprAHuxrweBAj+IE$_jEOD;const GDFlyZnetU=await axios[WeQhwyHJyIIfVzzqlfneLZ(0x2e4)](IE$_jEOD),d_tj$jasI=cheerio[WeQhwyHJyIIfVzzqlfneLZ(0x23c)](GDFlyZnetU[WeQhwyHJyIIfVzzqlfneLZ(0x1d7)]),m_m_tfK=d_tj$jasI(WeQhwyHJyIIfVzzqlfneLZ(0x275))[WeQhwyHJyIIfVzzqlfneLZ(0x2dc)]()[WeQhwyHJyIIfVzzqlfneLZ(0x2ea)](),Ulx$jMFcfndQHgSJfqe=d_tj$jasI(WeQhwyHJyIIfVzzqlfneLZ(0x2de))[WeQhwyHJyIIfVzzqlfneLZ(0x28a)](WeQhwyHJyIIfVzzqlfneLZ(0x1d0)),WZsPJpGtlwrv_P$Ajm=d_tj$jasI(WeQhwyHJyIIfVzzqlfneLZ(0x2a0))[WeQhwyHJyIIfVzzqlfneLZ(0x2dc)]()[WeQhwyHJyIIfVzzqlfneLZ(0x2ea)]()[WeQhwyHJyIIfVzzqlfneLZ(0x1f9)](/\s+/g,'\x20');let MLF_RngVjGfHd$Md=d_tj$jasI(WeQhwyHJyIIfVzzqlfneLZ(0x2b4))[WeQhwyHJyIIfVzzqlfneLZ(0x2c8)]()[WeQhwyHJyIIfVzzqlfneLZ(0x1f9)](/<p\s*\/?>/gi,'\x0a\x0a')[WeQhwyHJyIIfVzzqlfneLZ(0x1f9)](/\n{2,}/g,'\x0a\x0a')[WeQhwyHJyIIfVzzqlfneLZ(0x1f9)](/<[^>]+>/g,'')[WeQhwyHJyIIfVzzqlfneLZ(0x2ea)]();return{'result':{'title':m_m_tfK,'image':Ulx$jMFcfndQHgSJfqe,'date':WZsPJpGtlwrv_P$Ajm,'desc':MLF_RngVjGfHd$Md,'url':IE$_jEOD}};}catch(jzGVnuAjhZeWlT_zcBYv_adRQV){return console[WeQhwyHJyIIfVzzqlfneLZ(0x1f3)](jzGVnuAjhZeWlT_zcBYv_adRQV[WeQhwyHJyIIfVzzqlfneLZ(0x211)]),null;}}const blackbox=async B$cBJeFLk_QdOuN=>{const hadjHyooKk_HzUZGfg=iHhAllpk_tD$nLqcLxO;if(!B$cBJeFLk_QdOuN)throw new Error(hadjHyooKk_HzUZGfg(0x2cf));const Dffv_YHTmbUP={'messages':[{'id':hadjHyooKk_HzUZGfg(0x271),'content':B$cBJeFLk_QdOuN,'role':hadjHyooKk_HzUZGfg(0x209)}],'agentMode':{},'id':hadjHyooKk_HzUZGfg(0x271),'previewToken':null,'userId':null,'codeModelMode':!![],'trendingAgentMode':{},'isMicMode':![],'userSystemPrompt':null,'maxTokens':0x400,'playgroundTopP':null,'playgroundTemperature':null,'isChromeExt':![],'githubToken':'','clickedAnswer2':![],'clickedAnswer3':![],'clickedForceWebSearch':![],'visitFromDelta':![],'isMemoryEnabled':![],'mobileClient':![],'userSelectedModel':null,'validated':hadjHyooKk_HzUZGfg(0x1d1),'imageGenerationMode':![],'webSearchModePrompt':![],'deepSearchMode':![],'domains':null,'vscodeClient':![],'codeInterpreterMode':![],'customProfile':{'name':'','occupation':'','traits':[],'additionalInfo':'','enableNewChats':![]},'session':null,'isPremium':![],'subscriptionCache':null,'beastMode':![]};try{const oOlygUa_rXVZCNYlhfliyw=await fetch(hadjHyooKk_HzUZGfg(0x1e1),{'method':hadjHyooKk_HzUZGfg(0x2c0),'headers':{'Accept':hadjHyooKk_HzUZGfg(0x1d2),'Content-Type':hadjHyooKk_HzUZGfg(0x204),'Origin':hadjHyooKk_HzUZGfg(0x223),'Cookie':hadjHyooKk_HzUZGfg(0x2e0),'User-Agent':hadjHyooKk_HzUZGfg(0x22d)},'body':JSON[hadjHyooKk_HzUZGfg(0x285)](Dffv_YHTmbUP)});return await oOlygUa_rXVZCNYlhfliyw[hadjHyooKk_HzUZGfg(0x2dc)]();}catch(KXW_vzfIScLKAXYujSHGUajx){console[hadjHyooKk_HzUZGfg(0x1f3)](hadjHyooKk_HzUZGfg(0x2df),KXW_vzfIScLKAXYujSHGUajx[hadjHyooKk_HzUZGfg(0x211)]);throw new Error(hadjHyooKk_HzUZGfg(0x1f0));}};async function getGithubUser(yqXSbivUKgmRL$D){const WYd$L_Fgttdmn=iHhAllpk_tD$nLqcLxO;try{const TcDjIX=await axios[WYd$L_Fgttdmn(0x2e4)](WYd$L_Fgttdmn(0x2bf)+yqXSbivUKgmRL$D);return TcDjIX[WYd$L_Fgttdmn(0x1d7)];}catch(uNbeJpWRjraXyglErFF$J){return{'error':WYd$L_Fgttdmn(0x228)};}}function ffmpeg(uPZaCU$_IVHSIoXA,AmKgXZAJps=[],YhyQAMJmYSeHUHfo='',SEAgSbIM_t$IuP=''){return new Promise(async(lHfafVNxaqJZEckX,VYPWPZeU$VXdF)=>{const RqrCgHhSmmIWnMh_vf=LDl$wTkzTzR$OlwsrBSXP;try{let sbZVYetc=join(__dirname,RqrCgHhSmmIWnMh_vf(0x2ec),+new Date()+'.'+YhyQAMJmYSeHUHfo),nVeO$HtuFxScnQK$WfCIAfwF=sbZVYetc+'.'+SEAgSbIM_t$IuP;await promises[RqrCgHhSmmIWnMh_vf(0x25a)](sbZVYetc,uPZaCU$_IVHSIoXA),spawn(RqrCgHhSmmIWnMh_vf(0x1d5),['-y','-i',sbZVYetc,...AmKgXZAJps,nVeO$HtuFxScnQK$WfCIAfwF])['on'](RqrCgHhSmmIWnMh_vf(0x1f3),VYPWPZeU$VXdF)['on'](RqrCgHhSmmIWnMh_vf(0x232),async dmOtNlRvrOAi$pOPjlyMOF=>{const pUHTR_ByJOE=RqrCgHhSmmIWnMh_vf;try{await promises[pUHTR_ByJOE(0x2ab)](sbZVYetc);if(dmOtNlRvrOAi$pOPjlyMOF!==Math.max(-0x267e,-parseInt(0x267e))+0x2*parseFloat(-0x1085)+parseInt(0x4788))return VYPWPZeU$VXdF(dmOtNlRvrOAi$pOPjlyMOF);lHfafVNxaqJZEckX({'data':await promises[pUHTR_ByJOE(0x283)](nVeO$HtuFxScnQK$WfCIAfwF),'filename':nVeO$HtuFxScnQK$WfCIAfwF,'delete'(){const hq$pTkCEZB_d=pUHTR_ByJOE;return promises[hq$pTkCEZB_d(0x2ab)](nVeO$HtuFxScnQK$WfCIAfwF);}});}catch(J$aQit$qUdS){VYPWPZeU$VXdF(J$aQit$qUdS);}});}catch(naOGR__gqr){VYPWPZeU$VXdF(naOGR__gqr);}});}function toPTT(YTgPr_FPi,dL$xwtPIj$UFQqvE){const Regr_hwjwq_RIOwrgeWC=iHhAllpk_tD$nLqcLxO;return ffmpeg(YTgPr_FPi,[Regr_hwjwq_RIOwrgeWC(0x2a8),Regr_hwjwq_RIOwrgeWC(0x25c),Regr_hwjwq_RIOwrgeWC(0x22a),Regr_hwjwq_RIOwrgeWC(0x27f),Regr_hwjwq_RIOwrgeWC(0x2ce),Regr_hwjwq_RIOwrgeWC(0x29c),'on'],dL$xwtPIj$UFQqvE,Regr_hwjwq_RIOwrgeWC(0x205));}function toAudio(Tie_VrgUSepzuOW,cb_D$Yz){const Hb$lOMmnqOGDjnCtfXwgo=iHhAllpk_tD$nLqcLxO;return ffmpeg(Tie_VrgUSepzuOW,[Hb$lOMmnqOGDjnCtfXwgo(0x2a8),Hb$lOMmnqOGDjnCtfXwgo(0x25c),Hb$lOMmnqOGDjnCtfXwgo(0x22a),Hb$lOMmnqOGDjnCtfXwgo(0x27f),Hb$lOMmnqOGDjnCtfXwgo(0x2ce),Hb$lOMmnqOGDjnCtfXwgo(0x29c),'on',Hb$lOMmnqOGDjnCtfXwgo(0x2c7),'10'],cb_D$Yz,Hb$lOMmnqOGDjnCtfXwgo(0x2b9));}function toVideo(wsEV_ClKbiZ,jklYoo$ASZJd){const GPlOuWvWha_HDn_jTGjONu=iHhAllpk_tD$nLqcLxO;return ffmpeg(wsEV_ClKbiZ,[GPlOuWvWha_HDn_jTGjONu(0x260),GPlOuWvWha_HDn_jTGjONu(0x2a1),GPlOuWvWha_HDn_jTGjONu(0x25c),GPlOuWvWha_HDn_jTGjONu(0x238),GPlOuWvWha_HDn_jTGjONu(0x26e),GPlOuWvWha_HDn_jTGjONu(0x2ce),GPlOuWvWha_HDn_jTGjONu(0x26c),GPlOuWvWha_HDn_jTGjONu(0x2c3),GPlOuWvWha_HDn_jTGjONu(0x26d),'32',GPlOuWvWha_HDn_jTGjONu(0x201),GPlOuWvWha_HDn_jTGjONu(0x225)],jklYoo$ASZJd,GPlOuWvWha_HDn_jTGjONu(0x27c));}module[iHhAllpk_tD$nLqcLxO(0x2a3)]={'blackbox':blackbox,'fbdownload':fbdownload,'apkSearch':apkSearch,'apkDownload':apkDownload,'ytmp3':ytmp3,'ytmp4':ytmp4,'ytsearch':ytsearch,'tiktok':tiktok,'tiktok_v2':tiktok_v2,'tiktokSearch':tiktokSearch,'getNpmPackageInfo':getNpmPackageInfo,'getNpmDownloads':getNpmDownloads,'getGithubUser':getGithubUser,'ytmp3_v2':ytmp3_v2,'ytmp4_v2':ytmp4_v2,'mediaFire':mediaFire,'twitter':twitter,'toAudio':toAudio,'toPTT':toPTT,'toVideo':toVideo,'ffmpeg':ffmpeg,'xvideosSearch':xvideosSearch,'xvideosdl':xvideosdl,'allInOneInfo':allInOneInfo,'allInOneDownload':allInOneDownload,'hirunews':hirunews,'sirasanews':sirasanews,'derananews':derananews};
+async function fbdownload(url) {
+    try {
+        if (!url) throw new Error("URL is required");
+
+        // List of reliable APIs (updated regularly)
+        const apis = [
+            {
+                name: "SocialDownloader",
+                url: `https://api.socialdownloader.social/facebook/download?url=${encodeURIComponent(url)}`,
+                parser: (data) => {
+                    if (data.success && data.download_url) {
+                        return {
+                            title: data.title || "Facebook Video",
+                            sd: data.download_url,
+                            hd: data.hd_url || data.download_url,
+                            image: data.thumbnail,
+                            duration: data.duration
+                        };
+                    }
+                    throw new Error("Invalid response");
+                }
+            },
+            {
+                name: "VideoDownloaderAPI",
+                url: `https://api.videodownloader.photo/api/facebook?url=${encodeURIComponent(url)}`,
+                parser: (data) => {
+                    if (data.status === "ok") {
+                        return {
+                            title: data.title || "Facebook Video",
+                            sd: data.url,
+                            hd: data.hd || data.url,
+                            image: data.thumb,
+                            duration: "N/A"
+                        };
+                    }
+                    throw new Error("Invalid response");
+                }
+            },
+            {
+                name: "DLFacebook",
+                url: `https://dlfb.org/api/v1/download?url=${encodeURIComponent(url)}`,
+                parser: (data) => {
+                    if (data.success) {
+                        // Find best quality
+                        let sd = null;
+                        let hd = null;
+                        
+                        if (data.formats && Array.isArray(data.formats)) {
+                            const qualities = data.formats.sort((a, b) => {
+                                // Sort by quality: hd > sd > low
+                                const qualityOrder = { 'hd': 3, 'sd': 2, 'low': 1 };
+                                return (qualityOrder[b.quality] || 0) - (qualityOrder[a.quality] || 0);
+                            });
+                            
+                            sd = qualities.find(f => f.quality === 'sd')?.url || qualities[0]?.url;
+                            hd = qualities.find(f => f.quality === 'hd')?.url || sd;
+                        }
+                        
+                        return {
+                            title: data.title || "Facebook Video",
+                            sd: sd || data.url,
+                            hd: hd || data.url,
+                            image: data.thumbnail,
+                            duration: data.duration
+                        };
+                    }
+                    throw new Error("Invalid response");
+                }
+            },
+            {
+                name: "FBVideoAPI",
+                url: `https://api.fbvideodownloader.org/download?url=${encodeURIComponent(url)}`,
+                parser: (data) => {
+                    if (data.success) {
+                        return {
+                            title: data.video_title || "Facebook Video",
+                            sd: data.links.sd || data.links.download,
+                            hd: data.links.hd || data.links.sd || data.links.download,
+                            image: data.thumbnail,
+                            duration: data.duration
+                        };
+                    }
+                    throw new Error("Invalid response");
+                }
+            }
+        ];
+
+        // Try each API until one works
+        for (const api of apis) {
+            try {
+                console.log(`Trying ${api.name}...`);
+                
+                const response = await fetch(api.url, {
+                    headers: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        "Accept": "application/json"
+                    },
+                    timeout: 8000 // 8 second timeout per API
+                });
+                
+                if (!response.ok) {
+                    console.log(`${api.name} HTTP error: ${response.status}`);
+                    continue;
+                }
+                
+                const data = await response.json();
+                const result = await api.parser(data);
+                
+                return {
+                    success: true,
+                    code: 200,
+                    result: {
+                        title: result.title,
+                        desc: "Facebook Video",
+                        duration: result.duration || "N/A",
+                        image: result.image,
+                        sd: result.sd,
+                        hd: result.hd
+                    }
+                };
+                
+            } catch (apiError) {
+                console.log(`${api.name} failed:`, apiError.message);
+                continue;
+            }
+        }
+        
+        // Fallback: Try a simple HTML parser as last resort
+        return await fallbackFbDownload(url);
+
+    } catch (error) {
+        console.error("Facebook download error:", error.message);
+        return {
+            success: false,
+            error: "Failed to download Facebook video. The video might be private or the service is temporarily unavailable."
+        };
+    }
+}
+
+async function fallbackFbDownload(url) {
+    try {
+        // Simple fallback using a different approach
+        const response = await fetch(`https://getfbstuff.com/api/download?url=${encodeURIComponent(url)}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success) {
+                return {
+                    success: true,
+                    code: 200,
+                    result: {
+                        title: data.title || "Facebook Video",
+                        desc: "Facebook Video",
+                        duration: "N/A",
+                        image: null,
+                        sd: data.download_link,
+                        hd: data.download_link
+                    }
+                };
+            }
+        }
+        
+        throw new Error("Fallback also failed");
+        
+    } catch (fallbackError) {
+        throw new Error("All download methods failed");
+    }
+}
+async function ytsearch(teks) {
+    try {
+        let data = await yts(teks);
+        return {
+            status: true,
+            creator: creator,
+            results: data.all
+        };
+    } catch (error) {
+        return {
+            status: false,
+            message: error.message
+        };
+    }
+}
+
+
+async function ytmp3(url) {
+    try {
+        const downloadResponse = await axios.post(
+            "https://api.grabtheclip.com/submit-download",
+            {
+                url: url,
+                height: 0,
+                media_type: "audio"
+            },
+            {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                }
+            }
+        );
+
+        let task_id = downloadResponse?.data?.task_id;
+        let data = (await yts(url)).all[0];
+        let downloadUrl = null;
+
+        do {
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Puka cududa
+            let response = await axios.get(`https://api.grabtheclip.com/get-download/${task_id}`);
+            downloadUrl = response?.data?.result?.url;
+        } while (!downloadUrl);
+
+        return {
+            status: true,
+            creator: creator,
+            task_id: task_id,
+            result: {
+              data,
+            download: {
+                url: downloadUrl
+            }
+         }
+      };
+    } catch (error) {
+        console.log(error);
+        return {
+            status: false,
+            creator: creator,
+            error: error.message
+        };
+    }
+}
+
+
+async function ytmp4(url, quality = 360) {
+  try {
+
+      if(!url) throw new Error("Url required 📛")
+      const downloadResponse = await axios.post(
+          "https://api.grabtheclip.com/submit-download",
+          {
+              url: url,
+              height: quality,
+              media_type: "video"
+          },
+          {
+              headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+              }
+          }
+      );
+
+      let task_id = downloadResponse?.data?.task_id;
+      let data = (await yts(url)).all[0];
+      let downloadUrl = null;
+
+      do {
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Puka cududa
+          let response = await axios.get(`https://api.grabtheclip.com/get-download/${task_id}`);
+          downloadUrl = response?.data?.result?.url;
+      } while (!downloadUrl);
+
+      return {
+          status: true,
+          creator: creator,
+          task_id: task_id,
+          result: {
+            data,
+          download: {
+              url: downloadUrl
+          }
+       }
+    };
+  } catch (error) {
+      console.log(error);
+      return {
+          status: false,
+          creator: creator,
+          error: error.message
+      };
+  }
+}
+
+async function tiktok(url, count = 12, cursor = 0, web = 1, hd = 1) {
+  try {
+    const baseUrl = "https://tikwm.com";
+    const payload = qs.stringify({
+      url,
+      count,
+      cursor,
+      web,
+      hd
+    });
+
+    const headers = {
+      'accept': 'application/json, text/javascript, */*; q=0.01',
+      'accept-encoding': 'gzip, deflate, br, zstd',
+      'accept-language': 'en-US,en;q=0.9',
+      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'origin': baseUrl,
+      'referer': baseUrl
+    };
+
+    const response = await axios.post("https://tikwm.com/api/", payload, { headers });
+
+    const data = response?.data?.data;
+    if (!data) throw new Error("Invalid response from API.");
+
+    // Function to ensure URLs are correct
+    const fixUrl = (url) => (url?.startsWith("http") ? url : baseUrl + url);
+
+    const result = {
+      status: true,
+      creator: creator,
+      result: {
+        id: data.id,
+        region: data.region,
+        title: data.title,
+        cover: fixUrl(data.cover),
+        duration: data.duration,
+        play: fixUrl(data.play),
+        sd: fixUrl(data.wmplay),
+        hd: fixUrl(data.hdplay),
+        music: fixUrl(data.music),
+        play_count: data.play_count,
+        digg_count: data.digg_count,
+        comment_count: data.comment_count,
+        share_count: data.share_count,
+        download_count: data.download_count,
+        collect_count: data.collect_count,
+      },
+    };
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching TikTok video:", error);
+    return {
+      status: false,
+      creator: creator,
+      error: error.message,
+    };
+  }
+}
+
+async function tiktok_v2(url) {
+  try {
+    const baseUrl = "https://ttsave.app/";
+
+    const response = await axios.post(
+      `${baseUrl}download`,
+      { query: url, language_id: '1' },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36",
+          Referer: `${baseUrl}en`,
+        },
+      }
+    );
+
+    const $ = cheerio.load(response.data);
+    const sd = $("#button-download-ready > a:nth-child(2)").attr("href");
+    const hd = $("#button-download-ready > a:nth-child(1)").attr("href");
+    const audio = $("#button-download-ready > a:nth-child(3)").attr("href");
+    const cover = $("#button-download-ready > a:nth-child(4)").attr("href");
+
+    return {
+      status: true,
+      creator: '',
+      result: {
+        sd,
+        hd,
+        audio,
+        cover
+      }
+    }
+  } catch(e){
+    console.error(e);
+    return null
+  }
+}
+
+async function tiktokSearch(keywords, count = 12, cursor = 0, web = 1, hd = 1) {
+  try {
+    const baseUrl = "https://tikwm.com";
+    const payload = qs.stringify({
+      keywords,
+      count,
+      cursor,
+      web,
+      hd
+    });
+
+    const headers = {
+      'accept': 'application/json, text/javascript, */*; q=0.01',
+      'accept-encoding': 'gzip, deflate, br, zstd',
+      'accept-language': 'en-US,en;q=0.9',
+      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'origin': baseUrl,
+      'referer': baseUrl
+    };
+
+    const response = await axios.post("https://tikwm.com/api/feed/search", payload, { headers });
+
+    const data = response?.data?.data?.videos;
+    if (!data) throw new Error("Invalid response from API");
+
+  return data.map(item => {
+    const fix = (url) => url?.startsWith("http") ? url : baseUrl + url;
+
+    return {
+      id: item.video_id,
+      title: item.title?.trim() || "No title",
+      region: item.region,
+      duration: item.duration + "s",
+      views: item.play_count,
+      likes: item.digg_count,
+      comments: item.comment_count,
+      shares: item.share_count,
+      downloads: item.download_count,
+      created_at: new Date(item.create_time * 1000).toISOString(),
+      video_url: fix(item.play),
+      video_url_wm: fix(item.wmplay),
+      cover: fix(item.cover),
+      music: {
+        id: item.music_info?.id || "",
+        title: item.music_info?.title || "",
+        url: item.music_info?.play || fix(item.music),
+        author: item.music_info?.author || "",
+        duration: item.music_info?.duration || 0,
+        album: item.music_info?.album || ""
+      },
+      author: {
+        id: item.author?.id || "",
+        username: item.author?.unique_id || "",
+        nickname: item.author?.nickname || "",
+        avatar: fix(item.author?.avatar)
+      }
+    };
+  });
+
+  } catch (error) {
+    console.error("Error fetching TikTok videos:", error.message);
+    return {
+      status: false,
+      error: error.message
+    };
+  }
+}
+
+async function getNpmPackageInfo(packageName) {
+    try {
+        const res = await axios.get(`https://registry.npmjs.org/${packageName}`);
+        const data = res.data;
+        const latestVersion = data["dist-tags"].latest;
+        const packageInfo = data.versions[latestVersion];
+
+        return {
+            name: data.name,
+            version: latestVersion,
+            description: data.description || "No description available.",
+            license: packageInfo.license || "No license info",
+            homepage: packageInfo.homepage || "No homepage",
+            repository: packageInfo.repository
+                ? packageInfo.repository.url.replace("git+", "").replace(".git", "")
+                : "No repository",
+            bugs: packageInfo.bugs ? packageInfo.bugs.url : "No bug tracker",
+            downloads: await getNpmDownloads(packageName),
+            maintainers: data.maintainers ? data.maintainers.map(m => m.name).join(", ") : "Unknown",
+            keywords: packageInfo.keywords ? packageInfo.keywords.join(", ") : "No keywords",
+            lastPublished: new Date(data.time[latestVersion]).toLocaleString(),
+            image: "https://static-00.iconduck.com/assets.00/npm-icon-2048x2048-8sw7kisf.png"
+        };
+    } catch (error) {
+        return { error: "❌ Package not found or API error." };
+    }
+}
+
+async function getNpmDownloads(packageName) {
+    try {
+        const res = await axios.get(`https://api.npmjs.org/downloads/point/last-month/${packageName}`);
+        return res.data.downloads || "Unknown";
+    } catch {
+        return "Unknown";
+    }
+}
+
+async function ytmp4_v2(url, format = "360") {
+    try {
+        if (!url) throw new Error("URL parameter is required.");
+        
+        // Format handling: Remove 'p' or 'P'
+        format = format.replace(/p/gi, "");
+        
+        const firstUrl = `https://p.savenow.to/ajax/download.php?format=${format}&url=${url}`;
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+        };
+        
+        const firstResponse = await axios.get(firstUrl, { headers });
+        if (!firstResponse?.data?.repeat_download === false) throw new Error("Video download is not available.");
+        
+        const id = firstResponse.data.id;
+        
+        let attempts = 0;
+        const maxAttempts = 100; // Limit retries
+
+        const checkProgress = async () => {
+            if (attempts >= maxAttempts) throw new Error("Download timeout.");
+            attempts++;
+            
+            const secondUrl = `https://p.savenow.to/api/progress?id=${id}`;
+            try {
+                const secondResponse = await axios.get(secondUrl);
+                const { download_url, text } = secondResponse.data;
+                
+                if (text === "Finished") return download_url;
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                return checkProgress();
+            } catch (error) {
+                throw new Error(`Error in progress check: ${error.message}`);
+            }
+        };
+        
+        // Extract video details
+        let videoIdMatch = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|watch\?v=)([a-zA-Z0-9_-]{11})/);
+        if (!videoIdMatch) throw new Error("Invalid YouTube URL");
+        
+        let data = await yts({ videoId: videoIdMatch[1] });
+        
+        const result = {
+            status: true,
+            creator: creator,
+            result: data,
+            download: {
+                url: await checkProgress()
+            }
+        };
+        
+        return result;
+    } catch (error) {
+        console.error(error);
+        return {
+            status: false,
+            message: error.message
+        };
+    }
+}
+
+async function mediaFire(url) {
+  try {
+    const response = await fetch('https://r.jina.ai/' + url, {
+      headers: {
+        'x-return-format': 'html',
+      }
+    });
+    const text = await response.text();
+    const $ = cheerio.load(text);
+  
+    const Time = $('div.DLExtraInfo-uploadLocation div.DLExtraInfo-sectionDetails').text().match(/This file was uploaded from (.*?) on (.*?) at (.*?)\n/);
+    const result = {
+      title: $('div.dl-btn-label').text().trim(),
+      link: $('div.dl-utility-nav a').attr('href'),
+      filename: $('div.dl-btn-label').attr('title'),
+      url: $('a#downloadButton').attr('href'),
+      size: $('a#downloadButton').text().match(/\((.*?)\)/)[1],
+      from: Time[1],
+      date: Time[2],
+      time: Time[3],
+      map: {
+        background: "https://static.mediafire.com/images/backgrounds/download/additional_content/world.svg",
+        region: "https://static.mediafire.com/images/backgrounds/download/additional_content/"+$('div.DLExtraInfo-uploadLocationRegion').attr('data-lazyclass')+".svg",
+      },
+      repair: $('a.retry').attr('href'),
+    };
+
+    
+    return result;
+  } catch (error) {
+    return { error: error.message };
+  }
+}
+
+
+const APIs = {
+    1: 'https://apkcombo.com',
+    2: 'https://apk-dl.com',
+    3: 'https://apk.support',
+    4: 'https://apps.evozi.com/apk-downloader',
+    5: 'http://ws75.aptoide.com/api/7',
+    6: 'https://cafebazaar.ir'
+};
+
+const Proxy = (url) => (url ? `https://translate.google.com/translate?sl=en&tl=fr&hl=en&u=${encodeURIComponent(url)}&client=webapp` : '');
+
+const tools = (ID, path = '/', query = {}) =>
+    (ID in APIs ? APIs[ID] : ID) + path + (Object.keys(query).length ? '?' + new URLSearchParams(query) : '');
+
+async function apkSearch(args) {
+    let res = await fetch(tools(5, '/apps/search', {
+        query: args,
+        limit: 1000
+    }));
+
+    res = await res.json();
+    
+    return res.datalist?.list?.map(v => ({
+        name: v.name,
+        id: v.package
+    })) || [];
+}
+
+async function apkDownload(id) {
+    let res = await fetch(tools(5, '/apps/search', {
+        query: id,
+        limit: 1
+    }));
+
+    res = await res.json();
+    if (!res.datalist?.list?.length) {
+        throw new Error("APK not found");
+    }
+
+    let app = res.datalist.list[0];
+    let size = await file_size_url(app.file.path); // Ensure this function is implemented
+
+    return {
+        name: app.name,
+        lastUpdate: app.updated,
+        package: app.package,
+        size,
+        image: app.icon,
+        dl_link: app.file.path
+    };
+}
+
+
+async function twitter(link) {
+    try {
+        const config = { 'URL': link };
+        const { data } = await axios.post(
+            'https://twdown.net/download.php',
+            qs.stringify(config),
+            {
+                headers: {
+                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                    "sec-ch-ua": '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
+                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                }
+            }
+        );
+
+        const $ = cheerio.load(data);
+
+        const desc = $('div:nth-child(1) > div:nth-child(2) > p').text().trim() || "No description";
+        const thumb = $('div:nth-child(1) > img').attr('src') || null;
+        const video_sd = $('tr:nth-child(2) > td:nth-child(4) > a').attr('href') || null;
+        const video_hd = $('tbody > tr:nth-child(1) > td:nth-child(4) > a').attr('href') || null;
+        const audio = $('body > div.jumbotron > div > center > div.row > div > div:nth-child(5) > table > tbody > tr:nth-child(3) > td:nth-child(4) > a').attr('href');
+
+        return {
+            desc,
+            thumb,
+            video_sd,
+            video_hd,
+            audio: audio ? `https://twdown.net/${audio}` : null
+        };
+    } catch (error) {
+        console.error("Twitter Download Error:", error.message);
+        return null;
+    }
+}
+
+
+async function xvideosSearch(url) {
+  return new Promise(async (resolve) => {
+    await axios
+      .request(
+        `https://www.xvideos.com/?k=${url}&p=${
+          Math.floor(Math.random() * 9) + 1
+        }`,
+        { method: "get" }
+      )
+      .then(async (result) => {
+        let $ = cheerio.load(result.data, { xmlMod3: false });
+        let title = [];
+        let duration = [];
+        let quality = [];
+        let url = [];
+        let thumb = [];
+        let hasil = [];
+
+        $("div.mozaique > div > div.thumb-under > p.title").each(function (
+          a,
+          b
+        ) {
+          title.push($(this).find("a").attr("title"));
+          duration.push($(this).find("span.duration").text());
+          url.push("https://www.xvideos.com" + $(this).find("a").attr("href"));
+        });
+        $("div.mozaique > div > div.thumb-under").each(function (a, b) {
+          quality.push($(this).find("span.video-hd-mark").text());
+        });
+        $("div.mozaique > div > div > div.thumb > a").each(function (a, b) {
+          thumb.push($(this).find("img").attr("data-src"));
+        });
+        for (let i = 0; i < title.length; i++) {
+          hasil.push({
+            title: title[i],
+            duration: duration[i],
+            quality: quality[i],
+            thumb: thumb[i],
+            url: url[i],
+          });
+        }
+        resolve(hasil);
+      });
+  });
+}
+
+async function xvideosdl(url) {
+  return new Promise((resolve, reject) => {
+    fetch(url, { method: "get" })
+      .then((res) => res.text())
+      .then((res) => {
+        let $ = cheerio.load(res, { xmlMode: false });
+        const title = $("meta[property='og:title']").attr("content");
+        const keyword = $("meta[name='keywords']").attr("content");
+        const views =
+          $(
+            "div#video-tabs > div > div > div > div > strong.mobile-hide"
+          ).text() + " views";
+        const vote = $("div.rate-infos > span.rating-total-txt").text();
+        const likes = $("span.rating-good-nbr").text();
+        const deslikes = $("span.rating-bad-nbr").text();
+        const thumb = $("meta[property='og:image']").attr("content");
+        const url = $("#html5video > #html5video_base > div > a").attr("href");
+        resolve({
+          status: 200,
+          result: { title, url, keyword, views, vote, likes, deslikes, thumb },
+        });
+      });
+  });
+}
+
+function addResolutionLabels(formats = []) {
+  return formats.map(format => {
+    let label;
+
+    if (format.height >= 1080) label = "1080p";
+    else if (format.height >= 720) label = "720p";
+    else if (format.height >= 480) label = "480p";
+    else if (format.height >= 360) label = "360p";
+    else if (format.height >= 240) label = "240p";
+    else label = "144p";
+
+    return {
+      ...format,
+      label
+    };
+  });
+}
+
+async function allInOneInfo(url) {
+  try {
+    const getInfo = await axios.get(
+      "https://savevid.com/api/v2/info?url=" + encodeURIComponent(url)
+    );
+
+    if (getInfo.status === 502 || getInfo?.data?.status !== "success") {
+      throw new Error(getInfo?.data?.message || "Invalid response");
+    }
+
+    const {
+      formats,
+      requested_downloads,
+      http_headers,
+      _version,
+      ...rest
+    } = getInfo.data.response;
+
+    return {
+      data: {
+        info: rest,
+        formats: addResolutionLabels(formats)
+      }
+    };
+  } catch (err) {
+    console.error("Info Error:", err.message);
+    return null;
+  }
+}
+
+async function allInOneDownload(url, format) {
+  try {
+    const getInfo = await axios.get(
+      "https://savevid.com/api/v2/download?url=" +
+        encodeURIComponent(url) +
+        "&format=" +
+        format
+    );
+
+    if (getInfo.status === 502 || getInfo?.data?.status !== "success") {
+      throw new Error(getInfo?.data?.message || "Invalid response");
+    }
+
+    const resUrl = getInfo?.data?.response?.url;
+
+    return {
+      data: {
+        downloadUrl: "https://savevid.com/api/v2/proxy?file=" + encodeURIComponent(resUrl)
+      }
+    };
+  } catch (err) {
+    console.error("Download Error:", err.message);
+    return null;
+  }
+}
+// ======================================  N E W S ======================================
+async function hirunews() {
+    try {
+      
+        const { data } = await axios.get('https://www.hirunews.lk/');
+        const $ = cheerio.load(data);
+        const latestUrl = $('.card-v1').attr('href');
+        const latestGet = await axios.get(latestUrl);
+        const $2 = cheerio.load(latestGet.data);
+
+        const title = $2('.head-title').text().trim();
+        const image = $2(".featured-image > img").attr('src');
+        const date = $2(".head-content > div > span:nth-child(2)").text().trim()
+        let desc = $2('#this-article')
+  .html()
+  .replace(/<br\s*\/?>/gi, '\n\n')
+  .replace(/\n{2,}/g, '\n\n')
+  .replace(/<[^>]+>/g, '')
+  .trim();
+
+
+        return {
+          result:{
+            title,
+            image,
+            date,
+            desc,
+            url: latestUrl
+        }
+      };
+
+    } catch (error) {
+        console.error(error.message);
+        return null;
+    }
+}
+
+async function sirasanews() {
+    try {
+      
+        const baseUrl = "https://sinhala.newsfirst.lk";
+        const { data } = await axios.get(`${baseUrl}/latest-news`);
+        const $ = cheerio.load(data);
+        let latestUrl = $('.ng-star-inserted > div > div > a').attr('href');
+        latestUrl = baseUrl + latestUrl
+
+        const latestGet = await axios.get(latestUrl);
+        const $2 = cheerio.load(latestGet.data);
+
+        const title = $2(".ng-star-inserted > h1").text().trim();
+        const image = $2("#post_img").attr('src');
+        const date = $2(".author_main > span").text().trim()
+        let desc = $2('#testId')
+  .html()
+  .replace(/<p\s*\/?>/gi, '\n\n')
+  .replace(/\n{2,}/g, '\n\n')
+  .replace(/<[^>]+>/g, '')
+  .trim();
+
+      return {
+          result:{
+            title,
+            image,
+            date,
+            desc,
+            url: latestUrl
+        }
+      };
+
+    } catch (error) {
+        console.error(error.message);
+        return null;
+    }
+}
+
+async function derananews() {
+    try {
+      
+        const baseUrl = "https://sinhala.adaderana.lk/";
+        const { data } = await axios.get(`${baseUrl}`);
+        const $ = cheerio.load(data);
+        let latestUrl = $(".col-xs-12.col-sm-6.col-md-5 > div > div > h3 > a").attr('href');
+        latestUrl = baseUrl + latestUrl
+        
+        const latestGet = await axios.get(latestUrl);
+        const $2 = cheerio.load(latestGet.data);
+
+        const title = $2(".news-heading").text().trim();
+        const image = $2(".news-banner > img").attr('src');
+        const date = $2(".col-xs-12.col-sm-8.col-lg-7 > article > p").text().trim().replace(/\s+/g, ' ');
+        let desc = $2('.news-content')
+  .html()
+  .replace(/<p\s*\/?>/gi, '\n\n')
+  .replace(/\n{2,}/g, '\n\n')
+  .replace(/<[^>]+>/g, '')
+  .trim();
+
+      return {
+          result:{
+            title,
+            image,
+            date,
+            desc,
+            url: latestUrl
+        }
+      };
+
+    } catch (error) {
+        console.error(error.message);
+        return null;
+    }
+}
+// ====================================== A I ======================================
+const blackbox = async(query) => {
+    if (!query) throw new Error("A query is required to proceed. ❓");
+  
+    const payload = {
+      messages: [{ id: "INRanod", content: query, role: "user" }],
+      agentMode: {},
+      id: "INRanod",
+      previewToken: null,
+      userId: null,
+      codeModelMode: true,
+      trendingAgentMode: {},
+      isMicMode: false,
+      userSystemPrompt: null,
+      maxTokens: 1024,
+      playgroundTopP: null,
+      playgroundTemperature: null,
+      isChromeExt: false,
+      githubToken: "",
+      clickedAnswer2: false,
+      clickedAnswer3: false,
+      clickedForceWebSearch: false,
+      visitFromDelta: false,
+      isMemoryEnabled: false,
+      mobileClient: false,
+      userSelectedModel: null,
+      validated: "00f37b34-a166-4efb-bce5-1312d87f2f94",
+      imageGenerationMode: false,
+      webSearchModePrompt: false,
+      deepSearchMode: false,
+      domains: null,
+      vscodeClient: false,
+      codeInterpreterMode: false,
+      customProfile: {
+        name: "",
+        occupation: "",
+        traits: [],
+        additionalInfo: "",
+        enableNewChats: false
+      },
+      session: null,
+      isPremium: false,
+      subscriptionCache: null,
+      beastMode: false
+    };
+  
+    try {
+      const fetchResponse = await fetch('https://blackbox.ai/api/chat', {
+        method: 'POST',
+        headers: {
+          "Accept": "*/*",
+          'Content-Type': 'application/json',
+          "Origin": "https://www.blackbox.ai",
+          "Cookie": "sessionId=c0ebbf8e-1c4b-499c-be36-652744c02024; intercom-id-x55eda6t=1c15f786-00e3-41a0-ae79-29ede7dbf5a1; intercom-session-x55eda6t=; intercom-device-id-x55eda6t=0ab02a4d-44c7-4ae9-a4e2-86c45eed16a0; render_app_version_affinity=dep-cusmsvlumphs73c9hfo0; __Host-authjs.csrf-token=1af0346a1017106691b395118021580cfd4cddb20c9db86dd3e8b978f8d845c5%7Ca72558df1e20bdab4376b6555d838cc57193edf4a1bac915b7338c1109243ce5; __Secure-authjs.callback-url=https%3A%2F%2Fwww.blackbox.ai; __Secure-authjs.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..hGmmfRwO_REcSKOZ.itC32J4l_mVelLqxqXs1z84lsrZxJIpeUW8Z8_10gezjUP8UbQWH6-Yn4a1MVWchpEpy-M_AfgmH2I2NvMykogz15u0Dz910lexOreYedg_HLaWlGuU9dz_-GMFfEyzHHSyhR6gEISEgS1ntYDIX26rvDaUdRn1U5GzLVLrziCGR9tlzGYHGAyw6vXUeUAl33WSUWHSXpsWOXeyStOluXrkFePiGrjBQz0XZfzJ08pv2gL3RJkqb1eHU8qVu9tIK7mY1w_Qwbq4s2K800YRRmsETiMBvQ5R4vFtFVMo1vr-npLgKGUeF3b_JuxBuTsSBDlRKD117HJA_7BuI5V23H9nWQHteNoc3ZBl1rNoNrqS26oG5vaM4RNaZydR1fX-7ulXzkoeH-xQWR1plvhGl5fd3wsv6Sb4AhBZuNX5pHpOZnfiYLX2XyZIoJuGxJhTZBFGa0oWA1tt_0cPVQ_aPmVn07yYI2iKwvUUq0TdkyunMNk05-Ds3GTLvXBdpN0FQ.M1snWUJXb10YFgXatSaqxg",
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+        },
+        body: JSON.stringify(payload)
+      });
+  
+      return await fetchResponse.text();
+    } catch (error) {
+      console.error("❌ Error:", error.message);
+      throw new Error("Failed to fetch response from API");
+    }
+  };
+  
+// ====================================== O T H E R ======================================
+async function getGithubUser(username) {
+    try {
+        const res = await axios.get(`https://api.github.com/users/${username}`);
+        return res.data;
+    } catch (error) {
+        return { error: "❌ User not found or API error." };
+    }
+}
+
+
+function ffmpeg(buffer, args = [], ext = '', ext2 = '') {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let tmp = join(__dirname, 'tmp', +new Date() + '.' + ext);
+      let out = tmp + '.' + ext2;
+      await promises.writeFile(tmp, buffer);
+      spawn('ffmpeg', [
+        '-y',
+        '-i', tmp,
+        ...args,
+        out
+      ])
+        .on('error', reject)
+        .on('close', async (code) => {
+          try {
+            await promises.unlink(tmp);
+            if (code !== 0) return reject(code);
+            resolve({
+              data: await promises.readFile(out),
+              filename: out,
+              delete() {
+                return promises.unlink(out);
+              }
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+/**
+ * Convert Audio to WhatsApp Voice Note (PTT)
+ */
+function toPTT(buffer, ext) {
+  return ffmpeg(buffer, [
+    '-vn',
+    '-c:a', 'libopus',
+    '-b:a', '128k',
+    '-vbr', 'on',
+  ], ext, 'ogg');
+}
+
+/**
+ * Convert Audio to WhatsApp-compatible Opus
+ */
+function toAudio(buffer, ext) {
+  return ffmpeg(buffer, [
+    '-vn',
+    '-c:a', 'libopus',
+    '-b:a', '128k',
+    '-vbr', 'on',
+    '-compression_level', '10'
+  ], ext, 'opus');
+}
+
+/**
+ * Convert Video to WhatsApp-compatible MP4
+ */
+function toVideo(buffer, ext) {
+  return ffmpeg(buffer, [
+    '-c:v', 'libx264',
+    '-c:a', 'aac',
+    '-ab', '128k',
+    '-ar', '44100',
+    '-crf', '32',
+    '-preset', 'slow'
+  ], ext, 'mp4');
+}
+
+
+module.exports = { 
+  blackbox, 
+  fbdownload, 
+  apkSearch, 
+  apkDownload, 
+  ytmp3, 
+  ytmp4, 
+  ytsearch, 
+  tiktok, 
+  tiktok_v2,
+  tiktokSearch,
+  getNpmPackageInfo, 
+  getNpmDownloads, 
+  getGithubUser, 
+  ytmp3_v2, 
+  ytmp4_v2, 
+  mediaFire, 
+  twitter,
+  toAudio,
+  toPTT,
+  toVideo,
+  ffmpeg,
+  xvideosSearch,
+  xvideosdl,
+  allInOneInfo,
+  allInOneDownload,
+  hirunews,
+  sirasanews,
+  derananews
+};
