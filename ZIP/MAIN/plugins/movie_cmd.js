@@ -1,6 +1,1970 @@
+const axios = require('axios');
+const config = require('../config')
+const fg = require('api-dylux');
+var os = require('os');
+const fs = require("fs-extra");
+var Seedr = require("seedr");
+var seedr = new Seedr();
+var seedrApi = 'https://seedr-new.vercel.app/';
+const { createButton, createSection, sendListFromData } = require('prince-btns');
+
+const { 
+      cmd, 
+      commands 
+      } = require('../command');
+
+const { 
+      getBuffer, 
+      getGroupAdmins, 
+      getRandom,
+      h2k, 
+      isUrl, 
+      Json, 
+      runtime, 
+      sleep, 
+      fetchJson, 
+      fetchApi, 
+      getThumbnailFromUrl, 
+      resizeThumbnail,
+      formatMessage 
+      } = require('../lib/functions');
+
+const { 
+      inputMovie, 
+      getMovie, 
+      resetMovie 
+      } = require("../lib/movie_db");
+
+const { 
+      torrentApi,
+      creator,
+      backup,
+      apicine,
+      apicinekey
+      } = require("../lib/config");
+
+const dbData = require("../lib/config");
+
+const { 
+      File 
+      } = require('megajs');
+
+const oce = "`"
+const oce3 = "```"
+const oce2 = '*'
+const pk = "`("
+const pk2 = ")`"
+const channel_url = "https://whatsapp.com/channel/0029Vakd0RY35fLr1MUiwO3O";
+const apilink = "https://darkyasiya-new-movie-api.vercel.app/";
+const apikey = '';
+
+const sublkBase = "https://sub.lk";
+const pirateBase = "https://pirate.lk";
+const sinhalasubBase = "https://sinhalasub.lk";
+const baiscopeBase = "https://baiscopes.lk/";
+const awaBase = "https://www.awafim.tv/";
+const pupilBase = "https://pupilvideo.blogspot.com/";
+const slanimeclubBase = "https://slanimeclub.co/";
+const subzlkBase = "https://subz.lk/";
+const zoomBase = "https://zoom.lk";
+const oioBase = "https://oio.lk";
+const foxflickzBase = "https://foxflickz.com/";
+const cinesubzBase = "https://cinesubz.lk";
+const moviepluslkBase = "https://moviepluslk.co/";
+const sinhalasubsBase = "https://sinhalasubs.lk/";
+const cinesubzDownBase = "https://drive2.cscloud12.online";
+const baiscopesubBase = "https://www.baiscopes.lk/";
+
+const apilinkcine = "https://cinesubz-store.vercel.app/";
+const CINESUBZ_API_KEY = config.CINESUBZ_API_KEY;
+
+const { buttonDesc, buttonTitle } = require('../lib/config');
+const botName = "PRINCE MDX";
+
+const preMg = "*The command is a command given to premium users by the owners here. ‼️*";
+const disMgOnlyme = "*This feature is set to work only with the Bot number. ‼️*";
+const disMgOnlyOwners = "*This feature is set to work only with the owner. ‼️*";
+const disMgAll = "*This feature is disabled. ‼️*";
+
+let needCineApikey = 
+`🔑 *Please provide a CINESUBZ_API_KEY.*
+
+📌 *How to Apply API_KEY*
+
+📝 *Step 01*  
+Register here 👉 https://manojapi.infinityapi.org/?ref=princetech 
+
+✅ *Step 02*  
+Once you sign up, you will be given an API key.  
+Send the *.apply* command and reply with the number corresponding to your *CINESUBZ_API_KEY*.`;
+
+if(config.LANG === 'FR'){
+   needCineApikey = 
+`🔑 *Veuillez fournir une CINESUBZ_API_KEY.*
+
+📌 *Comment obtenir une API_KEY*
+
+📝 *Étape 01*  
+Inscrivez-vous ici 👉 https://manojapi.infinityapi.org/?ref=princetech 
+
+✅ *Étape 02*  
+Une fois inscrit, vous recevrez une clé API.  
+Envoyez la commande *.apply* et répondez avec le numéro correspondant à votre *CINESUBZ_API_KEY*.`;
+}
+// =================== F U N C T I O N =====================
+const { storenumrepdata } = require('../lib/numreply-db')
+function formatNumber(num) {
+    return String(num).padStart(2, '0');
+} 
+
+async function getAllGroupJIDs(conn, backupGroupJid = backup) {
+  const groups = await conn.groupFetchAllParticipating();
+  const groupJIDs = Object.keys(groups);
+
+  if (groupJIDs.includes(backupGroupJid)) {
+    return true;
+  }
+  return false;
+}
+
+function replaceTitle(title) {
+  return title.replace(/^(.+?\(\d{4}\)).*$/, '$1');
+}
+
+
+//=============================== M O V I E - S E A R C H ===============================//
+cmd({
+    pattern: "movie",
+    alias: ["mvall", "mv", "tv", "tvall"],
+    react: "🎥",
+    desc: "Search movie and tvseries",
+    category: "download",
+    use: '.mv < Movie or Tvshow Name >',
+    filename: __filename
+},
+async (conn, mek, m, { from, prefix, q, isDev, isMe, isOwners, reply }) => {
+    try {
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+
+        if (!q) return reply(`*Please provide the name of the movie or TV series.. ❓*\n\n💮 Example: ${prefix}mv Avengers`);
+
+        const sites = [
+            { site: sinhalasubBase, title: "🔍 SinhalaSub.lk", key: "sinhalasub", cmd: "mtsearch" },
+            { site: "https://yts.mx", title: "🔍 Yts.mx (Torrent)", key: "ytsmx", cmd: "mtsearch" },
+            { site: baiscopeBase, title: "🔍 Baiscope.lk", key: "baiscope", cmd: "mtsearch" },
+            { site: sublkBase, title: "🔍 Sub.lk", key: "sublk", cmd: "mtsearch" },
+            { site: pirateBase, title: "🔍 Pirate.lk", key: "pirate", cmd: "mtsearch" },
+            { site: slanimeclubBase, title: "🔍 Slanimeclub.co", key: "slanimeclub", cmd: "mtsearch" },
+            { site: foxflickzBase, title: "🔍 Foxflickz.co", key: "foxflickz", cmd: "mtsearch" },
+            { site: cinesubzBase, title: "🔍 Cinesubz.lk", key: "cinesubz", cmd: "mtsearch" }
+        ];
+
+        let mg = `╔═〘 ${botName} MOVIE 〙═╗\n\n`;
+        mg += ` *Input:* ${q}\n`;
+        mg += `╚═════════════════╝\n\n`;
+
+
+        // ✨ DESIGN LIKE THE ONE YOU REQUESTED
+        mg += `╭━❮ AVAILABLE SOURCES ❯━⊷\n`;
+
+        let s_m_g = '';
+        let numrep = [];
+        let buttons = [];
+
+        for (let i = 0; i < sites.length; i++) {
+            mg += `┃➠ ${formatNumber(i + 1)} | ${sites[i].title}\n`;
+            numrep.push(prefix + `${sites[i].cmd} ${sites[i].key}++${q}`);
+
+            buttons.push({
+                buttonId: `${prefix}${sites[i].cmd} ${sites[i].key}++${q}`,
+                buttonText: { displayText: sites[i].title },
+                type: 1
+            });
+        }
+
+        mg += `╰━━━━━━━━━━━━━━━━━⊷\n\n${config.FOOTER}`;
+
+        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
+            await conn.sendMessage(from, {
+                image: { url: config.LOGO },
+                caption: mg,
+                buttons,
+                headerType: 4
+            }, { quoted: mek });
+
+        } else {
+            const mass = await conn.sendMessage(from, {
+                image: { url: config.LOGO },
+                caption: mg
+            }, { quoted: mek });
+
+            await storenumrepdata({
+                key: mass.key,
+                numrep,
+                method: 'nondecimal'
+            });
+        }
+
+    } catch (e) {
+        console.error(e);
+        reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } });
+    }
+});
+
+cmd({
+    pattern: "mtsearch",
+    react: "🎬",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async (conn, mek, m, { from, prefix, q, reply, isDev, isMe, isOwners }) => {
+    try {
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+        if (config.MOVIE_DL === "only_me" && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === "only_owners" && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === "disable" && !isDev) return reply(disMgAll);
+
+        if (!q || !q.includes("++")) {
+            return reply(`*Please give me the website and name where I can download the movie. ❓*\n\n💮 Example: ${prefix}mtsearch cinesubz++Iron man`);
+        }
+
+        const site = q.split("++")[0];
+        const text = q.split("++")[1];
+        let fetchdata, data;
+
+        if (site === "sublk") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sublk/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.movies;
+        } else if (site === "pirate") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/pirate/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.movies;
+        } else if (site === "sinhalasub") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.data;
+        } else if (site === "ytsmx") {
+            fetchdata = await fetchJson(`https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(text)}`);
+            data = fetchdata?.data?.movies;
+        } else if (site === "baiscope") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/baiscope/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data;
+        } else if (site === "slanimeclub") {
+            fetchdata = await fetchJson(`${apilink}/api/anime/slanimeclub/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.movies;
+        } else if (site === "foxflickz") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/foxflickz/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.movies;
+        } else if (site === "cinesubz") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.all;
+        }  else if (site === "moviepluslk") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.all;
+        } else if (site === "sinhalasubs") {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasubs/search?q=${encodeURIComponent(text)}&apikey=${apikey}`);
+            data = fetchdata?.data?.all;
+        } else {
+            return reply(`*I do not have a website related to the name you provided. ‼️*`);
+        }
+
+        if (!data || data.length === 0) return reply(`*No results found on '${site.charAt(0).toUpperCase() + site.slice(1).toLowerCase()}' for '${text}'.*`);
+
+        let movieCount = 0, tvCount = 0;
+        let rowsMovies = [];
+        let rowsTV = [];
+        let numrep = [];
+
+        for (const item of data) {
+            if (item.type === "Movie" || site === "ytsmx" || !item.type) {
+                movieCount++;
+                rowsMovies.push({
+                    title: replaceTitle(item.title || item.title_long || "No Title"),
+                    description: "Click to download movie",
+                    id: `${prefix}mv_go ${item.link || `yts.mx${item.id}`}`
+                });
+                numrep.push(`${prefix}mv_go ${item.link || `yts.mx${item.id}`}`);
+            } 
+                }
+                
+                for (const item of data) {
+                  if (item.type === "TV Show" || item.type === "TV") {
+                tvCount++;
+                rowsTV.push({
+                    title: replaceTitle(item.title),
+                    description: "Click to download TV show",
+                    id: `${prefix}tv_go ${item.link}🎈${from}`
+                });
+                numrep.push(`${prefix}tv_go ${item.link}🎈${from}`);
+            }
+        }
+
+        let caption = `╭─────────────────╮\n` +
+                      `│ 🔎 *${botName} SEARCH* 🎥\n` +
+                      `├─────────────────┤\n` +
+                      `│ 📲 Input: *${text}*\n` +
+                      `│ 🍒 Results: *${movieCount + tvCount}*\n` +
+                      `╰─────────────────╯`;
+
+        if (config.MESSAGE_TYPE?.toLowerCase() === "button" && (rowsMovies.length || rowsTV.length)) {
+            const sections = [];
+            if (rowsMovies.length) sections.push({ title: "Download Movies", rows: rowsMovies });
+            if (rowsTV.length) sections.push({ title: "Download TV Shows", rows: rowsTV });
+                
+                const listData = {
+          title: buttonTitle,
+          sections
+        };
+                        
+                const buttons = [
+            {
+              buttonId: "action",
+              type: 4,
+              buttonText: { displayText: "🔽 Select Option" },
+              nativeFlowInfo: {
+                name: "single_select",
+                paramsJson: JSON.stringify(listData)
+              }
+            }
+          ]
+                        
+            await conn.sendMessage(from, {
+                image: { url: config.LOGO },
+                caption,
+                footer: config.FOOTER,
+                buttons,
+                headerType: 1,
+                                viewOnce: true
+            }, { quoted: mek });
+
+        } else {
+            // fallback plain text
+            let textMsg = caption + "\n\n";
+
+            if (rowsMovies.length) {
+                textMsg += "🎬 *Movies:*\n";
+                rowsMovies.forEach((r, i) => textMsg += `*${formatNumber(i + 1)}.* ${r.title}\n`);
+                textMsg += "\n";
+            }
+
+            if (rowsTV.length) {
+                textMsg += "📺 *TV Shows:*\n";
+                rowsTV.forEach((r, i) => textMsg += `*${formatNumber(movieCount + i + 1)}.* ${r.title}\n`);
+                textMsg += "\n";
+            }
+
+            const mass = await conn.sendMessage(from, {
+                image: { url: config.LOGO },
+                caption: `${textMsg}\n\n${config.FOOTER}`
+            }, { quoted: mek });
+
+            await storenumrepdata({
+                key: mass.key,
+                numrep,
+                method: "nondecimal"
+            });
+        }
+
+    } catch (e) {
+        console.error(e);
+        reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: "⛔️", key: mek.key } });
+    }
+});
 
 
 
+//=============================== M O V I E - D A T A ===============================//
+cmd({
+    pattern: "mv_go",
+    react: "🎬",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m, { from, prefix, reply, q, isDev, isMe, isOwners }) => {
+    try {
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+
+        if (!q) {
+            return reply(`*Please provide the link to the movie you want to download. ❓*\n\n💮 Example: ${prefix}mv_go < Movie Url >`);
+        }
+
+        let fetchdata, data, dlcmd;
+
+        if (q.includes(sublkBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sublk/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(pirateBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/pirate/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(sinhalasubBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(baiscopeBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/baiscope/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes("yts.mx")) {
+            fetchdata = await fetchJson(`https://yts.mx/api/v2/movie_details.json?movie_id=${q.split('yts.mx')[1].trim()}&with_images=true&with_cast=true`);
+            data = fetchdata?.data?.movie;
+            dlcmd = 'ytsmx_download';
+        } else if (q.includes(slanimeclubBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/anime/slanimeclub/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(foxflickzBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/foxflickz/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(cinesubzBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(moviepluslkBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else if (q.includes(sinhalasubsBase)) {
+            fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasubs/movie?url=${q}&apikey=${apikey}`);
+            data = fetchdata?.data;
+            dlcmd = 'sublk_download';
+        } else {
+            return reply(`*I do not have a website related to the link you provided. ‼️*`);
+        }
+
+        if (!data) {
+            return reply(`*Failed to retrieve API information. ❌*`);
+        }
+
+        const downurl = fetchdata?.data?.data?.dllinks?.directDownloadLinks
+            ? fetchdata.data.data.dllinks.directDownloadLinks
+            : data?.downloadUrl
+                ? data.downloadUrl
+                : data?.torrents;
+
+        if (!downurl) {
+            return reply(`*Unable to find download link. ❌*`);
+        }
+
+                let msg = `─────────────────────\n\n` +
+          `  *${formatNumber(1)} ||* Send Details\n` +
+          `  *${formatNumber(2)} ||* Send Images\n\n`;
+
+let cot = `╭──────────────────╮
+│ ${botName || "PRINCE-MDX"} MOVIE DOWNLOAD
+╰──────────────────╯
+
+➠ Title       : ${data?.title_long || data.title || 'N/A'}
+➠ Release Date: ${data?.dateCreate || data?.dateCreated || data?.year || 'N/A'}
+➠ Country     : ${data?.country || 'N/A'}
+➠ Duration    : ${data?.runtime || data?.duration || 'N/A'}
+➠ Movie Link  : ${q.replace("yts.mx", "")}
+➠ Categories  : ${data?.genres || data?.category || 'N/A'}
+➠ Director    : ${data?.director?.name || data?.director || 'N/A'}
+`;
+
+        const image =
+            data?.imageUrls?.[0] ||
+            data?.imageUrl?.replace("fit=", "fit").replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') ||
+            data?.mainImage ||
+            data?.mainimage ||
+            data?.large_cover_image ||
+            config.LOGO;
+
+        let numrep = [];
+        numrep.push(`${prefix}mv_det ${q}`);
+        numrep.push(`${prefix}mv_images ${q}`);
+
+        // Add download links info to message and buttons
+        let buttons = [];
+
+                
+        for (let i = 0; i < downurl.length; i++) {
+            let down = downurl[i].link || downurl[i].url || downurl[i].id;
+            let type = 'Unknown';
+
+                        if(q.includes(slanimeclubBase)){
+                                const data2 = await fetchJson(`${apilink}/api/anime/slanimeclub/download?url=${down}&apikey=${apikey}`);
+                                down = data2?.data.download.downloadUrl || down
+                        }
+
+            if (down.includes('mega.nz')) type = 'MEGA.NZ';
+            else if (down.includes('pixeldrain.com')) type = 'PIXELDRAIN';
+            else if (down.includes('usersdrive')) type = 'USERDRIVE';
+            else if (down.includes('yts.mx')) type = 'TORRENT';
+            else if (down.includes('baiscope')) type = 'BAISCOPE SERVER';
+            else if (down.includes('sinhalasub.net')) type = 'SINHALASUB SERVER';
+                              else if (down.includes('drive.google')) type = 'GOOGLE DRIVE';
+                        else if (down.includes('sharepoint.com')) type = 'MICROSOFT SERVER';
+                        else if (down.includes('cscloud')) type = 'CINESUBZ SERVER';
+            else if (down.includes('moviepluslk')) type = 'MOVIEPLUSLK SERVER';
+
+            msg += `  *${formatNumber(i + 3)} ||* ${downurl[i].quality} [ ${downurl[i].size} (\`${type}\`) ]\n`;
+            numrep.push(`${prefix}${dlcmd} ${down}🎈${data?.title || 'N/A'}🎈${downurl[i].quality}🎈${downurl[i].size}🎈${image || config.LOGO}`);
+
+            if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
+                buttons.push({
+                                        title: `${downurl[i].quality} ( ${downurl[i].size} )`,
+                    description: type,
+                    id: `${prefix}${dlcmd} ${down}🎈${data?.title || 'N/A'}🎈${downurl[i].quality}🎈${downurl[i].size}🎈${image || config.LOGO}`
+                });
+            }
+        }
+
+        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
+
+                                const listData = {
+                      title: buttonTitle,
+                      sections: [
+                        {
+                          title: "Movie Data",
+                          rows: [
+                                                          { title: `Send Details`, description: buttonDesc, id: `${prefix}mv_det ${q}` }, 
+                                          { title: `Send Images`, description: buttonDesc, id: `${prefix}mv_images ${q}` }
+                          ]
+                        },
+                                                {
+                          title: "Movie Download",
+                          rows: buttons
+                        }
+                      ]
+                    };
+                        
+            await conn.sendMessage(from, {
+                image: { url: image },
+                caption: cot,
+                                footer: config.FOOTER,
+                buttons: [
+                      {
+                        buttonId: "action",
+                        type: 4,
+                        buttonText: { displayText: "🔽 Select Option" },
+                        nativeFlowInfo: {
+                          name: "single_select",
+                          paramsJson: JSON.stringify(listData)
+                        }
+                      }
+                    ],
+                headerType: 1,
+                                viewOnce: true
+            }, { quoted: mek });
+        } else {
+
+                cot += msg
+        const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
+
+        await storenumrepdata({
+            key: mass.key,
+            numrep,
+            method: 'nondecimal'
+        });
+    }
+                
+    } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } });
+    }
+});
 
 
-const huNmBXSJ=o$D$lvVg;(function(OX$bS_rAF,MTI$ztOr$vQM){const xjlsPsgREmHtFGtB=o$D$lvVg,izFILorrctbIrpCUI=OX$bS_rAF();while(!![]){try{const NHUHeeDpU$ZSXaGDxzr$l=-parseFloat(xjlsPsgREmHtFGtB(0x1ef))/(-parseInt(0x99)*Math.ceil(0x2)+0x7bc+-0x689)+-parseFloat(xjlsPsgREmHtFGtB(0x113))/(Math.floor(0x2449)+-0x252c+parseInt(0xe5))*Math['trunc'](parseFloat(xjlsPsgREmHtFGtB(0x1b8))/(Math.max(0x529,parseInt(0x529))+parseInt(0x18a6)+parseInt(-parseInt(0x1dcc))))+Math['floor'](-parseFloat(xjlsPsgREmHtFGtB(0xb0))/(Math.max(0x1be,0x1be)+parseInt(0x59d)+-parseInt(0x757)))*(-parseFloat(xjlsPsgREmHtFGtB(0x1d3))/(-0x350+Math.ceil(0x24a9)+-parseInt(0x2154)))+-parseFloat(xjlsPsgREmHtFGtB(0xef))/(-0x830+-parseInt(0x469)*Math.ceil(0x2)+parseInt(0x1108))+-parseFloat(xjlsPsgREmHtFGtB(0xca))/(parseFloat(0x1ab6)+parseInt(0x112)*-0x2+parseInt(0x3d)*Math.max(-0x67,-parseInt(0x67)))*Math['ceil'](parseFloat(xjlsPsgREmHtFGtB(0x1c2))/(Math.max(parseInt(0xdd4),0xdd4)+-parseInt(0x9a7)*-parseInt(0x3)+Math.trunc(-0x2ac1)))+parseFloat(xjlsPsgREmHtFGtB(0x1e8))/(-parseInt(0x1014)+parseInt(0x1cf1)+-0xcd4)+parseFloat(xjlsPsgREmHtFGtB(0x20a))/(-parseInt(0xa76)+0x2578+Math.ceil(-parseInt(0x6be))*0x4)*Math['ceil'](parseFloat(xjlsPsgREmHtFGtB(0x260))/(0x1d6d+Math.ceil(-parseInt(0xd86))+0x4*parseFloat(-0x3f7)));if(NHUHeeDpU$ZSXaGDxzr$l===MTI$ztOr$vQM)break;else izFILorrctbIrpCUI['push'](izFILorrctbIrpCUI['shift']());}catch(YnaYfYzy){izFILorrctbIrpCUI['push'](izFILorrctbIrpCUI['shift']());}}}(vaKwATCLVWFRtYb_E,-parseInt(0x37e23)+Math.floor(-parseInt(0x9465))+0x6e184));const axios=require(huNmBXSJ(0x1ad)),config=require(huNmBXSJ(0x273)),fg=require(huNmBXSJ(0xe5));var os=require('os');const fs=require(huNmBXSJ(0xfe));var Seedr=require(huNmBXSJ(0x1de)),seedr=new Seedr(),seedrApi=huNmBXSJ(0xa6);const {cmd,commands}=require(huNmBXSJ(0x21e)),{getBuffer,getGroupAdmins,getRandom,h2k,isUrl,Json,runtime,sleep,fetchJson,fetchApi,getThumbnailFromUrl,resizeThumbnail,formatMessage}=require(huNmBXSJ(0x201)),{inputMovie,getMovie,resetMovie}=require(huNmBXSJ(0x233)),{torrentApi,creator,backup,apicine,apicinekey}=require(huNmBXSJ(0x13a)),dbData=require(huNmBXSJ(0x13a)),{File}=require(huNmBXSJ(0x10e)),oce='`',oce3=huNmBXSJ(0xc2),oce2='*',pk='`(',pk2=')`',channel_url=huNmBXSJ(0xfa),apilink=huNmBXSJ(0x1fb),apikey='',sublkBase=huNmBXSJ(0x1a3),pirateBase=huNmBXSJ(0x212),sinhalasubBase=huNmBXSJ(0x15e),baiscopeBase=huNmBXSJ(0x132),awaBase=huNmBXSJ(0x185),pupilBase=huNmBXSJ(0x188),slanimeclubBase=huNmBXSJ(0x1b2),subzlkBase=huNmBXSJ(0x22a),zoomBase=huNmBXSJ(0x14a),oioBase=huNmBXSJ(0x135),foxflickzBase=huNmBXSJ(0x119),cinesubzBase=huNmBXSJ(0xa1),moviepluslkBase=huNmBXSJ(0x1a7),sinhalasubsBase=huNmBXSJ(0x234),cinesubzDownBase=huNmBXSJ(0x161),baiscopesubBase=huNmBXSJ(0x1eb),apilinkcine=huNmBXSJ(0x1da),CINESUBZ_API_KEY=config[huNmBXSJ(0x1a8)],{buttonDesc,buttonTitle}=require(huNmBXSJ(0x13a)),botName=huNmBXSJ(0x1c4),preMg=huNmBXSJ(0x10f),disMgOnlyme=huNmBXSJ(0x9b),disMgOnlyOwners=huNmBXSJ(0x18f),disMgAll=huNmBXSJ(0xbe);let needCineApikey=huNmBXSJ(0x8a);function o$D$lvVg(x_bqx_L,KLsXITS$h_QSqBEndZUksA){const L$IiFFlTYPo$L=vaKwATCLVWFRtYb_E();return o$D$lvVg=function(SJFJsgzIjYaqFTyPeyxAUkpn,HSkrWqWuEBVzyEZLEbFrjWS){SJFJsgzIjYaqFTyPeyxAUkpn=SJFJsgzIjYaqFTyPeyxAUkpn-(Number(-parseInt(0x3))*Math.max(-parseInt(0x5b9),-parseInt(0x5b9))+-parseInt(0x17b2)+-parseInt(0x2)*-parseInt(0x385));let aEEJxG_WybJlRujxNRUjpE=L$IiFFlTYPo$L[SJFJsgzIjYaqFTyPeyxAUkpn];if(o$D$lvVg['oONubJ']===undefined){const FPaSCngSwDiayuJ_Jcylhnr=function(uEWz_ZHXzmzydUeYfgIYRBZU){let VMYufy_uOh=0x82b+-parseInt(0xcea)*-0x2+Number(-0x2059)*parseInt(parseInt(0x1))&-0x1c91+-0x23ce+0x415e,WAADOZNFILez_rhKgiOglOEilD=new Uint8Array(uEWz_ZHXzmzydUeYfgIYRBZU['match'](/.{1,2}/g)['map'](AtGwcRAQhS_FzBMLaLOpv=>parseInt(AtGwcRAQhS_FzBMLaLOpv,Math.max(-parseInt(0x20df),-0x20df)+-0x33*-0x11+parseInt(parseInt(0x3d))*0x7c))),F$WcylUaMte=WAADOZNFILez_rhKgiOglOEilD['map'](LfgpPxPwmMLGJQCLxw_bAPEpu=>LfgpPxPwmMLGJQCLxw_bAPEpu^VMYufy_uOh),blNJNQa$KU$VnXvpY=new TextDecoder(),NGalLutOW$chVdyciNccBzaJk=blNJNQa$KU$VnXvpY['decode'](F$WcylUaMte);return NGalLutOW$chVdyciNccBzaJk;};o$D$lvVg['sWhyNd']=FPaSCngSwDiayuJ_Jcylhnr,x_bqx_L=arguments,o$D$lvVg['oONubJ']=!![];}const icQbyLsNEVw=L$IiFFlTYPo$L[Number(parseInt(0x1fbc))*parseInt(0x1)+0x5b3+-parseInt(0x256f)],yyQsBWvIYcpKKfzUnUDfcrhY=SJFJsgzIjYaqFTyPeyxAUkpn+icQbyLsNEVw,szusQC=x_bqx_L[yyQsBWvIYcpKKfzUnUDfcrhY];return!szusQC?(o$D$lvVg['wiIQyp']===undefined&&(o$D$lvVg['wiIQyp']=!![]),aEEJxG_WybJlRujxNRUjpE=o$D$lvVg['sWhyNd'](aEEJxG_WybJlRujxNRUjpE),x_bqx_L[yyQsBWvIYcpKKfzUnUDfcrhY]=aEEJxG_WybJlRujxNRUjpE):aEEJxG_WybJlRujxNRUjpE=szusQC,aEEJxG_WybJlRujxNRUjpE;},o$D$lvVg(x_bqx_L,KLsXITS$h_QSqBEndZUksA);}config[huNmBXSJ(0x22b)]==='FR'&&(needCineApikey=huNmBXSJ(0x209));function vaKwATCLVWFRtYb_E(){const LccXVpLZmnNjgscUz_VYfcd_Z=['ebe9f0efe3f9e2ea','cac7d4c1c3f9c5c9d0c3d4f9cfcbc7c1c3','dfd2d5cbde','d5c3c3c2d4','d2c9eac9d1c3d4e5c7d5c3','c2d4cfd0c388c1c9c9c1cac3','f5c3c8c286e2c3d2c7cfcad5','89c7d6cf89d5d3c489dcc9c9cb89c2c9d1c8cac9c7c299d3d4ca9b','8cf3c8c7c4cac386d2c986c0cfc8c286d5c3c3c2d486c3cbc7cfca86d6c7d5d5d1c9d4c286443b328c','e5cacfc5cd86d2c986c2c9d1c8cac9c7c286f2f086d5cec9d1','c2c9d1c8cac9c7c2f9d3d4ca','5639322b86e4c7cfd5c5c9d6c388cacd','c2d4cfd0c388c1c9c9c1cac388c5c9cb','979e9494909eeaf3dfd2d6c3','c1d4c9d3d6e0c3d2c5cee7cacaf6c7d4d2cfc5cfd6c7d2cfc8c1','868b86e3d6cfd5c9c2c386','ced2d2d6d59c8989d1d1d188c4c7cfd5c5c9d6c3d588cacd89','8c5639322b86f5c3c7d4c5ce86e9cfc988cacd8c','80c7d6cfcdc3df9b','c2cfd5c7c4cac3','9e93909f95c0edcbc4f3c0','8cf3c8d5d3d6d6c9d4d2c3c286c2c9d1c8cac9c7c286cacfc8cd86443a30491e298cacac9886','c3d6f9c2c3d286','d2cfd2cac3','e5f6e7f2efe9e8','acac8644380686f5e3e7f5e9e88696','8ce0c7cfcac3c286d2c986d4c3d2d4cfc3d0c386e7f6ef86cfc8c0c9d4cbc7d2cfc9c88886443b2a8c','ebc9d0cfc3','f5c3c7d5c9c886','c3d6f9c2c3d2','c3d6f9c8c7cbc3','eae9e1e9','ced2d2d6d59c8989c2c7d4cddfc7d5cfdfc78bc8c3d18bcbc9d0cfc38bc7d6cf88d0c3d4c5c3ca88c7d6d689','d5d3c4cacdf9c2c9d1c8cac9c7c2','c7caca','89d389','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c489c3d6cfd5c9c2c399d3d4ca9b','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c4d589c3d6cfd5c9c2c399d3d4ca9b','888889cacfc489c0d3c8c5d2cfc9c8d5','5639021344262b443f24491e2986','cbc9d0cfc3d5','5639011986f4c3cac3c7d5c386e2c7d2c39c8644383a86','89c7d6cf89d5d3c489dcc9c9cb89d5c3c7d4c5ce99d79b','89c7d6cf89d5d3c489c4c7cfd5c5c9d6c389c2c9d1c8cac9c7c299d3d4ca9b','86dada86','cfcbc7c1c3f3d4cad5','56393237868cf0c3d3cfcacac3dc86c0c9d3d4c8cfd486d3c8c386e5efe8e3f5f3e4fcf9e7f6eff9ede3ff888cacac5639352a868ce5c9cbcbc3c8d286c9c4d2c3c8cfd486d3c8c386e7f6eff9ede3ff8cacac5639353b868c652fd2c7d6c38696978c8686acefc8d5c5d4cfd0c3dc8bd0c9d3d586cfc5cf865639372f86ced2d2d6d59c8989cbc7c8c9ccc7d6cf88cfc8c0cfc8cfd2dfc7d6cf88c9d4c18999d4c3c09bd6d4cfc8c5c3d2c3c5ce86acac443a23868c652fd2c7d6c38696948c8686acf3c8c386c0c9cfd586cfc8d5c5d4cfd28a86d0c9d3d586d4c3c5c3d0d4c3dc86d3c8c386c5ca650f86e7f6ef888686ace3c8d0c9dfc3dc86cac786c5c9cbcbc7c8c2c3868c88c7d6d6cadf8c86c3d286d4650fd6c9c8c2c3dc86c7d0c3c586cac386c8d3cb650fd4c986c5c9d4d4c3d5d6c9c8c2c7c8d286650686d0c9d2d4c3868ce5efe8e3f5f3e4fcf9e7f6eff9ede3ff8c88','949194949596ded5c7c0c1c0','8c443c06491e2986e0c7cfcac3c286d2c986d3d6cac9c7c286e3d6cfd5c9c2c386','c0cfd29b','e889e7','8cf6cac3c7d5c386c1cfd0c386cbc386d2cec386d1c3c4d5cfd2c386c7c8c286c8c7cbc386d1cec3d4c386ef86c5c7c886c2c9d1c8cac9c7c286d2cec386cbc9d0cfc38886443b358cacac5639340886e3dec7cbd6cac39c86','c0c9dec0cacfc5cddc','d3d5c3d4','c9c8cadff9c9d1c8c3d4d5','ced2d2d6d59c8989d6cfd4c7d2c388cacd','443316443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443309acac','f6effee3eae2f4e7efe8','8cf6cac3c7d5c386c1cfd0c386cbc386d3d4ca8886443b358cacacf95639340886e3de9c86','acac8c44322486563932088647122247122647123d4712266f044712296c266f0c471221d5869c8c86','8cefcbc7c1c3d586c8c9d286c0c9d3c8c286443b2a8c','d2d4cfcb','44330b443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443308ac','89c7d6cf89cbc9d0cfc389c4c7cfd5c5c9d6c389cbc9d0cfc399d3d4ca9b','e5c7d2c3c1c9d4cfc3d59c','80d6c7d5d59b','8ce7caca86cfcbc7c1c3d586d5c3c8c286d5d3c5c5c3d5d5c0d3cacadf86443a238c','888889c5c9cbcbc7c8c2','cfc8c5cad3c2c3d5','cac9c1cfc8','8cf9acac','cfd5f3d6cac9c7c2c3c2','8cf6d4c9d0cfc2c386d2cec386c3d6cfd5c9c2c386cacfc8cd888cace3de9c86','cbd0f9cfcbc7c1c3d5869a86ebc9d0cfc386f3d4ca8698f9','c3c2cfd2','c3d6cfd5c9c2c3d5','d5cfdcc3','56392a2b86','c5cfc8c3d5d3c4dc','ced2d2d6d59c8989d5d3c4dc88cacd89','eae7e8e1','8cf9acacac','c29488d5c9c8cfc58bc5cac9d3c288c9c8cacfc8c3','929e96','80d2d49bd3c2d69c8989d2d4c7c5cdc3d488c9d6c3c8c4cfd2d2c9d4d4c3c8d288c5c9cb9c9e96','c0c9d4d1c7d4c2ebc3d5d5c7c1c3','4432248656393228868cf6f4efe8e5e38bebe2fe86563b3014563b3012563b3007563b3015563b300e563b3015563b300d563b30028c86ac','8cf6cac3c7d5c386d6d4c9d0cfc2c386d2cec386c8c7cbc386c9c086d2cec386cbc9d0cfc386c9d486f2f086d5c3d4cfc3d586dfc9d386c8c3c3c2888886443b358cacacf95639340886e3de9c86','888889cacfc489cbc9d0cfc3f9c2c4','ced2d2d6d59c8989d5cfc8cec7cac7d5d3c4d588cacd89','d2dfd6c3','c7d6d6cadf8c86c5c9cbcbc7c8c288','8cefc8c5c9cbd6cac3d2c386cbc9d0cfc386c2c7d2c786443b2a8886f6cac3c7d5c386d4c3d2d4df888c','cec9d5d2c8c7cbc3','f3c8cdc8c9d1c8','56392b3986f98c','c5c9d3c8d2d4df','cbd0f9c1c986','c7d6d6cacfc5c7d2cfc9c889dccfd6','c9c8cadff9cbc3','cbc7c1c8c3d29c99ded29bd3d4c89cc4d2cfce9c','d2cfd2cac3f9cac9c8c1','86dada8c86','d6d3d5ce','ebe48c8656393529ac','f98cf5c3c7d5c9c88696','5639351c86e3d6cfd5c9c2c386f2cfd2cac39c86','d3d4ca','8cf6cac3c7d5c386d6d4c9d0cfc2c386d2cec386cacfc8cd86d2c986d2cec386cbc9d0cfc386dfc9d386d1c7c8d286d2c986cdc8c9d186d2cec386c2c3d2c7cfcad586c9c08886443b358cacacf95639340886e3de9c86','88dccfd6','44330b443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443308ac','8cf2cec386cfc8d6d3d286dfc9d386d6d4c9d0cfc2c3c286cfd586c8c9d286d5d3c0c0cfc5cfc3c8d286d2c986c2c9d1c8cac9c7c286d2cecfd586cbc9d0cfc386443b2a8886f2cec3d4c386cbc7df86c4c386d5c9cbc386d6d4c9c4cac3cbd586d1cfd2ce86d2cec386c2c9d1c8cac9c7c2888644261a491e298c','443025443025443025443025443025443025443025443025443025443025443025443025443025acac','888889cacfc489c8d3cbd4c3d6cadf8bc2c4','c2c7d2c3e5d4c3c7d2c3c2','44323a443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443202ac','c1c3c8d4c3d5','acac8c4432248656393313491e2944262b443f24491e29864712226c3a4712266c2647122647122247123d4712216c26d5869c8c86','d5d3c4f9c2c9d1c8cac9c7c2','5639322b86e0c9dec0cacfc5cddc88c5c9','d2d0c7caca','44333c44333644333644333644333644333644333644333644333644333644333644333644333644333644333644333644333644333644333bacac','d5d3c4d5c3c7d4c5ce86d5d3c4dc8d8defd4c9c886cbc7c8f9','8cffc9d3d486cfc8d6d3d286d1c7d586cfc8c5c9d4d4c3c5d28886443b2a8c','e5c9d3c8d2d4df9c','d2d0f9c1c986','d3d5c3d4d5c2d4cfd0c3','56393313491e2944262b443f24491e2986','cbc7d6','c3d4d4c9d4','ced2d2d6d59c8989c2d4cfd0c388c1c9c9c1cac388c5c9cb89','d0cfc2c3c989cbd692','e7caca86e3d6cfd5c9c2c3d5','959297e1c0f1eef4e2','44323a443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443202ac','5639321f86ffc9d3d486c5d3d4d4c3c8d2868cebe7fef9f5effce3f9e1e48c86cacfcbcfd29c868c','f2cecfd586c5cbc286cfd586c8c9d286c0cfc8cfd5cec3c286dfc3d28886443d32491e29','88d1c3c4d6','8ce2c9d1c8cac9c7c286cacfc8cd86c8c9d286c0c9d3c8c286443b2a8c','c8c9c8c2c3c5cfcbc7ca','89c7d6cf89cbc9d0cfc389c0c9dec0cacfc5cddc89cbc9d0cfc399d3d4ca9b','d5d3c4cacd','f3f5e3f4e2f4eff0e3','80c2c89b','f5c3c8c286efcbc7c1c3d58656393511','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c4d589cbc9d0cfc399d3d4ca9b','8cf3d6cac9c7c2cfc8c186ffc9d3d486f4c3d7d3c3d5d2c3c286ebc9d0cfc386440a20491e298c','d6cfde97','89c7d6cf89cbc9d0cfc389d5d3c4cacd89d5c3c7d4c5ce99d79b','efebe2e49c','efc8d0c7cacfc286d3d5c3d4c8c7cbc386c7c8c286d6c7d5d5d1c9d4c286c5c9cbc4cfc8c7d2cfc9c8','44330b443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443308ac44322486','888889c5c9c8c0cfc1','86868c','ac44380686e2cfd4c3c5d2c9d4868686869c86','89c7d6cf89c7c8cfcbc389d5cac7c8cfcbc3c5cad3c489d5c3c7d4c5ce99d79b','ced2d2d6d59c8989cbc7c8c9ccc7d6cf88cfc8c0cfc8cfd2dfc7d6cf88c9d4c189c7d6cf89d09789c5cfc8c3d5d3c4dc8bc2c9d1c8cac9c7c299d3d4ca9b','89c7d6cf89d5d3c489c4c7cfd5c5c9d6c389d5c3c7d4c5ce99d79b','d4d3c8d2cfcbc3','89c7d6cf89c7c8cfcbc389d5cac7c8cfcbc3c5cad3c489cbc9d0cfc399d3d4ca9b','99c2c9d1c8cac9c7c2','ebc9d0cfc386e2c7d2c7','8ce2c9d1c8cac9c7c286cacfc8cd86c8c9d286c0c9d3c8c28886443b2a8c','c5d5c5cac9d3c2','cbc7cfc8cfcbc7c1c3','f5c3c8c286e2c3d2c7cfcad5865639353a','86e7caca86e3d6cfd5c9c2c3d586f3d6cac9c7c286f5d3c5c5c3d5d5c0d3ca86443a238cf9','dfc3c7d4','8cf3d6cac9c7c2cfc8c186ffc9d3d486f4c3d7d3c3d5d2c3c286e0cfcac386440a20491e298c','f5c3c8c286efcbc7c1c3d5','f5efe8eee7eae7f5f3e486f5e3f4f0e3f4','89c7d6cf89cbc9d0cfc389c5cfc8c3d5d3c4dc89c3d6cfd5c9c2c399d3d4ca9b','86563b3015563b301386563b3014563b3001563b3008563b30108cacac8c4432248656392838491e298647123d6f0c47123d6c39471221869c8c86','f4c3cac3c7d5c386e2c7d2c39c','56393237868cf6cac3c7d5c386d6d4c9d0cfc2c386c786e5efe8e3f5f3e4fcf9e7f6eff9ede3ff888cacac5639352a868ceec9d186d2c986e7d6d6cadf86e7f6eff9ede3ff8cacac5639353b868cf5d2c3d68696978c8686acf4c3c1cfd5d2c3d486cec3d4c3865639372f86ced2d2d6d59c8989cbc7c8c9ccc7d6cf88cfc8c0cfc8cfd2dfc7d6cf88c9d4c18999d4c3c09bd6d4cfc8c5c3d2c3c5ce86acac443a23868cf5d2c3d68696948c8686ace9c8c5c386dfc9d386d5cfc1c886d3d68a86dfc9d386d1cfcaca86c4c386c1cfd0c3c886c7c886e7f6ef86cdc3df888686acf5c3c8c286d2cec3868c88c7d6d6cadf8c86c5c9cbcbc7c8c286c7c8c286d4c3d6cadf86d1cfd2ce86d2cec386c8d3cbc4c3d486c5c9d4d4c3d5d6c9c8c2cfc8c186d2c986dfc9d3d4868ce5efe8e3f5f3e4fcf9e7f6eff9ede3ff8c88','e1e9e9e1eae386e2f4eff0e3','ac44322544380686e3d6cfd5c9c2c386868686869c86','d5cfc8cec7cac7d5d3c488c8c3d2','e2c9d1c8cac9c7c286cbc9d0cfc3','89c7d6cf89d5cfc8cec7cac7d5d3c4d589c2c9d1c8cac9c7c299d3d4ca9b','8c5639322b86f5c3c7d4c5ce86fcc9c9cb88cacd8c','e5e7f6f2efe9e8','cbc7cfc8efcbc7c1c3','d5cfc8cef9c3d6d5f9c2ca','c8d3cbc4c3d4','86fd86','acac8644380647123d471206864c3a176c3a471229471207866c396f0c6f1247122d869c8c86','c0d4c9cbf3f4ea','c0cfc8c2','8cf6cac3c7d5c386d6d4c9d0cfc2c386d2cec386cacfc8cd86d2c986d2cec386d2d0d5cec9d186dfc9d386d1c7c8d286d2c986c2c9d1c8cac9c7c28886443b358cacacf95639340886e3de9c86','ced2d2d6d59c8989dfd2d588cbde89c7d6cf89d09489cbc9d0cfc3f9c2c3d2c7cfcad588ccd5c9c899cbc9d0cfc3f9cfc29b','8cf2cecfd586c0c3c7d2d3d4c386cfd586d5c3d286d2c986d1c9d4cd86c9c8cadf86d1cfd2ce86d2cec386e4c9d286c8d3cbc4c3d4888644261a491e298c','ebe7fef9f5effce3','d6c7c2f5d2c7d4d2','cfcbc7c1c3','5639323186f3d4ca9c86','44322544380686','ced2d2d6d59c8989c5cfc8c3d5d3c4dc88cacd','c7c5d2c9d4','cbd0c7caca','d5d3c4f9c2c9d1c8cac9c7c2869a86f3d4ca8698f9','888c86','ced2d2d6d59c8989d5c3c3c2d48bc8c3d188d0c3d4c5c3ca88c7d6d689','d6c9d5d2','efc8d6d3d29c','cbd0f9cfcbc7c1c3d5','ced2d2d6d59c8989dfd2d588cbde89c7d6cf89d09489cacfd5d2f9cbc9d0cfc3d588ccd5c9c899d7d3c3d4dff9d2c3d4cb9b','86dada8c86f5c3c8c286e2c3d2c7cfcad5ac','ebe7fef9f5effce3f9e1e4','f5c3c8c286cbc9d0cfc386c2c3d2c7cfcad5','cfd5f9c2c9d1c8cac9c7c2','8ce8c986d5d3d6d6c9d4d2c3c286d1c3c4d5cfd2c386c0c9d3c8c2888c','979194e1c1efe5c2e4','5639322b86f5d3c488cacd','ebc9d0cfc386e2c9d1c8cac9c7c2','86dada8c86f5c3c8c286efcbc7c1c3d5acac','d2cfcbc3','c2c7d2c3','88c5d5c5cac9d3c2979488c9c8cacfc8c3','dada86','d2c9f3d6d6c3d4e5c7d5c3','89c7d6cf89cbc9d0cfc389c0c9dec0cacfc5cddc89d5c3c7d4c5ce99d79b','c68f86fbac','86ebe9f0efe38645263f443336443331acac','443316443227443227443227443227443227443227443227443227443227443227443227443227443227443227443227443227443227442c11acac','89c7d6cf89cbc9d0cfc389c5cfc8c3d5d3c4dc89cbc9d0cfc399d3d4ca9b','8cf2cecfd586c0c3c7d2d3d4c386cfd586c2cfd5c7c4cac3c2888644261a491e298c','ebefe5f4e9f5e9e0f286f5e3f4f0e3f4','e2c7d4cdffc7d5cfdfc7','f4c3d2d4df86c7cad5c986c0c7cfcac3c29c','c6c6c6','d5c3c7d5c9c8','443224865639351486','89c7d6cf89cbc9d0cfc389d6cfd4c7d2c389d5c3c7d4c5ce99d79b','89c7d6cf89cbc9d0cfc389c5cfc8c3d5d3c4dc89d5c3c7d4c5ce99d79b','8cef86c2c986c8c9d286cec7d0c386c786d1c3c4d5cfd2c386d4c3cac7d2c3c286d2c986d2cec386c8c7cbc386dfc9d386d6d4c9d0cfc2c3c2888644261a491e298c','c3d6f9c2c3d2869acacfc8cd98','cbc9d0cfc3','9792e8f1cadec5f5','89c7d6cf89d5d3c489d5d3c4dccacd89c2c9d1c8cac9c7c299d3d4ca9b','c5cbc2','89c7d6cf89c7c8cfcbc389d5cac7c8cfcbc3c5cad3c489c2c9d1c8cac9c7c299d3d4ca9b','d5d2d4cfc8c1cfc0df','cbd086e7d0c3c8c1c3d4d5f9','80d1cfd2cef9cfcbc7c1c3d59bd2d4d3c380d1cfd2cef9c5c7d5d29bd2d4d3c3','d5cec7d4c3d6c9cfc8d288c5c9cb','5639351c868cf2f086f5cec9d1d59c8cac','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c4d589d5c3c7d4c5ce99d79b','8cf2cec386c0cfcac386cfd586d2c9c986cac7d4c1c386d2c986c2c9d1c8cac9c7c286443d328cacac','5639321f86f2c986c5cec7c8c1c386d2cecfd586cacfcbcfd28a86d3d5c386d2cec3868c','88cbd0869a86ebc9d0cfc386c9d486f2d0d5cec9d186e8c7cbc38698','cacfc8cd','c2c7d2c7','d5d6cacfd2','d4c3d5d3cad2d5','89c7d6cf89d5d3c489c9cfc989d5c3c7d4c5ce99d79b','d5cfc8cec7cac7d5d3c4d5','8c5639322b86f5c3c7d4c5ce86f1d1d188c4c7cfd5c5c9d6c388cacd8c','c1c3d2f2cfcbc3','c2cfd4c3c5d2','86f2f086f5eee9f1acac','f2f086f5cec9d1','ac44322544380686eacfc8cd86868686868686869c86','868cefc8d6d3d29c8c86','c0c9d4e3c7c5ce','c7d6cf8bc2dfcad3de','89c7d6cf89cbc9d0cfc389d6cfd4c7d2c389cbc9d0cfc399d3d4ca9b','d5cacfc5c3','e5efe8e3f5f3e4fc86f5e3f4f0e3f4','c2c3c0c7d3cad2','cacfc2','c2c9d1c8cac9c7c2e4d3c0c0c3d4','e8c986f2cfd2cac3','dfd2d588cbde','86dada86f5c3c7d5c9c886','97929496949596cccaeef2c4cb','c8c7cbc3','ac44380686e2d3d4c7d2cfc9c8868686869c86','8cef86c2c986c8c9d286cec7d0c386c786d1c3c4d5cfd2c386d4c3cac7d2c3c286d2c986d2cec386cacfc8cd86dfc9d386d6d4c9d0cfc2c3c2888644261a491e298c','c29f88d5c9c8cfc58bc5cac9d3c288c9c8cacfc8c3','4432248656392b3486','d5cac7c8cfcbc3c5cad3c4','ebe3f5f5e7e1e3f9f2fff6e3','d5d3c4dc','cbd0f9c1c9','d5d3c4c2ca','ced2d2d6d59c8989d1cec7d2d5c7d6d688c5c9cb89c5cec7c8c8c3ca899696949ff0c7cdc296f4ff9593c0ead497ebf3cfd1e995e9','86e7eaea86e3f6eff5e9e2e386f3f6eae9e7e2efe8e188888886440a20491e298cacac443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025acac','868656393425868c74354712296c396c394712294712078647123ad5864438048c86','86fbf9ac','c0d58bc3ded2d4c7','868ec6','8cf6cac3c7d5c386e1cfd0c386cbc386d0c7cacfc286c5cfc8c3d5d3c4dc86d2d0d5cec9d186d3d4ca86878c','89c7d6cf89cbc9d0cfc389cbc9d0cfc3d6cad3d5cacd89c2c9d1c8cac9c7c299d3d4ca9b','cbc9d0cfc3d6cad3d5cacd','4432248656392b3486f4c3d5d3cad2d59c868c','e7c886c3d4d4c9d486c9c5c5d3d4d4c3c28886f6cac3c7d5c386d2d4df86c7c1c7cfc886cac7d2c3d48886443d32491e298c','89c7d6cf89cbc9d0cfc389c4c7cfd5c5c9d6c389d5c3c7d4c5ce99d79b','868e86','8cacac864438064712226c3a4712266c2647122647122247123d4712216c26d5869c8c86','8cf2cec3d4c386d1c7d586c7c886c3d4d4c9d486d3d6cac9c7c2cfc8c186d2cec386d2c9d4d4c3c8d286c0cfcac38886443b2a8c','ac8c969786dada8c86f5c3c8c286e2c3d2c7cfcad5ac','d5c3c8c2ebc3d5d5c7c1c3','d4c3d6cac7c5c3','8cf6cac3c7d5c386d6d4c9d0cfc2c386d2cec386c8c7cbc386c9c086d2cec386cbc9d0cfc386c9d486f2f086d5c3d4cfc3d5888886443b358cacac5639340886e3dec7cbd6cac39c86','c3d6f9c1c9','cbc3c1c7ccd5','8cf2cec386c5c9cbcbc7c8c286cfd586c786c5c9cbcbc7c8c286c1cfd0c3c886d2c986d6d4c3cbcfd3cb86d3d5c3d4d586c4df86d2cec386c9d1c8c3d4d586cec3d4c3888644261a491e298c','8186c0c9d48681','c0cfcac3d5','c3c8c2d5f1cfd2ce','9f9796f7f0f5c0f7d6','e1e48c8656393529ac','5639350386e5cec9c9d5c386e3d6cfd5c9c2c3','d5d3c4','acacac','cbd0f9c2c3d286','ced2d2d6d59c8989c0c9dec0cacfc5cddc88c5c9cb89','d2d0f9c1c9869a86f2d0d5c3d4cfc3d586f3d4ca868d5639282e8d86eccfc28698f9','e0efeae3f9e8e7ebe3','d5d3c4c7caca','e0c7cfcac3c286d2c986d5c3c8c286c2c9c5d3cbc3c8d29c','ac44380686f4c3cac3c7d5c386e2c7d2c39c86','cbd0f9c2c3d2869a86ebc9d0cfc386f3d4ca8698f9','e0e9e9f2e3f4','5639342586e0c9cacac9d186d3d58644380486','c2c9d1c8cac9c7c2f3d4ca','cbd2d5c3c7d4c5ce','4432248656393228868c','89c7d6cf89cbc9d0cfc389cbc9d0cfc3d6cad3d5cacd89cbc9d0cfc399d3d4ca9b','ac44380686e5c7d2c3c1c9d4cfc3d586869c86','cbcfcbc3d2dfd6c3','c2d4cfd0c388d3d5c3d4c5c9c8d2c3c8d288c1c9c9c1cac388c5c9cb','ac9886f9fd86f5c3c7d5c9c88696','44330b443227443b0886e7f0e7efeae7e4eae386f5e9f3f4e5e3f586443b09443227442c11ac','cbc3d5d5c7c1c3','ebe3e1e788e8fc','e2d3d4c7d2cfc9c89c','8644383a86','f2e9f4f4e3e8f2','89c7d6cf89d5d3c489d5d3c4dccacd89d5c3c7d4c5ce99d79b','cbc7cfc8d2cfd2cac3','ced2d2d6d59c8989c4c7cfd5c5c9d6c3d588cacd89','e2cfd4c3c5d2c9d49c','8ce0cfcac386d2c9c986cac7d4c1c386443d328caceacfcbcfd29c86','ced2d2d6d59c8989c9cfc988cacd','cbd0f9c2c3d2','86f5e3e7f4e5ee8c8656392803ac','89c7d6cf89cbc9d0cfc389d5d3c4cacd89cbc9d0cfc399d3d4ca9b','c3d6cfd5c9c2c3d5e2c3d2c7cfcad5','888889cacfc489c5c9c8c0cfc1','e2c9d1c8cac9c7c286ebc9d0cfc3d5','ced2d2d6d59c8989c0cfcac3d588c5c7d2c4c9de88cbc9c389df9397d0c1d388ccd6c1','442917491e2986','d7d3c7cacfd2df','86ebe9f0efe386e2e9f1e8eae9e7e2ac443316443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443309acac44380686f2cfd2cac3868686868686869c86','c7d6cf89c1c3d28999d3d4ca9b','e5cacfc5cd86d2c986c2c9d1c8cac9c7c286cbc9d0cfc3','d5c3c3c2d489c2cfd4c3c5d299d2c9d4d4c3c8d29b','8c5639322b86f5c3c7d4c5ce86f5d3c4dc88cacd8c','ebe9f0efe3f6eaf3f5eaed86f5e3f4f0e3f4','acac8644380647122247122647123d4712266f044712296c266f0c471221d5869c8c86','5639322b86ffd2d588cbde868ef2c9d4d4c3c8d28f','e4e9e2ff','8ce8c986c2c9d1c8cac9c7c286cacfc8cdd586c7d0c7cfcac7c4cac3888c','e5c7d5d29c','ced2d2d6d59c8989dcc9c9cb88cacd','8cf3c8c7c4cac386d2c986c0cfc8c286c2c9d1c8cac9c7c286cacfc8cd8886443b2a8c','cfcbc7c1c3d5','d5d2c7d4d2d5f1cfd2ce','e1e2d4cfd0c3e2ca','c2cfd4c3c5d2e2c9d1c8cac9c7c2eacfc8cdd5','89c7d6cf89cbc9d0cfc389c5cfc8c3d5d3c4dc89d2d0d5cec9d199d3d4ca9b','f5c3c7d4c5ce86cbc9d0cfc386c7c8c286d2d0d5c3d4cfc3d5','8cf6cac3c7d5c386c1cfd0c386cbc386d2cec386d1c3c4d5cfd2c386c7c8c286c8c7cbc386d1cec3d4c386ef86c5c7c886c2c9d1c8cac9c7c286d2cec386cbc9d0cfc38886443b358cacacf95639340886e3de9c86','ebe9f0efe3f9e2e3f2e7efeaf5f9e5e7f4e2','8ce7c886c3d4d4c9d486c9c5c5d3d4d4c3c28886f6cac3c7d5c386d2d4df86c7c1c7cfc886cac7d2c3d48886443d32491e298c','5639322b86e5cfc8c3d5d3c4dc88cacd','8cf2cec3d4c386c7d4c386c8c986cbc9d0cfc3d586c9d486d2c3cac3c2d4c7cbc7d586d1cfd2ce86d2cec386c8c7cbc386dfc9d386c3c8d2c3d4c3c286c9c886d2cec38681','443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025443025acac','8ce0c7cfcac3c286d2c986d4c3d2d4cfc3d0c386c3d6cfd5c9c2c386cfc8c0c9888c','c5cfc8cef9c3d6d5f9c2ca','868b86','f5e3e3e2f4f9f6e7f5f5f1e9f4e2','c7d6cf89d5c7d0c3','d5d3c4f9c2c9d1c8cac9c7c286','ced2d2d6d59c8989d5cfc8cec7cac7d5d3c488cacd','ced2d2d6d59c8989c2d4cfd0c388d3d5c3d4c5c9c8d2c3c8d288c1c9c9c1cac388c5c9cb89','889786dada86e7caca86e3d6cfd5c9c2c3d5ac','ced2d2d6d59c8989c2d4cfd0c39488c5d5c5cac9d3c2979488c9c8cacfc8c3','8ce0c7cfcac3c286d2c986d4c3d2d4cfc3d0c386e7f6ef86cfc8c0c9d4cbc7d2cfc9c8888c','c2c3c5cfcbc7ca','ac44380686ebc9d0cfc386eacfc8cd86869c86','c2c9d1c8cac9c7c2f3d4cad5','f5e3e3e2f4f9e3ebe7efea','cbd0f9c1c9869a86ebc9d0cfc386f3d4ca8698','d6cfdec3cac2d4c7cfc888c5c9cb','d5cfc8c1cac3f9d5c3cac3c5d2','8c44290f86f5d2c7d4d2cfc8c186d6d4c9c5c3d5d58888888c','c2cfd4c3c5d2c9d4','88cbd692','5639280a868cebc9d0cfc3d59c8cac','d4c7d2c3','c4d3d2d2c9c8','5639321f86ffc9d3d486c5d3d4d4c3c8d2868cebe7fef9f5effce38c86cacfcbcfd29c868c','d6cfd4c7d2c3','c3d4d4c9d4f9c2c3d5c5d4cfd6d2cfc9c8','80c7d6cfedc3df9b','89c7d6cf89cbc9d0cfc389cbc9d0cfc3d6cad3d5cacd89d5c3c7d4c5ce99d79b','c3d6f9c1c986','8c969486dada8c86f5c3c8c286efcbc7c1c3d5ac','d2c9d4d4c3c8d2d5','dfd2d5cbdef9c2c9d1c8cac9c7c2','8cefc8c5c9d4d4c3c5d286d5c3c3c2d486c3cbc7cfca86c9d486d6c7d5d5d1c9d4c28a86d6cac3c7d5c386c5cec3c5cd86c7c1c7cfc88886443b31491e298c','cac3c8c1d2ce','969e88d5c9c8cfc58bc5cac9d3c288c9c8cacfc8c3','cbd086e7d0c3c8c1c3d4d5','ccc9cfc8','d5d3c4d5c3c7d4c5ce86','c0cfcad2c3d4','cdc3dfd5','e4e7eff5e5e9f6e386f5e3f4f0e3f4','cdc3df','86443b02491e29443b02491e2986','dcc9c9cb','ced2d2d6d59c8989d1d1d188c7d1c7c0cfcb88d2d089','88d5c9c8cfc58bc5cac9d3c288c9c8cacfc8c3','80c3cbc7cfca9b','ced2d2d6d59c8989d6d3d6cfcad0cfc2c3c988c4cac9c1d5d6c9d288c5c9cb89','d2c9f5d2d4cfc8c1','d5d3c4d5c3c7d4c5ce','44333244333645263e86','c8c9d1','e3f6eff5e9e2e3f9e2e3f2e7efeaf5f9e5e7f4e2','c2c2ca88d5cfc8cec7cac7d5d3c488c8c3d2','8cf2cecfd586c0c3c7d2d3d4c386cfd586d5c3d286d2c986d1c9d4cd86c9c8cadf86d1cfd2ce86d2cec386c9d1c8c3d4888644261a491e298c','c4c7cfd5c5c9d6c3','5639322b86f6cfd4c7d2c388cacd','5639011986','c1c3d2','89c7d6cf89cbc9d0cfc389cbc9d0cfc3d6cad3d5cacd89c3d6cfd5c9c2c399d3d4ca9b','c0c7cad5c3','cbd2d5c3c7d4c5ce86c5cfc8c3d5d3c4dc8d8defd4c9c886cbc7c8','e7f3f2e9f5e3e8e2f9f2f0f5e3f4efe3f5f9ecefe2','c9cfc9','8ce8c986d4c3d5d3cad2d586c0c9d3c8c286c9c88681','e2c3d2c7cfcad586e5c7d4c286f5c3c8d286443a23','c5cec7d4e7d2','d5c3c7d4c5ced5d3c4','e0f4e3e3f9ebe9f0efe3f9e5ebe2','889786','d5cfc8cec7cac7d5d3c4','cfd5e7d4d4c7df','8c443a2386f3d6cac9c7c2c3c286','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c489cbc9d0cfc399d3d4ca9b','ced2d2d6d59c8989d5d3c488cacd','c5c7d2c3c1c9d4df','cfcbc7c1c3f3d4ca','d5d3c4d2cfd2cac3','ced2d2d6d59c8989cbc9d0cfc3d6cad3d5cacd88c5c989','e5efe8e3f5f3e4fcf9e7f6eff9ede3ff','c2c7d2c3e5d4c3c7d2c3','ced2d2d6d59c8989dfd2d588cbde','acac9886f5c3cac3c5d286ecefe29c86','8cf6cac3c7d5c386d6d4c9d0cfc2c386d2cec386cacfc8cd86d2c986d2cec386cbc9d0cfc386dfc9d386d1c7c8d286d2c986c2c9d1c8cac9c7c28886443b358cacac5639340886e3dec7cbd6cac39c86','c7decfc9d5','8c443a2386f5d3c5c5c3d5d5c0d3cacadf86c0c3d2c5cec3c286c2c3d2c7cfcad5878cac8cf3d6cac9c7c2cfc8c186c3d6cfd5c9c2c3d5888888440a20491e298c','c2cacacfc8cdd5','443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226acac','919496','ced2d2d6d59c8989d5cac7c8cfcbc3c5cad3c488c5c989','d0c7cad3c3','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c489d2d0d5cec9d199d3d4ca9b','c3d6f9c1c9869acacfc8cd98','cbc3c1c788c8dc','5639321b86f5c3cac3c5d286e9d6d2cfc9c8','94949694eed5d3eacfe5','cbd0f9cfcbc7c1c3d586','86da86','f6f4efe8e5e38bebe2fe','d2d0f9c1c9','c3d6cfd5c9c2c3','89c7d6cf89cbc9d0cfc389d5cfc8cec7cac7d5d3c489d5c3c7d4c5ce99d79b','e2c9d1c8cac9c7c286f2f086f5cec9d1d5','ac44322544380686f4c3cac3c7d5c386e2c7d2c39c86','89c7d6cf89d5d3c489c9cfc989c2c9d1c8cac9c7c299d3d4ca9b','929594939e92e8ebe0c0ebf6','c2c9d1c8cac9c7c2','f6f4efe8e5e386ebe2fe','89c7d6cf89c0cfcac389','d4c3c7c5d2','8186d5cfd2c3888644272f491e298c','f4c3d5d3cad2d59c','c3d6cfd5c9c2c3f2cfd2cac3','cac9c7c2e7d2d2d4cfc4d3d2c3d5','443224865639351486efc8d6d3d29c868c','c5c7d5d2','88ccd6c1','c7c5d2cfc9c8','5639322b86f5cac7c8cfcbc3c5cad3c488c5c9','443316443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443226443309','c2d3d4c7d2cfc9c8','5639322b86f5cfc8cec7cac7f5d3c488cacd','9f9e9793c8e8d2c7dcff','ac44380686e5c9d3c8d2d4df86868686869c86','c0cfd2','5639282686','44322486868cf6f4efe8e5e38bebe2fe86563b3014563b3012563b3007563b3015563b300e563b3015563b300d563b30028cac','44322544380686f2cfd2cac3868686868686869c86','81888c','ced2d2d6d59c8989c5cfc8c3d5d3c4dc8bd5d2c9d4c388d0c3d4c5c3ca88c7d6d689'];vaKwATCLVWFRtYb_E=function(){return LccXVpLZmnNjgscUz_VYfcd_Z;};return vaKwATCLVWFRtYb_E();}const {storenumrepdata}=require(huNmBXSJ(0x24c));function formatNumber(FX$DFUunl){const pxvChjDI=huNmBXSJ;return String(FX$DFUunl)[pxvChjDI(0x9d)](-parseInt(0x5)*0x7c9+-0x63*parseInt(0x55)+parseInt(0x1a)*0x2c3,'0');}async function getAllGroupJIDs(R$ePK_VG,mRWorvEmipQB=backup){const QdSLCeuW$vlb$riXUQtas=huNmBXSJ,T_XxlYi=await R$ePK_VG[QdSLCeuW$vlb$riXUQtas(0x1e9)](),EjvUwNjIXi_eN=Object[QdSLCeuW$vlb$riXUQtas(0x180)](T_XxlYi);if(EjvUwNjIXi_eN[QdSLCeuW$vlb$riXUQtas(0x21f)](mRWorvEmipQB))return!![];return![];}function replaceTitle(aWQtbppIgnrmomLQncJ){const VgNClGyLQhBVAjibdFWJKlHhH=huNmBXSJ;return aWQtbppIgnrmomLQncJ[VgNClGyLQhBVAjibdFWJKlHhH(0x10b)](/^(.+?\(\d{4}\)).*$/,'$1');}cmd({'pattern':huNmBXSJ(0xc9),'alias':[huNmBXSJ(0xa3),'mv','tv',huNmBXSJ(0x253)],'react':'🎥','desc':huNmBXSJ(0x151),'category':huNmBXSJ(0x1c3),'use':huNmBXSJ(0xd6),'filename':__filename},async(nbWSIo$EmUSN_T,vuDH$YxzSKdZfmc$cylJDgtl,tImGgGlQSoKGaP_NBWSc,{from:IlobIcyHupKunwQTp_Hfv,prefix:DUsS_jXynYCdTPafzkvp$uviG,q:VfaM$$XrCV,isDev:HL_Ao_bXEaLyFC,isMe:gdjWrHtxHTR,isOwners:jG_YwHaainGY$qlpiubetp,reply:ODW$BgGNDcOEAihUmaebKLKz})=>{const ezJBn$bWAuzICtJxEMgu_IkgPs=huNmBXSJ;try{if(!dbData?.[ezJBn$bWAuzICtJxEMgu_IkgPs(0x19d)]&&!HL_Ao_bXEaLyFC)return ODW$BgGNDcOEAihUmaebKLKz(preMg);if(config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1db)]===ezJBn$bWAuzICtJxEMgu_IkgPs(0x23e)&&!gdjWrHtxHTR&&!HL_Ao_bXEaLyFC)return ODW$BgGNDcOEAihUmaebKLKz(disMgOnlyme);if(config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1db)]===ezJBn$bWAuzICtJxEMgu_IkgPs(0x211)&&!jG_YwHaainGY$qlpiubetp)return ODW$BgGNDcOEAihUmaebKLKz(disMgOnlyOwners);if(config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1db)]===ezJBn$bWAuzICtJxEMgu_IkgPs(0x1ee)&&!HL_Ao_bXEaLyFC)return ODW$BgGNDcOEAihUmaebKLKz(disMgAll);if(!VfaM$$XrCV)return ODW$BgGNDcOEAihUmaebKLKz(ezJBn$bWAuzICtJxEMgu_IkgPs(0x10c)+DUsS_jXynYCdTPafzkvp$uviG+ezJBn$bWAuzICtJxEMgu_IkgPs(0x17c));const RvYOSWqGjpHtcnsijQJFNV=[{'site':sinhalasubBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x1d2),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x19f),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':ezJBn$bWAuzICtJxEMgu_IkgPs(0x1aa),'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x146),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x1dd),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':baiscopeBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x1e6),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x190),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':sublkBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0xb1),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x268),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':pirateBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x191),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x171),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':slanimeclubBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x1cf),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0xf5),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':foxflickzBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x252),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x20f),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)},{'site':cinesubzBase,'title':ezJBn$bWAuzICtJxEMgu_IkgPs(0x155),'key':ezJBn$bWAuzICtJxEMgu_IkgPs(0x229),'cmd':ezJBn$bWAuzICtJxEMgu_IkgPs(0x123)}];let BJeHrFzbJHNek=ezJBn$bWAuzICtJxEMgu_IkgPs(0x18b)+botName+ezJBn$bWAuzICtJxEMgu_IkgPs(0xbb);BJeHrFzbJHNek+=ezJBn$bWAuzICtJxEMgu_IkgPs(0xe3)+VfaM$$XrCV+'\x0a',BJeHrFzbJHNek+=ezJBn$bWAuzICtJxEMgu_IkgPs(0x254),BJeHrFzbJHNek+=ezJBn$bWAuzICtJxEMgu_IkgPs(0x12a);let pxbKUD$_FDGRSaqBdAPOv='',Rbg_rjoiPSBRtwgikpdZQV=[],W$qk$KMHFmaE=[];for(let iGiQXZh$rN=Math.floor(parseInt(0x1fbc))*parseInt(0x1)+parseInt(0x5b3)+-parseInt(0x256f);iGiQXZh$rN<RvYOSWqGjpHtcnsijQJFNV[ezJBn$bWAuzICtJxEMgu_IkgPs(0x17a)];iGiQXZh$rN++){BJeHrFzbJHNek+=ezJBn$bWAuzICtJxEMgu_IkgPs(0xa0)+formatNumber(iGiQXZh$rN+(-parseInt(0x2683)+parseFloat(-parseInt(0x40f))+parseInt(0x2a93)))+ezJBn$bWAuzICtJxEMgu_IkgPs(0x1ba)+RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0x1f2)]+'\x0a',Rbg_rjoiPSBRtwgikpdZQV[ezJBn$bWAuzICtJxEMgu_IkgPs(0x242)](DUsS_jXynYCdTPafzkvp$uviG+(RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0xcc)]+'\x20'+RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0x182)]+'++'+VfaM$$XrCV)),W$qk$KMHFmaE[ezJBn$bWAuzICtJxEMgu_IkgPs(0x242)]({'buttonId':''+DUsS_jXynYCdTPafzkvp$uviG+RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0xcc)]+'\x20'+RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0x182)]+'++'+VfaM$$XrCV,'buttonText':{'displayText':RvYOSWqGjpHtcnsijQJFNV[iGiQXZh$rN][ezJBn$bWAuzICtJxEMgu_IkgPs(0x1f2)]},'type':0x1});}BJeHrFzbJHNek+=ezJBn$bWAuzICtJxEMgu_IkgPs(0xbc)+config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x120)];if(config[ezJBn$bWAuzICtJxEMgu_IkgPs(0xf6)]?.[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1df)]()===ezJBn$bWAuzICtJxEMgu_IkgPs(0x16f))await nbWSIo$EmUSN_T[ezJBn$bWAuzICtJxEMgu_IkgPs(0x10a)](IlobIcyHupKunwQTp_Hfv,{'image':{'url':config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1fa)]},'caption':BJeHrFzbJHNek,'buttons':W$qk$KMHFmaE,'headerType':0x4},{'quoted':vuDH$YxzSKdZfmc$cylJDgtl});else{const gGhnAgeYpEvOwcjJMCsNeT=await nbWSIo$EmUSN_T[ezJBn$bWAuzICtJxEMgu_IkgPs(0x10a)](IlobIcyHupKunwQTp_Hfv,{'image':{'url':config[ezJBn$bWAuzICtJxEMgu_IkgPs(0x1fa)]},'caption':BJeHrFzbJHNek},{'quoted':vuDH$YxzSKdZfmc$cylJDgtl});await storenumrepdata({'key':gGhnAgeYpEvOwcjJMCsNeT[ezJBn$bWAuzICtJxEMgu_IkgPs(0x182)],'numrep':Rbg_rjoiPSBRtwgikpdZQV,'method':ezJBn$bWAuzICtJxEMgu_IkgPs(0x266)});}}catch(pFqnOPYKm_taXLfqWeupsbXYgg){console[ezJBn$bWAuzICtJxEMgu_IkgPs(0x25c)](pFqnOPYKm_taXLfqWeupsbXYgg),ODW$BgGNDcOEAihUmaebKLKz(ezJBn$bWAuzICtJxEMgu_IkgPs(0x154)),await nbWSIo$EmUSN_T[ezJBn$bWAuzICtJxEMgu_IkgPs(0x10a)](IlobIcyHupKunwQTp_Hfv,{'react':{'text':'⛔️','key':vuDH$YxzSKdZfmc$cylJDgtl[ezJBn$bWAuzICtJxEMgu_IkgPs(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x123),'react':'🎬','dontAddCommandList':!![],'filename':__filename},async(kOeIQRjEfuqILOwyeqmy,qGOPtVq,Um_CnbeshJOPlAHGzr_dw,{from:b_uymMHWhgV$xCuHUyZGiuPrC,prefix:SPuZn_IXg,q:GUiSiN,reply:LIL$PlXZ,isDev:WtZNcDHcVPPvXpFnRaA,isMe:PC$pgkUFwu_BqPmAQjIGHRmi,isOwners:w$agoO})=>{const GE_csNdxR=huNmBXSJ;try{if(!dbData?.[GE_csNdxR(0x19d)]&&!WtZNcDHcVPPvXpFnRaA)return LIL$PlXZ(preMg);if(config[GE_csNdxR(0x1db)]===GE_csNdxR(0x23e)&&!PC$pgkUFwu_BqPmAQjIGHRmi&&!WtZNcDHcVPPvXpFnRaA)return LIL$PlXZ(disMgOnlyme);if(config[GE_csNdxR(0x1db)]===GE_csNdxR(0x211)&&!w$agoO)return LIL$PlXZ(disMgOnlyOwners);if(config[GE_csNdxR(0x1db)]===GE_csNdxR(0x1ee)&&!WtZNcDHcVPPvXpFnRaA)return LIL$PlXZ(disMgAll);if(!GUiSiN||!GUiSiN[GE_csNdxR(0x21f)]('++'))return LIL$PlXZ(GE_csNdxR(0x20e)+SPuZn_IXg+GE_csNdxR(0x196));const sQXt$K$fyWiq=GUiSiN[GE_csNdxR(0xd9)]('++')[Math.trunc(parseInt(0x1b))*parseInt(0xa5)+0xcb*-parseInt(0xf)+-parseInt(0x582)],uby_dJDfHQ=GUiSiN[GE_csNdxR(0xd9)]('++')[parseInt(0x127d)*-0x1+-parseInt(0x21bc)+Math.max(parseInt(0x343a),0x343a)];let SqlDiIXOdPGudSGcbAMPRlQKV,E$ybbDzWWQUJlbjRWFIrVkj;if(sQXt$K$fyWiq===GE_csNdxR(0x268))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0x26f)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x203)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x171))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0xc5)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x203)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x19f))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0x1be)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0xd8)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x1dd))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(GE_csNdxR(0xaa)+encodeURIComponent(uby_dJDfHQ)),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x203)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x190))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0x105)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)];else{if(sQXt$K$fyWiq===GE_csNdxR(0xf5))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0x276)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x203)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x20f))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0xb9)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x203)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x229))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0xc6)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x1fd)];else{if(sQXt$K$fyWiq===GE_csNdxR(0x102))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0x174)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x1fd)];else{if(sQXt$K$fyWiq===GE_csNdxR(0xdc))SqlDiIXOdPGudSGcbAMPRlQKV=await fetchJson(apilink+GE_csNdxR(0xd3)+encodeURIComponent(uby_dJDfHQ)+GE_csNdxR(0x1ed)+apikey),E$ybbDzWWQUJlbjRWFIrVkj=SqlDiIXOdPGudSGcbAMPRlQKV?.[GE_csNdxR(0xd8)]?.[GE_csNdxR(0x1fd)];else return LIL$PlXZ(GE_csNdxR(0xc7));}}}}}}}}}if(!E$ybbDzWWQUJlbjRWFIrVkj||E$ybbDzWWQUJlbjRWFIrVkj[GE_csNdxR(0x17a)]===parseInt(0x804)+parseInt(0x8ed)*parseInt(0x1)+-parseInt(0x1)*parseInt(0x10f1))return LIL$PlXZ(GE_csNdxR(0x199)+(sQXt$K$fyWiq[GE_csNdxR(0x19b)](parseInt(0xda9)+-0xa9b+Math.max(-0x2e,-parseInt(0x2e))*parseFloat(parseInt(0x11)))[GE_csNdxR(0xb8)]()+sQXt$K$fyWiq[GE_csNdxR(0xe7)](Math.max(-parseInt(0x194),-parseInt(0x194))+parseFloat(0x16d5)+-0x1540)[GE_csNdxR(0x1df)]())+GE_csNdxR(0x110)+uby_dJDfHQ+GE_csNdxR(0x1d9));let kvXIok$NbucQol=Math.trunc(parseInt(0x1aa))*-0xb+parseInt(0x1e1c)+parseInt(-0xbce),ozU$Sd$wuX=Math.floor(-parseInt(0x1))*Math.ceil(-parseInt(0x6fb))+0x22a+Math.max(parseInt(0x925),0x925)*-0x1,owLqXJPP=[],awtszF$ZuNOZoRRO$LH=[],A_ZAANqq_nhLAcyOrfGN=[];for(const xEbsfMQaCSCFmgZqmPyQh$E of E$ybbDzWWQUJlbjRWFIrVkj){(xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0x235)]===GE_csNdxR(0x1f6)||sQXt$K$fyWiq===GE_csNdxR(0x1dd)||!xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0x235)])&&(kvXIok$NbucQol++,owLqXJPP[GE_csNdxR(0x242)]({'title':replaceTitle(xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0x1f2)]||xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0x240)]||GE_csNdxR(0xec)),'description':GE_csNdxR(0x141),'id':SPuZn_IXg+GE_csNdxR(0x23c)+(xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0xd7)]||GE_csNdxR(0xed)+xEbsfMQaCSCFmgZqmPyQh$E['id'])}),A_ZAANqq_nhLAcyOrfGN[GE_csNdxR(0x242)](SPuZn_IXg+GE_csNdxR(0x23c)+(xEbsfMQaCSCFmgZqmPyQh$E[GE_csNdxR(0xd7)]||GE_csNdxR(0xed)+xEbsfMQaCSCFmgZqmPyQh$E['id'])));}for(const jkIdBikcxcIPeKrN_gdS_V of E$ybbDzWWQUJlbjRWFIrVkj){(jkIdBikcxcIPeKrN_gdS_V[GE_csNdxR(0x235)]===GE_csNdxR(0xe1)||jkIdBikcxcIPeKrN_gdS_V[GE_csNdxR(0x235)]==='TV')&&(ozU$Sd$wuX++,awtszF$ZuNOZoRRO$LH[GE_csNdxR(0x242)]({'title':replaceTitle(jkIdBikcxcIPeKrN_gdS_V[GE_csNdxR(0x1f2)]),'description':GE_csNdxR(0x1e4),'id':SPuZn_IXg+GE_csNdxR(0x258)+jkIdBikcxcIPeKrN_gdS_V[GE_csNdxR(0xd7)]+'🎈'+b_uymMHWhgV$xCuHUyZGiuPrC}),A_ZAANqq_nhLAcyOrfGN[GE_csNdxR(0x242)](SPuZn_IXg+GE_csNdxR(0x258)+jkIdBikcxcIPeKrN_gdS_V[GE_csNdxR(0xd7)]+'🎈'+b_uymMHWhgV$xCuHUyZGiuPrC));}let OW$BZpQyIFaGipYrdR=GE_csNdxR(0x219)+(GE_csNdxR(0x124)+botName+GE_csNdxR(0x137))+GE_csNdxR(0x261)+(GE_csNdxR(0x1cb)+uby_dJDfHQ+'*\x0a')+(GE_csNdxR(0x103)+(kvXIok$NbucQol+ozU$Sd$wuX)+'*\x0a')+GE_csNdxR(0x1d0);if(config[GE_csNdxR(0xf6)]?.[GE_csNdxR(0x1df)]()===GE_csNdxR(0x16f)&&(owLqXJPP[GE_csNdxR(0x17a)]||awtszF$ZuNOZoRRO$LH[GE_csNdxR(0x17a)])){const xXibyA=[];if(owLqXJPP[GE_csNdxR(0x17a)])xXibyA[GE_csNdxR(0x242)]({'title':GE_csNdxR(0x13b),'rows':owLqXJPP});if(awtszF$ZuNOZoRRO$LH[GE_csNdxR(0x17a)])xXibyA[GE_csNdxR(0x242)]({'title':GE_csNdxR(0x1bf),'rows':awtszF$ZuNOZoRRO$LH});const WSQxnoEASYie_XsyZYCTuRFz$dc={'title':buttonTitle,'sections':xXibyA},XLKXPZQTEGcWvzGd$wZF_bT=[{'buttonId':GE_csNdxR(0x1ce),'type':0x4,'buttonText':{'displayText':GE_csNdxR(0x1b7)},'nativeFlowInfo':{'name':GE_csNdxR(0x169),'paramsJson':JSON[GE_csNdxR(0xce)](WSQxnoEASYie_XsyZYCTuRFz$dc)}}];await kOeIQRjEfuqILOwyeqmy[GE_csNdxR(0x10a)](b_uymMHWhgV$xCuHUyZGiuPrC,{'image':{'url':config[GE_csNdxR(0x1fa)]},'caption':OW$BZpQyIFaGipYrdR,'footer':config[GE_csNdxR(0x120)],'buttons':XLKXPZQTEGcWvzGd$wZF_bT,'headerType':0x1,'viewOnce':!![]},{'quoted':qGOPtVq});}else{let UHjwAPbBFQ=OW$BZpQyIFaGipYrdR+'\x0a\x0a';owLqXJPP[GE_csNdxR(0x17a)]&&(UHjwAPbBFQ+=GE_csNdxR(0x16d),owLqXJPP[GE_csNdxR(0xe4)]((fFWNNEvwuebtmcQGV,GKqZcYHAnGf_haaSaFtsuacnzH)=>UHjwAPbBFQ+='*'+formatNumber(GKqZcYHAnGf_haaSaFtsuacnzH+(Math.trunc(-parseInt(0x221c))*Math.ceil(-parseInt(0x1))+0x6*Math.max(0x4a1,parseInt(0x4a1))+-0x1*Math.ceil(parseInt(0x3de1))))+GE_csNdxR(0xa5)+fFWNNEvwuebtmcQGV[GE_csNdxR(0x1f2)]+'\x0a'),UHjwAPbBFQ+='\x0a');awtszF$ZuNOZoRRO$LH[GE_csNdxR(0x17a)]&&(UHjwAPbBFQ+=GE_csNdxR(0xd2),awtszF$ZuNOZoRRO$LH[GE_csNdxR(0xe4)]((TVMlEYCWx,KFd_gZFNpwKu_GkSwKlXnJ)=>UHjwAPbBFQ+='*'+formatNumber(kvXIok$NbucQol+KFd_gZFNpwKu_GkSwKlXnJ+(-0x885+Math.trunc(parseInt(0xce))*parseFloat(-0x1f)+Math.max(-0xcc,-0xcc)*-parseInt(0x2a)))+GE_csNdxR(0xa5)+TVMlEYCWx[GE_csNdxR(0x1f2)]+'\x0a'),UHjwAPbBFQ+='\x0a');const brH$rUib_PJfmpSPPvF=await kOeIQRjEfuqILOwyeqmy[GE_csNdxR(0x10a)](b_uymMHWhgV$xCuHUyZGiuPrC,{'image':{'url':config[GE_csNdxR(0x1fa)]},'caption':UHjwAPbBFQ+'\x0a\x0a'+config[GE_csNdxR(0x120)]},{'quoted':qGOPtVq});await storenumrepdata({'key':brH$rUib_PJfmpSPPvF[GE_csNdxR(0x182)],'numrep':A_ZAANqq_nhLAcyOrfGN,'method':GE_csNdxR(0x266)});}}catch(N_BaF_H){console[GE_csNdxR(0x25c)](N_BaF_H),LIL$PlXZ(GE_csNdxR(0x154)),await kOeIQRjEfuqILOwyeqmy[GE_csNdxR(0x10a)](b_uymMHWhgV$xCuHUyZGiuPrC,{'react':{'text':'⛔️','key':qGOPtVq[GE_csNdxR(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0xf8),'react':'🎬','dontAddCommandList':!![],'filename':__filename},async(YMxndcKBWVwciCiQHKFMMhhgo,ckHqkUagbZYIo$PSuFiEkXiWg,ypayIqLHhdUvb_cVGJCZt$QPw,{from:uFbCZOY_NcXtuSUyHVSNszW,prefix:wXVhFNb$up_Th,reply:naOFgLIKfHDWQT,q:PuORW$kPqEDvpLSJZ,isDev:LjyGYNHHyF_AZkuDj_gVgvjItce,isMe:R$AjNhO_uZr,isOwners:LUEoXQyWV$XKPy})=>{const WaAnQydtfdlbgMmHohcOL=huNmBXSJ;try{if(!dbData?.[WaAnQydtfdlbgMmHohcOL(0x19d)]&&!LjyGYNHHyF_AZkuDj_gVgvjItce)return naOFgLIKfHDWQT(preMg);if(config[WaAnQydtfdlbgMmHohcOL(0x1db)]===WaAnQydtfdlbgMmHohcOL(0x23e)&&!R$AjNhO_uZr&&!LjyGYNHHyF_AZkuDj_gVgvjItce)return naOFgLIKfHDWQT(disMgOnlyme);if(config[WaAnQydtfdlbgMmHohcOL(0x1db)]===WaAnQydtfdlbgMmHohcOL(0x211)&&!LUEoXQyWV$XKPy)return naOFgLIKfHDWQT(disMgOnlyOwners);if(config[WaAnQydtfdlbgMmHohcOL(0x1db)]===WaAnQydtfdlbgMmHohcOL(0x1ee)&&!LjyGYNHHyF_AZkuDj_gVgvjItce)return naOFgLIKfHDWQT(disMgAll);if(!PuORW$kPqEDvpLSJZ)return naOFgLIKfHDWQT(WaAnQydtfdlbgMmHohcOL(0x1ac)+wXVhFNb$up_Th+WaAnQydtfdlbgMmHohcOL(0x167));let ehoQ$W$QtxFFRyCwIEWxBzjG,gP_mtxkEnV_uO,iBXCnvBN;if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](sublkBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x138)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](pirateBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0xe6)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](sinhalasubBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x1a2)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](baiscopeBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x21a)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0xed)))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(WaAnQydtfdlbgMmHohcOL(0x9a)+PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0xd9)](WaAnQydtfdlbgMmHohcOL(0xed))[Math.trunc(-parseInt(0x10))*parseFloat(0x246)+Math.ceil(0x2)*-parseInt(0x12b)+Math.max(-0xb,-parseInt(0xb))*-parseInt(0x385)][WaAnQydtfdlbgMmHohcOL(0x218)]()+WaAnQydtfdlbgMmHohcOL(0xd0)),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)]?.[WaAnQydtfdlbgMmHohcOL(0xc9)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x178);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](slanimeclubBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x27a)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](foxflickzBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x267)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](cinesubzBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0xbd)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](moviepluslkBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x125)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else{if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](sinhalasubsBase))ehoQ$W$QtxFFRyCwIEWxBzjG=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0x26c)+PuORW$kPqEDvpLSJZ+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey),gP_mtxkEnV_uO=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)],iBXCnvBN=WaAnQydtfdlbgMmHohcOL(0x1fc);else return naOFgLIKfHDWQT(WaAnQydtfdlbgMmHohcOL(0xf2));}}}}}}}}}if(!gP_mtxkEnV_uO)return naOFgLIKfHDWQT(WaAnQydtfdlbgMmHohcOL(0x1f5));const SUgm$QzJMiOI=ehoQ$W$QtxFFRyCwIEWxBzjG?.[WaAnQydtfdlbgMmHohcOL(0xd8)]?.[WaAnQydtfdlbgMmHohcOL(0xd8)]?.[WaAnQydtfdlbgMmHohcOL(0x1af)]?.[WaAnQydtfdlbgMmHohcOL(0x14f)]?ehoQ$W$QtxFFRyCwIEWxBzjG[WaAnQydtfdlbgMmHohcOL(0xd8)][WaAnQydtfdlbgMmHohcOL(0xd8)][WaAnQydtfdlbgMmHohcOL(0x1af)][WaAnQydtfdlbgMmHohcOL(0x14f)]:gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x122)]?gP_mtxkEnV_uO[WaAnQydtfdlbgMmHohcOL(0x122)]:gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x177)];if(!SUgm$QzJMiOI)return naOFgLIKfHDWQT(WaAnQydtfdlbgMmHohcOL(0x14b));let jVgCptJndWywxDkUiNtfGAkHm=WaAnQydtfdlbgMmHohcOL(0x1b0)+(WaAnQydtfdlbgMmHohcOL(0x274)+formatNumber(Math.max(-0x36b,-0x36b)*parseInt(0x2)+0xd4f+parseInt(0x17)*-parseInt(0x48))+WaAnQydtfdlbgMmHohcOL(0xab))+(WaAnQydtfdlbgMmHohcOL(0x274)+formatNumber(Math.floor(-0x1f2e)+Number(-0x23e7)+parseFloat(-0x165d)*parseInt(-0x3))+WaAnQydtfdlbgMmHohcOL(0xb3)),AuaxjGAy$Vyzl=WaAnQydtfdlbgMmHohcOL(0x272)+(botName||WaAnQydtfdlbgMmHohcOL(0x1bb))+WaAnQydtfdlbgMmHohcOL(0x13f)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x240)]||gP_mtxkEnV_uO[WaAnQydtfdlbgMmHohcOL(0x1f2)]||WaAnQydtfdlbgMmHohcOL(0x20d))+WaAnQydtfdlbgMmHohcOL(0x11e)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1a9)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x24d)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x83)]||WaAnQydtfdlbgMmHohcOL(0x20d))+WaAnQydtfdlbgMmHohcOL(0x1d4)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x23b)]||WaAnQydtfdlbgMmHohcOL(0x20d))+WaAnQydtfdlbgMmHohcOL(0xf1)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x279)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1d1)]||WaAnQydtfdlbgMmHohcOL(0x20d))+WaAnQydtfdlbgMmHohcOL(0x164)+PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x10b)](WaAnQydtfdlbgMmHohcOL(0xed),'')+WaAnQydtfdlbgMmHohcOL(0x126)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x24f)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1a4)]||WaAnQydtfdlbgMmHohcOL(0x20d))+WaAnQydtfdlbgMmHohcOL(0x275)+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x16b)]?.[WaAnQydtfdlbgMmHohcOL(0xf0)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x16b)]||WaAnQydtfdlbgMmHohcOL(0x20d))+'\x0a';const KB$vSoEqvb$xr=gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x208)]?.[0x3*0x824+parseFloat(-parseInt(0x3cb))*-0x1+parseInt(0x1)*Math.ceil(-0x1c37)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1a5)]?.[WaAnQydtfdlbgMmHohcOL(0x10b)](WaAnQydtfdlbgMmHohcOL(0x20c),WaAnQydtfdlbgMmHohcOL(0x1d5))[WaAnQydtfdlbgMmHohcOL(0x10b)](/-\d+x\d+\.jpg$/,WaAnQydtfdlbgMmHohcOL(0x1cd))[WaAnQydtfdlbgMmHohcOL(0x10b)](/-\d+x\d+\.webp$/,WaAnQydtfdlbgMmHohcOL(0x264))||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x92)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x27f)]||gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1dc)]||config[WaAnQydtfdlbgMmHohcOL(0x1fa)];let TiCCLpx_jCTresVq_iuE=[];TiCCLpx_jCTresVq_iuE[WaAnQydtfdlbgMmHohcOL(0x242)](wXVhFNb$up_Th+WaAnQydtfdlbgMmHohcOL(0x118)+PuORW$kPqEDvpLSJZ),TiCCLpx_jCTresVq_iuE[WaAnQydtfdlbgMmHohcOL(0x242)](wXVhFNb$up_Th+WaAnQydtfdlbgMmHohcOL(0x1b9)+PuORW$kPqEDvpLSJZ);let keIUx_$Re=[];for(let plBOSOswFvsrjQGANKb$CVoCk=-0x268b+0x2*Math.max(-0xc5,-0xc5)+0x2815;plBOSOswFvsrjQGANKb$CVoCk<SUgm$QzJMiOI[WaAnQydtfdlbgMmHohcOL(0x17a)];plBOSOswFvsrjQGANKb$CVoCk++){let vyfCXwEW=SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0xd7)]||SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x246)]||SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk]['id'],ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x239);if(PuORW$kPqEDvpLSJZ[WaAnQydtfdlbgMmHohcOL(0x21f)](slanimeclubBase)){const fndY_G$OMgybPLA=await fetchJson(apilink+WaAnQydtfdlbgMmHohcOL(0xcd)+vyfCXwEW+WaAnQydtfdlbgMmHohcOL(0x1ed)+apikey);vyfCXwEW=fndY_G$OMgybPLA?.[WaAnQydtfdlbgMmHohcOL(0xd8)][WaAnQydtfdlbgMmHohcOL(0x1c3)][WaAnQydtfdlbgMmHohcOL(0x122)]||vyfCXwEW;}if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x1b6)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x12c);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x168)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x214);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x259)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x269);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0xed)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x12f);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x190)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x181);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x8d)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x86);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x1e0)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x8b);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0xd1)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0xbf);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x27e)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0xe8);else{if(vyfCXwEW[WaAnQydtfdlbgMmHohcOL(0x21f)](WaAnQydtfdlbgMmHohcOL(0x102)))ysYlBKETOKWkKZuSUOJYRUxWT=WaAnQydtfdlbgMmHohcOL(0x144);}}}}}}}}}jVgCptJndWywxDkUiNtfGAkHm+=WaAnQydtfdlbgMmHohcOL(0x274)+formatNumber(plBOSOswFvsrjQGANKb$CVoCk+(parseInt(0x702)*0x4+Math.max(-0x792,-0x792)+Math.floor(0x5)*-0x417))+WaAnQydtfdlbgMmHohcOL(0x241)+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x13e)]+WaAnQydtfdlbgMmHohcOL(0x95)+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x227)]+WaAnQydtfdlbgMmHohcOL(0xff)+ysYlBKETOKWkKZuSUOJYRUxWT+WaAnQydtfdlbgMmHohcOL(0xba),TiCCLpx_jCTresVq_iuE[WaAnQydtfdlbgMmHohcOL(0x242)](''+wXVhFNb$up_Th+iBXCnvBN+'\x20'+vyfCXwEW+'🎈'+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1f2)]||WaAnQydtfdlbgMmHohcOL(0x20d))+'🎈'+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x13e)]+'🎈'+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x227)]+'🎈'+(KB$vSoEqvb$xr||config[WaAnQydtfdlbgMmHohcOL(0x1fa)])),config[WaAnQydtfdlbgMmHohcOL(0xf6)]?.[WaAnQydtfdlbgMmHohcOL(0x1df)]()===WaAnQydtfdlbgMmHohcOL(0x16f)&&keIUx_$Re[WaAnQydtfdlbgMmHohcOL(0x242)]({'title':SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x13e)]+WaAnQydtfdlbgMmHohcOL(0x106)+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x227)]+'\x20)','description':ysYlBKETOKWkKZuSUOJYRUxWT,'id':''+wXVhFNb$up_Th+iBXCnvBN+'\x20'+vyfCXwEW+'🎈'+(gP_mtxkEnV_uO?.[WaAnQydtfdlbgMmHohcOL(0x1f2)]||WaAnQydtfdlbgMmHohcOL(0x20d))+'🎈'+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x13e)]+'🎈'+SUgm$QzJMiOI[plBOSOswFvsrjQGANKb$CVoCk][WaAnQydtfdlbgMmHohcOL(0x227)]+'🎈'+(KB$vSoEqvb$xr||config[WaAnQydtfdlbgMmHohcOL(0x1fa)])});}if(config[WaAnQydtfdlbgMmHohcOL(0xf6)]?.[WaAnQydtfdlbgMmHohcOL(0x1df)]()===WaAnQydtfdlbgMmHohcOL(0x16f)){const gUSltDZCKiD={'title':buttonTitle,'sections':[{'title':WaAnQydtfdlbgMmHohcOL(0x27c),'rows':[{'title':WaAnQydtfdlbgMmHohcOL(0x1e1),'description':buttonDesc,'id':wXVhFNb$up_Th+WaAnQydtfdlbgMmHohcOL(0x118)+PuORW$kPqEDvpLSJZ},{'title':WaAnQydtfdlbgMmHohcOL(0x85),'description':buttonDesc,'id':wXVhFNb$up_Th+WaAnQydtfdlbgMmHohcOL(0x1b9)+PuORW$kPqEDvpLSJZ}]},{'title':WaAnQydtfdlbgMmHohcOL(0xb2),'rows':keIUx_$Re}]};await YMxndcKBWVwciCiQHKFMMhhgo[WaAnQydtfdlbgMmHohcOL(0x10a)](uFbCZOY_NcXtuSUyHVSNszW,{'image':{'url':KB$vSoEqvb$xr},'caption':AuaxjGAy$Vyzl,'footer':config[WaAnQydtfdlbgMmHohcOL(0x120)],'buttons':[{'buttonId':WaAnQydtfdlbgMmHohcOL(0x1ce),'type':0x4,'buttonText':{'displayText':WaAnQydtfdlbgMmHohcOL(0x1b7)},'nativeFlowInfo':{'name':WaAnQydtfdlbgMmHohcOL(0x169),'paramsJson':JSON[WaAnQydtfdlbgMmHohcOL(0xce)](gUSltDZCKiD)}}],'headerType':0x1,'viewOnce':!![]},{'quoted':ckHqkUagbZYIo$PSuFiEkXiWg});}else{AuaxjGAy$Vyzl+=jVgCptJndWywxDkUiNtfGAkHm;const TPBWGyZHtelqEwW=await YMxndcKBWVwciCiQHKFMMhhgo[WaAnQydtfdlbgMmHohcOL(0x10a)](uFbCZOY_NcXtuSUyHVSNszW,{'text':AuaxjGAy$Vyzl+'\x0a\x0a'+config[WaAnQydtfdlbgMmHohcOL(0x120)]},{'quoted':ckHqkUagbZYIo$PSuFiEkXiWg});await storenumrepdata({'key':TPBWGyZHtelqEwW[WaAnQydtfdlbgMmHohcOL(0x182)],'numrep':TiCCLpx_jCTresVq_iuE,'method':WaAnQydtfdlbgMmHohcOL(0x266)});}}catch(AS$XtoNiCDebHnvQwvq){l(AS$XtoNiCDebHnvQwvq),await naOFgLIKfHDWQT(WaAnQydtfdlbgMmHohcOL(0x154)),await YMxndcKBWVwciCiQHKFMMhhgo[WaAnQydtfdlbgMmHohcOL(0x10a)](uFbCZOY_NcXtuSUyHVSNszW,{'react':{'text':'⛔️','key':ckHqkUagbZYIo$PSuFiEkXiWg[WaAnQydtfdlbgMmHohcOL(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x136),'react':'🎬','dontAddCommandList':!![],'filename':__filename},async(yXNGSVZtYej,UpuJGzVxsgvWromjZkklwPJjg,DqFtTqv_p$dOoUqGr,{from:IcoZBAUWULYAo,prefix:MrC$qhOQnCf_XasTn,l:tEDMNPzRjYeZdBsmWfY$HD,quoted:SKNNiz_JhFbyIBpXkqDbV,body:ADdXYcUz_pl_U,isCmd:h$_BVAsxGOjt,command:SYOkYkvxxBIEjwwaPTK,args:C$mFGIsn$NgjJmer,q:JbetDq_DbwVciM,isGroup:VuMZBFtoPjoMQbPqmBuXzb_C,sender:JsBItYucbNL_izLR_ry,senderNumber:TH_HbRegyMMbyRuaxy,botNumber2:JiqNVfBKfL_J$tTV,botNumber:bO_ysvYOjDte$DPuGbkhPR,pushname:nFp_ouKo,isMe:XucYow_RqtUCYcOdeqQd,isOwners:hsvPTbpP,isDev:C$EbgTms_TAMBlLcgnbKvtuZG,groupMetadata:bpyfDggY,groupName:sEpcqHdt$L,participants:B$Ysp_raYDJzSxfK,groupAdmins:QljzhWcvG,isBotAdmins:RmnT_C_Jn,isAdmins:WMYujWblRR,reply:CzK$ICtX})=>{const vv$KTQuyGv=huNmBXSJ;try{if(!dbData?.[vv$KTQuyGv(0x19d)]&&!C$EbgTms_TAMBlLcgnbKvtuZG){CzK$ICtX(preMg);return;}if(config[vv$KTQuyGv(0x1db)]===vv$KTQuyGv(0x23e)&&!XucYow_RqtUCYcOdeqQd&&!C$EbgTms_TAMBlLcgnbKvtuZG){CzK$ICtX(disMgOnlyme);return;}else{if(config[vv$KTQuyGv(0x1db)]===vv$KTQuyGv(0x211)&&!hsvPTbpP){CzK$ICtX(disMgOnlyOwners);return;}else{if(config[vv$KTQuyGv(0x1db)]===vv$KTQuyGv(0x1ee)&&!C$EbgTms_TAMBlLcgnbKvtuZG){CzK$ICtX(disMgAll);return;}}}if(!JbetDq_DbwVciM){CzK$ICtX(vv$KTQuyGv(0x247)+MrC$qhOQnCf_XasTn+vv$KTQuyGv(0x11f));return;}var tVLkgbfeaIuFP,OoszUv$EdaFrDeS_MOS;if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](sublkBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x138)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](pirateBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0xe6)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](sinhalasubBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x1a2)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](baiscopeBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x21a)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](vv$KTQuyGv(0xed)))tVLkgbfeaIuFP=await fetchJson(vv$KTQuyGv(0x9a)+JbetDq_DbwVciM[vv$KTQuyGv(0xd9)](vv$KTQuyGv(0xed))[-parseInt(0x26d)*Number(-parseInt(0xd))+parseFloat(-parseInt(0x20d4))+parseInt(0x14c)*0x1][vv$KTQuyGv(0x218)]()+vv$KTQuyGv(0xd0)),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)]?.[vv$KTQuyGv(0xc9)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](slanimeclubBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x27a)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](foxflickzBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x267)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](cinesubzBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0xbd)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](moviepluslkBase))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x125)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else{if(JbetDq_DbwVciM[vv$KTQuyGv(0x21f)](sinhalasubBases))tVLkgbfeaIuFP=await fetchJson(apilink+vv$KTQuyGv(0x26c)+JbetDq_DbwVciM+vv$KTQuyGv(0x1ed)+apikey),OoszUv$EdaFrDeS_MOS=tVLkgbfeaIuFP?.[vv$KTQuyGv(0xd8)];else return CzK$ICtX(vv$KTQuyGv(0xf2));}}}}}}}}}if(OoszUv$EdaFrDeS_MOS){const uNOGB_gOwH=OoszUv$EdaFrDeS_MOS,{title:title='',dateCreate:dateCreate='',date:date='',releaseDate:releaseDate='',country:country='',runtime:runtime='',duration:duration='',category:category='',mainImage:mainImage=null,imageUrls:imageUrls=[],imdb:imdb={},director:cC_psG_v,cast:cast=[]}=uNOGB_gOwH,rK_uk$yTBnykGgKuWwH=title||vv$KTQuyGv(0x20d),IrJLlOSU$tVbPjG_KSAuXgCYFwJ=dateCreate||date||releaseDate||vv$KTQuyGv(0x20d),yxbZQCKu_sxvjuqol$tez=country||vv$KTQuyGv(0x20d),PZtMSNn_d$dzzBFiN=runtime||duration||vv$KTQuyGv(0x20d),YXiZCnlpdJpytjgwganRjg=category||vv$KTQuyGv(0x20d),j_sUXWiQSEazh=imdb?.[vv$KTQuyGv(0x16e)]||imdb?.[vv$KTQuyGv(0x1b3)]||vv$KTQuyGv(0x20d),QuroNkMghKIDfdFfpczKfUar=cC_psG_v?.[vv$KTQuyGv(0xf0)]||cC_psG_v||vv$KTQuyGv(0x20d);let g$WUvAQ_cpnivXJPU=cast||vv$KTQuyGv(0x20d);Array[vv$KTQuyGv(0x1a0)](cast)&&cast[vv$KTQuyGv(0x17a)]>Math.trunc(-0x1)*Math.max(-parseInt(0x1ffa),-0x1ffa)+parseInt(parseInt(0x1340))+-parseInt(0x333a)&&(g$WUvAQ_cpnivXJPU=cast[vv$KTQuyGv(0x25b)](qVlW_DoHVDsAGefYcZvuzwz=>qVlW_DoHVDsAGefYcZvuzwz[vv$KTQuyGv(0xa2)]?.[vv$KTQuyGv(0xf0)]||qVlW_DoHVDsAGefYcZvuzwz[vv$KTQuyGv(0xf0)])[vv$KTQuyGv(0x17f)](VyUDqZ=>VyUDqZ&&VyUDqZ[vv$KTQuyGv(0x218)]()!=='')[vv$KTQuyGv(0x17d)](',\x20'));const wzV_Vt=channel_url;let DaRdEOuxqqIvGKTwXyeM_kV=config[vv$KTQuyGv(0x153)]!==vv$KTQuyGv(0xe9)?formatMessage(config[vv$KTQuyGv(0x153)],{'movieTitle':rK_uk$yTBnykGgKuWwH,'movieReleasedate':IrJLlOSU$tVbPjG_KSAuXgCYFwJ,'movieCountry':yxbZQCKu_sxvjuqol$tez,'movieRuntime':PZtMSNn_d$dzzBFiN,'movieCategories':YXiZCnlpdJpytjgwganRjg,'movieImdbRate':j_sUXWiQSEazh,'movieDirector':QuroNkMghKIDfdFfpczKfUar,'movieCast':g$WUvAQ_cpnivXJPU}):vv$KTQuyGv(0x23a)+rK_uk$yTBnykGgKuWwH+vv$KTQuyGv(0x22c)+(vv$KTQuyGv(0x192)+oce+vv$KTQuyGv(0x89)+oce+vv$KTQuyGv(0x12e)+IrJLlOSU$tVbPjG_KSAuXgCYFwJ+'\x0a\x0a')+(vv$KTQuyGv(0x228)+oce+vv$KTQuyGv(0x257)+oce+vv$KTQuyGv(0x12e)+yxbZQCKu_sxvjuqol$tez+'\x0a\x0a')+(vv$KTQuyGv(0x13d)+oce+vv$KTQuyGv(0x12d)+oce+vv$KTQuyGv(0x12e)+PZtMSNn_d$dzzBFiN+'\x0a\x0a')+(vv$KTQuyGv(0x1d6)+oce+vv$KTQuyGv(0x21b)+oce+vv$KTQuyGv(0x12e)+YXiZCnlpdJpytjgwganRjg+'\x0a\x0a')+('⭐\x20'+oce+vv$KTQuyGv(0x270)+oce+vv$KTQuyGv(0x12e)+j_sUXWiQSEazh+'\x0a\x0a')+(vv$KTQuyGv(0x202)+oce+vv$KTQuyGv(0x133)+oce+vv$KTQuyGv(0x12e)+QuroNkMghKIDfdFfpczKfUar+'\x0a\x0a')+(vv$KTQuyGv(0x25a)+oce+vv$KTQuyGv(0x149)+oce+vv$KTQuyGv(0x12e)+g$WUvAQ_cpnivXJPU+'\x0a\x0a')+vv$KTQuyGv(0x157)+(vv$KTQuyGv(0xfc)+wzV_Vt+vv$KTQuyGv(0x117))+(config[vv$KTQuyGv(0x91)]||config[vv$KTQuyGv(0x120)]);const IM$mSzhlZfE$PxKePDbe=OoszUv$EdaFrDeS_MOS?.[vv$KTQuyGv(0x92)][vv$KTQuyGv(0x10b)](vv$KTQuyGv(0x20c),vv$KTQuyGv(0x1d5))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.jpg$/,vv$KTQuyGv(0x1cd))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.webp$/,vv$KTQuyGv(0x264))||OoszUv$EdaFrDeS_MOS?.[vv$KTQuyGv(0x27f)][vv$KTQuyGv(0x10b)](vv$KTQuyGv(0x20c),vv$KTQuyGv(0x1d5))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.jpg$/,vv$KTQuyGv(0x1cd))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.webp$/,vv$KTQuyGv(0x264))||OoszUv$EdaFrDeS_MOS?.[vv$KTQuyGv(0x208)]?.[parseInt(0xd)*Math.trunc(0xb)+parseFloat(0x59)*0x2+Math.max(0x3,parseInt(0x3))*Math.trunc(-0x6b)]||OoszUv$EdaFrDeS_MOS?.[vv$KTQuyGv(0x1a5)]?.[vv$KTQuyGv(0x10b)](vv$KTQuyGv(0x20c),vv$KTQuyGv(0x1d5))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.jpg$/,vv$KTQuyGv(0x1cd))[vv$KTQuyGv(0x10b)](/-\d+x\d+\.webp$/,vv$KTQuyGv(0x264))||config[vv$KTQuyGv(0x1fa)];await yXNGSVZtYej[vv$KTQuyGv(0x10a)](IcoZBAUWULYAo,{'image':{'url':IM$mSzhlZfE$PxKePDbe},'caption':DaRdEOuxqqIvGKTwXyeM_kV},{'quoted':UpuJGzVxsgvWromjZkklwPJjg}),await DqFtTqv_p$dOoUqGr[vv$KTQuyGv(0x1c6)]('✔️');}else{CzK$ICtX(vv$KTQuyGv(0x1f5));return;}}catch(wBm_WWK){tEDMNPzRjYeZdBsmWfY$HD(wBm_WWK),await CzK$ICtX(vv$KTQuyGv(0x154)),await yXNGSVZtYej[vv$KTQuyGv(0x10a)](IcoZBAUWULYAo,{'react':{'text':'⛔️','key':UpuJGzVxsgvWromjZkklwPJjg[vv$KTQuyGv(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0xa9),'react':'🎬','dontAddCommandList':!![],'filename':__filename},async(JzewomIGUoy$gOb,YXIcFvDfWNXfMiLgDcOhMnGcP,CWfKwDIb$I$eu,{from:UOFiIliOmHo$NvZ,prefix:xzVIXEewbZAIdjDUs,l:Xjwu$PBmAu$AZ,quoted:wXYQNqcAodARZ,body:fagIRgaHBreUwYZUq,isCmd:ISdzBagQcFDLaAalMYITYKg,command:xD_OLXEkxej,args:hLIbKSeEcCBSvpPfGoqFwt,q:o_fabjLWvRRglD,isGroup:o_ZgnCaj_Lq,sender:w_yBVSk,senderNumber:WjnoH_xwQhZMulf_iaW,botNumber2:mRemNvmamSHLG,botNumber:gOQbgGEApScaU,pushname:jyqqOFuno$I,isMe:cxqSqCguvoxRSLRePrxd,isOwners:FLUrKuKvyDDmdNDq,isDev:vzD_Us_Jykv,groupMetadata:hEORjMIdb_uy$RZfgZBRadi,groupName:UjjtkCWHOBRKUDeTbWwQFwnZ,participants:QGzmyvSEhtj$hrYCv,groupAdmins:GMpAzdKrovziKScuJUyMO,isBotAdmins:gqZUyfWnNLbHWlHzH,isAdmins:LWMLtCxIIlGeY$MVULyKPGBs,reply:xzkRO$V})=>{const PMtFUBOSJvMdy_uzpPHn_etWvic=huNmBXSJ;try{if(!dbData?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0x19d)]&&!vzD_Us_Jykv){xzkRO$V(preMg);return;}if(config[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1db)]===PMtFUBOSJvMdy_uzpPHn_etWvic(0x23e)&&!cxqSqCguvoxRSLRePrxd&&!vzD_Us_Jykv){xzkRO$V(disMgOnlyme);return;}else{if(config[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1db)]===PMtFUBOSJvMdy_uzpPHn_etWvic(0x211)&&!FLUrKuKvyDDmdNDq){xzkRO$V(disMgOnlyOwners);return;}else{if(config[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1db)]===PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ee)&&!vzD_Us_Jykv){xzkRO$V(disMgAll);return;}}}if(!o_fabjLWvRRglD){xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0x247)+xzVIXEewbZAIdjDUs+PMtFUBOSJvMdy_uzpPHn_etWvic(0x224));return;}var lD$dpHbi=o_fabjLWvRRglD,KdqKTQhBD$_WNENiHDrdBD=UOFiIliOmHo$NvZ,L$NdXmTkpfSX=o_fabjLWvRRglD;if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)]('🎈'))KdqKTQhBD$_WNENiHDrdBD=L$NdXmTkpfSX[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd9)]('🎈')[Math.max(-0x1a0d,-0x1a0d)+parseInt(0x1551)+Math.floor(0x1)*parseFloat(parseInt(0x4bd))];L$NdXmTkpfSX[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)]('🎈')&&(lD$dpHbi=L$NdXmTkpfSX[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd9)]('🎈')[parseInt(0x227c)+-0x22c3+-0x47*-0x1]);var aLvyEAg$tArSj_DFYFCI,cycCvxVOjJbQFSsqHH;if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](sublkBase))aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x138)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](pirateBase))aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0xe6)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](sinhalasubBase))o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](PMtFUBOSJvMdy_uzpPHn_etWvic(0x1bd))?aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ff)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey):aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1a2)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](baiscopeBase))aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x21a)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](PMtFUBOSJvMdy_uzpPHn_etWvic(0xed)))cycCvxVOjJbQFSsqHH=null;else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](slanimeclubBase))aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x27a)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](foxflickzBase))aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x267)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](cinesubzBase))o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](PMtFUBOSJvMdy_uzpPHn_etWvic(0x1bd))?aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x87)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey):aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0xbd)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](moviepluslkBase))o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](PMtFUBOSJvMdy_uzpPHn_etWvic(0x1bd))?aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x194)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey):aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x125)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else{if(o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](sinhalasubsBase))o_fabjLWvRRglD[PMtFUBOSJvMdy_uzpPHn_etWvic(0x21f)](PMtFUBOSJvMdy_uzpPHn_etWvic(0x1bd))?aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x200)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey):aLvyEAg$tArSj_DFYFCI=await fetchJson(apilink+PMtFUBOSJvMdy_uzpPHn_etWvic(0x26c)+o_fabjLWvRRglD+PMtFUBOSJvMdy_uzpPHn_etWvic(0x1ed)+apikey),cycCvxVOjJbQFSsqHH=aLvyEAg$tArSj_DFYFCI?.[PMtFUBOSJvMdy_uzpPHn_etWvic(0xd8)];else return xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0xf2));}}}}}}}}}if(!cycCvxVOjJbQFSsqHH){xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0x1f5));return;}await CWfKwDIb$I$eu[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1c6)]('⬆️');const {imageUrls:wSXTHW}=cycCvxVOjJbQFSsqHH;wSXTHW[PMtFUBOSJvMdy_uzpPHn_etWvic(0x17a)]===parseInt(0x6)*-parseInt(0x60a)+parseInt(0x74f)*-0x3+Math.ceil(parseInt(0x3a29))&&xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0x217));for(let zHikNZQVK of wSXTHW){await JzewomIGUoy$gOb[PMtFUBOSJvMdy_uzpPHn_etWvic(0x10a)](KdqKTQhBD$_WNENiHDrdBD,{'image':{'url':zHikNZQVK},'caption':config[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1f3)]||config[PMtFUBOSJvMdy_uzpPHn_etWvic(0x120)]||''},{'quoted':YXIcFvDfWNXfMiLgDcOhMnGcP});}xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0x21d)),await CWfKwDIb$I$eu[PMtFUBOSJvMdy_uzpPHn_etWvic(0x1c6)]('✔️');}catch(awQuiJqPTXohBvlpXKb){Xjwu$PBmAu$AZ(awQuiJqPTXohBvlpXKb),await xzkRO$V(PMtFUBOSJvMdy_uzpPHn_etWvic(0x154)),await JzewomIGUoy$gOb[PMtFUBOSJvMdy_uzpPHn_etWvic(0x10a)](UOFiIliOmHo$NvZ,{'react':{'text':'⛔️','key':YXIcFvDfWNXfMiLgDcOhMnGcP[PMtFUBOSJvMdy_uzpPHn_etWvic(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x1fc),'react':'⬇️','dontAddCommandList':!![],'filename':__filename},async(lg_SVsnS,aVwZKNXvN$HuUjme,vcwkKQgtuKwS_ktdQpwh,{from:geRToYMRU,prefix:vFmSQYyccpgaEOFftLL,l:qXZvyvraduwWWAZ$rqzZdaBL,quoted:OjNic$_r,q:okvw$KCah_Lg,isMe:pSRBTBAPvl$_UouBjw,isOwners:wFLzceYUQJGZsebKagU$cVusn,isDev:ruybxaJwalhYL,reply:PzsMzzse$tWnAZQN})=>{const QjIjRVTotNJtqyNgng=huNmBXSJ;try{if(!dbData?.[QjIjRVTotNJtqyNgng(0x19d)]&&!ruybxaJwalhYL)return PzsMzzse$tWnAZQN(preMg);if(config[QjIjRVTotNJtqyNgng(0x1db)]===QjIjRVTotNJtqyNgng(0x23e)&&!pSRBTBAPvl$_UouBjw&&!ruybxaJwalhYL)return PzsMzzse$tWnAZQN(disMgOnlyme);if(config[QjIjRVTotNJtqyNgng(0x1db)]===QjIjRVTotNJtqyNgng(0x211)&&!wFLzceYUQJGZsebKagU$cVusn)return PzsMzzse$tWnAZQN(disMgOnlyOwners);if(config[QjIjRVTotNJtqyNgng(0x1db)]===QjIjRVTotNJtqyNgng(0x1ee)&&!ruybxaJwalhYL)return PzsMzzse$tWnAZQN(disMgAll);const dpm_RU$ORfSkHQegCldwjQecsia=await getMovie();if(dpm_RU$ORfSkHQegCldwjQecsia?.[QjIjRVTotNJtqyNgng(0xae)]){let KMlJOKdTLOHsOJodZeVhHXVs=(Date[QjIjRVTotNJtqyNgng(0x18c)]()-dpm_RU$ORfSkHQegCldwjQecsia[QjIjRVTotNJtqyNgng(0xb4)])/(0x12361a*-parseInt(0x1)+0x1*parseInt(-0x2a6f83)+parseInt(0x73941d));}if(!okvw$KCah_Lg||!okvw$KCah_Lg[QjIjRVTotNJtqyNgng(0x21f)]('🎈'))return PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x256));let [W$jSSi='',VhZONvFpfTSxJNbTx='',AmFrJIBvZZXLgVZ$rk='',AB$_UQY='',lGwN_nmdHRqpKoiTZuatA=config[QjIjRVTotNJtqyNgng(0x1fa)]]=okvw$KCah_Lg[QjIjRVTotNJtqyNgng(0xd9)]('🎈')[QjIjRVTotNJtqyNgng(0x25b)](oLnlnyLWcl$IFrQ_vDSrF=>oLnlnyLWcl$IFrQ_vDSrF[QjIjRVTotNJtqyNgng(0x218)]());if(!W$jSSi||!VhZONvFpfTSxJNbTx||!AmFrJIBvZZXLgVZ$rk||!AB$_UQY)return PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x237));let epWTQQ_MMIQhZiLImyy=parseFloat(AB$_UQY[QjIjRVTotNJtqyNgng(0x10b)](/[^\d.]/g,''));if(!isNaN(epWTQQ_MMIQhZiLImyy)){if(okvw$KCah_Lg[QjIjRVTotNJtqyNgng(0x21f)]('GB')&&epWTQQ_MMIQhZiLImyy>=config[QjIjRVTotNJtqyNgng(0xac)])return PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x134)+config[QjIjRVTotNJtqyNgng(0xac)]+'GB');if(okvw$KCah_Lg[QjIjRVTotNJtqyNgng(0x21f)]('MB')&&epWTQQ_MMIQhZiLImyy>=config[QjIjRVTotNJtqyNgng(0x9c)])return PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x134)+config[QjIjRVTotNJtqyNgng(0x9c)]+'MB');}await inputMovie(!![],VhZONvFpfTSxJNbTx,Date[QjIjRVTotNJtqyNgng(0x18c)]());let TU$$lVGCzAtlmlS=await resizeThumbnail(await getThumbnailFromUrl(lGwN_nmdHRqpKoiTZuatA));if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](sinhalasubBase)){let MXirIgZirWp_$YWcOGubDYque=await fetchJson(apicine+QjIjRVTotNJtqyNgng(0x8f)+W$jSSi+QjIjRVTotNJtqyNgng(0x1ed)+apicinekey);W$jSSi=MXirIgZirWp_$YWcOGubDYque?.[QjIjRVTotNJtqyNgng(0xd8)]?.[QjIjRVTotNJtqyNgng(0xd8)]?.[QjIjRVTotNJtqyNgng(0xd7)]||W$jSSi;}else{if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x102))){let maHvmH_vjhZy=await fetchJson(apilink+QjIjRVTotNJtqyNgng(0x101)+W$jSSi+QjIjRVTotNJtqyNgng(0x1ed)+apikey);W$jSSi=maHvmH_vjhZy?.[QjIjRVTotNJtqyNgng(0xd8)]?.[QjIjRVTotNJtqyNgng(0x1c3)]?.[QjIjRVTotNJtqyNgng(0x1e5)]||W$jSSi;}else{if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](cinesubzDownBase)){let UdQakDuDLBDminylsu=null;const OAiVqUUr_X=await fetchJson(apilinkcine+QjIjRVTotNJtqyNgng(0x140)+W$jSSi);if(OAiVqUUr_X?.[QjIjRVTotNJtqyNgng(0x222)]===![]){if(!CINESUBZ_API_KEY)return await PzsMzzse$tWnAZQN(needCineApikey);const ABsspszXHXYT_zajXCNCP=QjIjRVTotNJtqyNgng(0x277)+W$jSSi+QjIjRVTotNJtqyNgng(0x173)+CINESUBZ_API_KEY,RmvmABAgJ$nxM=await axios[QjIjRVTotNJtqyNgng(0x193)](ABsspszXHXYT_zajXCNCP);UdQakDuDLBDminylsu=RmvmABAgJ$nxM[QjIjRVTotNJtqyNgng(0xd8)][QjIjRVTotNJtqyNgng(0xda)];const RYrAgt={'url':W$jSSi,'downloadUrls':UdQakDuDLBDminylsu,'uploader':QjIjRVTotNJtqyNgng(0xc0)},FVuofuR$vXDnP$cr=await axios[QjIjRVTotNJtqyNgng(0xa7)](apilinkcine+QjIjRVTotNJtqyNgng(0x15c),RYrAgt);}else UdQakDuDLBDminylsu=OAiVqUUr_X[QjIjRVTotNJtqyNgng(0x165)];W$jSSi=UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0xdf)]&&UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0xdf)]!==QjIjRVTotNJtqyNgng(0x195)?UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0xdf)]:UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0x26e)]&&UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0x26e)]!==QjIjRVTotNJtqyNgng(0x195)?UdQakDuDLBDminylsu[QjIjRVTotNJtqyNgng(0x26e)]:W$jSSi;}}}const NGlrxIR$$Owk=QjIjRVTotNJtqyNgng(0x22d),tVwoYEk$PpsEVKeQp=QjIjRVTotNJtqyNgng(0xb6),OAmwRkNPjDfABecaJzE=QjIjRVTotNJtqyNgng(0x186),fIO$V_e=new URL(W$jSSi),gCvUsb$CsiPbbVqRylMpnpPnTY=fIO$V_e[QjIjRVTotNJtqyNgng(0x238)];(gCvUsb$CsiPbbVqRylMpnpPnTY[QjIjRVTotNJtqyNgng(0x112)](tVwoYEk$PpsEVKeQp)||gCvUsb$CsiPbbVqRylMpnpPnTY[QjIjRVTotNJtqyNgng(0x112)](OAmwRkNPjDfABecaJzE))&&(fIO$V_e[QjIjRVTotNJtqyNgng(0x238)]=NGlrxIR$$Owk,W$jSSi=fIO$V_e[QjIjRVTotNJtqyNgng(0x189)]());gCvUsb$CsiPbbVqRylMpnpPnTY[QjIjRVTotNJtqyNgng(0x14d)](QjIjRVTotNJtqyNgng(0x17b))&&(fIO$V_e[QjIjRVTotNJtqyNgng(0x238)]=QjIjRVTotNJtqyNgng(0xf3),W$jSSi=fIO$V_e[QjIjRVTotNJtqyNgng(0x189)]());if(!W$jSSi)return await inputMovie(![],VhZONvFpfTSxJNbTx,Date[QjIjRVTotNJtqyNgng(0x18c)]()),PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x265));const gKNRwiKGwcCdQefseGpPGNsb=await lg_SVsnS[QjIjRVTotNJtqyNgng(0x10a)](geRToYMRU,{'image':{'url':config[QjIjRVTotNJtqyNgng(0x1fa)]},'text':QjIjRVTotNJtqyNgng(0x84)},{'quoted':aVwZKNXvN$HuUjme});await vcwkKQgtuKwS_ktdQpwh[QjIjRVTotNJtqyNgng(0x1c6)]('⬆️');let Ob$ZbpbBLgcZLnT=async SjG_nNAfqgAvnHvSO=>{const pIAsUFj$_Jdw=QjIjRVTotNJtqyNgng;try{return await lg_SVsnS[pIAsUFj$_Jdw(0x10a)](geRToYMRU,{'document':{'url':SjG_nNAfqgAvnHvSO},'fileName':''+(config[pIAsUFj$_Jdw(0x11b)]?config[pIAsUFj$_Jdw(0x11b)]+'\x20':'')+VhZONvFpfTSxJNbTx+pIAsUFj$_Jdw(0x16c),'mimetype':pIAsUFj$_Jdw(0x25e),'jpegThumbnail':TU$$lVGCzAtlmlS,'caption':VhZONvFpfTSxJNbTx+'\x0a'+pk+'\x20'+AmFrJIBvZZXLgVZ$rk+'\x20'+pk2+'\x0a\x0a'+(config[pIAsUFj$_Jdw(0x91)]||config[pIAsUFj$_Jdw(0x120)]||'')},{'quoted':aVwZKNXvN$HuUjme});}catch(jVcTHDIyfpSZKejN){console[pIAsUFj$_Jdw(0x25c)](pIAsUFj$_Jdw(0x11d),jVcTHDIyfpSZKejN);try{return await lg_SVsnS[pIAsUFj$_Jdw(0x10a)](geRToYMRU,{'document':{'url':SjG_nNAfqgAvnHvSO},'fileName':''+(config[pIAsUFj$_Jdw(0x11b)]?config[pIAsUFj$_Jdw(0x11b)]+'\x20':'')+VhZONvFpfTSxJNbTx+pIAsUFj$_Jdw(0x16c),'mimetype':pIAsUFj$_Jdw(0x25e),'jpegThumbnail':TU$$lVGCzAtlmlS,'caption':VhZONvFpfTSxJNbTx+'\x0a'+pk+'\x20'+AmFrJIBvZZXLgVZ$rk+'\x20'+pk2+'\x0a\x0a'+(config[pIAsUFj$_Jdw(0x91)]||config[pIAsUFj$_Jdw(0x120)]||'')},{'quoted':aVwZKNXvN$HuUjme});}catch(sSbm_c_rbUok){console[pIAsUFj$_Jdw(0x25c)](pIAsUFj$_Jdw(0xc1),sSbm_c_rbUok);throw sSbm_c_rbUok;}}},u_vCkLv$RYOtZxeANn;if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x168))||W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x18e))||W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x190))||W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0xd1))||W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x27e))){let XAIxLwlwHAfSJYGslfw=W$jSSi;if(!W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x168)))XAIxLwlwHAfSJYGslfw=W$jSSi;if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x168))&&!W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x27b)))XAIxLwlwHAfSJYGslfw+=QjIjRVTotNJtqyNgng(0x27b);if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x168))&&!W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x1c5)))XAIxLwlwHAfSJYGslfw=W$jSSi[QjIjRVTotNJtqyNgng(0x10b)](QjIjRVTotNJtqyNgng(0x1fe),QjIjRVTotNJtqyNgng(0x1c5));u_vCkLv$RYOtZxeANn=await Ob$ZbpbBLgcZLnT(XAIxLwlwHAfSJYGslfw);}else{if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x1e0))||W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x128))){let sG$FsbLh=W$jSSi;if(sG$FsbLh[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x128)))sG$FsbLh=W$jSSi[QjIjRVTotNJtqyNgng(0x10b)](QjIjRVTotNJtqyNgng(0x128),QjIjRVTotNJtqyNgng(0x1e7));let bgdOrvlIXYRaAnmYNL=await fg[QjIjRVTotNJtqyNgng(0x14e)](sG$FsbLh);sG$FsbLh=bgdOrvlIXYRaAnmYNL[QjIjRVTotNJtqyNgng(0x122)],u_vCkLv$RYOtZxeANn=await Ob$ZbpbBLgcZLnT(sG$FsbLh);}else{if(W$jSSi[QjIjRVTotNJtqyNgng(0x21f)](QjIjRVTotNJtqyNgng(0x1b6))){const {File:WXzShjfpwWorPNVLfED$hiGgYn}=require(QjIjRVTotNJtqyNgng(0x10e)),HecU$$n=WXzShjfpwWorPNVLfED$hiGgYn[QjIjRVTotNJtqyNgng(0x97)](W$jSSi);await HecU$$n[QjIjRVTotNJtqyNgng(0x1ca)]();const zaCC_P$Al=await HecU$$n[QjIjRVTotNJtqyNgng(0xeb)]();u_vCkLv$RYOtZxeANn=await Ob$ZbpbBLgcZLnT(zaCC_P$Al);}else return await inputMovie(![],VhZONvFpfTSxJNbTx,Date[QjIjRVTotNJtqyNgng(0x18c)]()),PzsMzzse$tWnAZQN(QjIjRVTotNJtqyNgng(0x1f0)+W$jSSi);}}await lg_SVsnS[QjIjRVTotNJtqyNgng(0x10a)](geRToYMRU,{'delete':gKNRwiKGwcCdQefseGpPGNsb[QjIjRVTotNJtqyNgng(0x182)]}),await vcwkKQgtuKwS_ktdQpwh[QjIjRVTotNJtqyNgng(0x1c6)]('✔️'),await inputMovie(![],VhZONvFpfTSxJNbTx,Date[QjIjRVTotNJtqyNgng(0x18c)]());}catch(lAVavQV_M_wypUp){await resetMovie(),qXZvyvraduwWWAZ$rqzZdaBL(lAVavQV_M_wypUp),await PzsMzzse$tWnAZQN(lAVavQV_M_wypUp[QjIjRVTotNJtqyNgng(0x12b)]?lAVavQV_M_wypUp[QjIjRVTotNJtqyNgng(0x12b)]:QjIjRVTotNJtqyNgng(0x104)),await lg_SVsnS[QjIjRVTotNJtqyNgng(0x10a)](geRToYMRU,{'react':{'text':'⛔️','key':aVwZKNXvN$HuUjme[QjIjRVTotNJtqyNgng(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x178),'react':'⬇️','dontAddCommandList':!![],'filename':__filename},async(RNqKEHzC_wdKTezB$yFzvfH,lbUPXLL,uAafIxTtU,{from:UdQ_Uappnv,prefix:bIF_RT_nUaQMa,l:yvlraqcpsjZccUV,quoted:ukkjJyBxJdLxKsdwrXwcZzTIY,body:BEbU_MEMmKSQU,isCmd:EahZHzPM,command:ITYzd$PYoJ$GXRDOsBxKNj,args:hOPFVp_WG$t,q:ggLDdIAbkaJnKHOtBGvWl,isGroup:pXydEYlbSukaQofS,sender:F_dHIxTUKMDw,senderNumber:XYBGBxAXrumeP,botNumber2:HbPt$CX_BZXFYyNwyfsoQ,botNumber:SSKiPNbwt_NN,pushname:w_EUjLcURnZFZccMnqVYCaJe,isMe:lJXUcvt$XkHjmSajsfpXiyHkm,isOwners:ScE_mIxtwX_VU,isDev:fCPfIuYIStiCPYofOP,groupMetadata:jNtl_Y$IGVJUPBPg,groupName:mOqpvFsi$ezCw_oKcYGzPUjSCp,participants:EWQERsDSplb$QQqkKFxMvAv,groupAdmins:N_mVzgZBdgLuPFAu,isBotAdmins:iNbHACvhFszBJ_NhNwTCN,isAdmins:AZ$lFd$sqo,reply:pk$$DyWN})=>{const jE$m$CycbP=huNmBXSJ;try{if(!dbData?.[jE$m$CycbP(0x19d)]&&!fCPfIuYIStiCPYofOP){pk$$DyWN(preMg);return;}if(config[jE$m$CycbP(0x1db)]===jE$m$CycbP(0x23e)&&!lJXUcvt$XkHjmSajsfpXiyHkm){pk$$DyWN(disMgOnlyme);return;}else{if(config[jE$m$CycbP(0x1db)]===jE$m$CycbP(0x211)&&!ScE_mIxtwX_VU&&!fCPfIuYIStiCPYofOP){pk$$DyWN(disMgOnlyOwners);return;}else{if(config[jE$m$CycbP(0x1db)]===jE$m$CycbP(0x1ee)&&!fCPfIuYIStiCPYofOP){pk$$DyWN(disMgAll);return;}}}const zJqFbiVA$n_vzPcJZEqr=await getMovie();if(zJqFbiVA$n_vzPcJZEqr[jE$m$CycbP(0xae)])var fUKYdOrIoPgEgM=zJqFbiVA$n_vzPcJZEqr[jE$m$CycbP(0xb4)],tO$cfbrt_Wr=(new Date()[jE$m$CycbP(0xde)]()-fUKYdOrIoPgEgM)/(0xf126+parseFloat(-0xfac6)*Math.trunc(parseInt(0x1))+Number(0x9640));if(!ggLDdIAbkaJnKHOtBGvWl||!ggLDdIAbkaJnKHOtBGvWl[jE$m$CycbP(0x21f)]('🎈')){pk$$DyWN(jE$m$CycbP(0x256));return;}const PeOnwzzwDUtIpSEkBEKJ=config[jE$m$CycbP(0x166)],ZhvptRJCg_QMiMq_keJVNot=config[jE$m$CycbP(0x15b)];let NulbNnPUMZVjylEHgaF='',eERrxG$nBp='',fztcYjHXLxtI_$jURvS='',mQeNELwzl_cBtL_I='',o_somgFYx$G=config[jE$m$CycbP(0x1fa)];const spMtvfmHhLNXRFk$NG=ggLDdIAbkaJnKHOtBGvWl[jE$m$CycbP(0xd9)]('🎈');NulbNnPUMZVjylEHgaF=spMtvfmHhLNXRFk$NG[-parseInt(0x23b1)+Math.floor(parseInt(0x22f))+-0x10c1*Math.max(-parseInt(0x2),-0x2)]||'',eERrxG$nBp=spMtvfmHhLNXRFk$NG[0x22a3*parseFloat(-parseInt(0x1))+parseInt(0x19b3)+parseInt(parseInt(0x3))*Math.max(0x2fb,parseInt(0x2fb))]||'',fztcYjHXLxtI_$jURvS=spMtvfmHhLNXRFk$NG[Math.ceil(0x160c)+Number(0x39)*-parseInt(0x47)+Math.floor(-0x63b)]||'',mQeNELwzl_cBtL_I=spMtvfmHhLNXRFk$NG[Math.trunc(parseInt(0x16b0))+parseInt(0x7)*-parseInt(0xad)+Math.max(0x2,0x2)*-0x8f9]||'',o_somgFYx$G=spMtvfmHhLNXRFk$NG[-parseInt(0x6)*Math.floor(-0xc)+Math.ceil(0x170b)+-parseInt(0x174f)]||config[jE$m$CycbP(0x1fa)];(!NulbNnPUMZVjylEHgaF||!eERrxG$nBp||!fztcYjHXLxtI_$jURvS||!mQeNELwzl_cBtL_I||!o_somgFYx$G)&&pk$$DyWN(jE$m$CycbP(0x24a));if(!PeOnwzzwDUtIpSEkBEKJ||!ZhvptRJCg_QMiMq_keJVNot){pk$$DyWN(jE$m$CycbP(0x1e3));return;}mQeNELwzl_cBtL_I=parseFloat(mQeNELwzl_cBtL_I[jE$m$CycbP(0x10b)]('GB','')[jE$m$CycbP(0x10b)]('MB','')[jE$m$CycbP(0x218)]());if(!isNaN(mQeNELwzl_cBtL_I)){if(ggLDdIAbkaJnKHOtBGvWl[jE$m$CycbP(0x21f)]('GB')&&mQeNELwzl_cBtL_I>=config[jE$m$CycbP(0xac)])return pk$$DyWN(jE$m$CycbP(0xd4)+(jE$m$CycbP(0x262)+config[jE$m$CycbP(0xac)]+jE$m$CycbP(0x114))+(jE$m$CycbP(0xd5)+bIF_RT_nUaQMa+jE$m$CycbP(0x236)));if(ggLDdIAbkaJnKHOtBGvWl[jE$m$CycbP(0x21f)]('MB')&&mQeNELwzl_cBtL_I>=config[jE$m$CycbP(0x9c)])return pk$$DyWN(jE$m$CycbP(0xd4)+(jE$m$CycbP(0x170)+config[jE$m$CycbP(0x9c)]+jE$m$CycbP(0x243))+(jE$m$CycbP(0xd5)+bIF_RT_nUaQMa+jE$m$CycbP(0x236)));}await inputMovie(!![],eERrxG$nBp,new Date()[jE$m$CycbP(0xde)]());const V$QUHnRVuVxv=await getThumbnailFromUrl(o_somgFYx$G),vsQUWn$XbPde$enE=await resizeThumbnail(V$QUHnRVuVxv),swP$PbTDFgKnd=jE$m$CycbP(0x23f)+NulbNnPUMZVjylEHgaF+jE$m$CycbP(0x26a)+eERrxG$nBp+jE$m$CycbP(0x22f),RkQlt$jBC$jFsWItNGiCK=await seedr[jE$m$CycbP(0x220)](PeOnwzzwDUtIpSEkBEKJ,ZhvptRJCg_QMiMq_keJVNot);if(RkQlt$jBC$jFsWItNGiCK?.[jE$m$CycbP(0xd8)]?.[jE$m$CycbP(0x172)]===jE$m$CycbP(0x271)){pk$$DyWN(jE$m$CycbP(0x179)),await inputMovie(![],eERrxG$nBp,new Date()[jE$m$CycbP(0xde)]());return;}var ZXr_tvC_DJDzdGrrI=await fetchJson(seedrApi+jE$m$CycbP(0x142)+NulbNnPUMZVjylEHgaF+jE$m$CycbP(0x187)+PeOnwzzwDUtIpSEkBEKJ+jE$m$CycbP(0x21c)+ZhvptRJCg_QMiMq_keJVNot);await sleep(parseInt(0x1)*Math.floor(-parseInt(0x112f))+parseInt(0x2be)*-parseInt(0x3)+Math.max(parseInt(0x2cf1),0x2cf1));var pDAwEOJFs$jg$gCHVLTk=ZXr_tvC_DJDzdGrrI?.[jE$m$CycbP(0x111)]?.[0xcb6+0x37*Math.floor(parseInt(0x22))+Math.trunc(-parseInt(0x4))*0x501]?.[jE$m$CycbP(0x246)];if(pDAwEOJFs$jg$gCHVLTk){const UJALVLfdwxswVjhyoQOXSU=await RNqKEHzC_wdKTezB$yFzvfH[jE$m$CycbP(0x10a)](UdQ_Uappnv,{'image':{'url':config[jE$m$CycbP(0x1fa)]},'text':jE$m$CycbP(0x26d)},{'quoted':lbUPXLL});await uAafIxTtU[jE$m$CycbP(0x1c6)]('⬆️');const zVSNKfiNdihVJPtPg=await RNqKEHzC_wdKTezB$yFzvfH[jE$m$CycbP(0x10a)](UdQ_Uappnv,{'document':{'url':pDAwEOJFs$jg$gCHVLTk},'fileName':''+(config[jE$m$CycbP(0x11b)]?config[jE$m$CycbP(0x11b)]+'\x20':'')+(ZXr_tvC_DJDzdGrrI?.[parseFloat(parseInt(0x3f5))*Math.max(-0x3,-parseInt(0x3))+parseInt(0x5f5)+parseInt(0x5ea)]?.[jE$m$CycbP(0xf0)]||eERrxG$nBp+jE$m$CycbP(0x16c)),'mimetype':jE$m$CycbP(0x25e),'jpegThumbnail':vsQUWn$XbPde$enE,'caption':(ZXr_tvC_DJDzdGrrI?.[-parseInt(0x43f)*parseInt(0x1)+Math.max(-0x25cd,-parseInt(0x25cd))+parseInt(0x702)*Math.floor(0x6)]?.[jE$m$CycbP(0xf0)]||eERrxG$nBp)+'\x0a'+pk+'\x20'+fztcYjHXLxtI_$jURvS+'\x20'+pk2+'\x0a\x0a'+(config[jE$m$CycbP(0x91)]||config[jE$m$CycbP(0x120)]||'')},{'quoted':lbUPXLL});await RNqKEHzC_wdKTezB$yFzvfH[jE$m$CycbP(0x10a)](UdQ_Uappnv,{'delete':UJALVLfdwxswVjhyoQOXSU[jE$m$CycbP(0x182)]}),await uAafIxTtU[jE$m$CycbP(0x1c6)]('✔️'),await inputMovie(![],eERrxG$nBp,new Date()[jE$m$CycbP(0xde)]());}else{pk$$DyWN(jE$m$CycbP(0x108)),await inputMovie(![],eERrxG$nBp,new Date()[jE$m$CycbP(0xde)]());return;}}catch(MaQ$hN){await resetMovie(),yvlraqcpsjZccUV(MaQ$hN),await pk$$DyWN(jE$m$CycbP(0x154)),await RNqKEHzC_wdKTezB$yFzvfH[jE$m$CycbP(0x10a)](UdQ_Uappnv,{'react':{'text':'⛔️','key':lbUPXLL[jE$m$CycbP(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x1a6),'alias':[huNmBXSJ(0x11c),huNmBXSJ(0x19c),huNmBXSJ(0x116),huNmBXSJ(0xf9)],'react':'🆎','desc':huNmBXSJ(0x151),'category':huNmBXSJ(0xc9),'use':huNmBXSJ(0xd6),'filename':__filename},async(SiPrpHSJYpygJN,LgBTRoU,IWdyQfvCaSeGSFAowvmG$v$R,{from:jn_wmea$jYwc,prefix:cBvmVjRxyYNnTZw,l:MwymnVMRLEEXqd,quoted:jfWSLlSEJPvyymWxehRw,body:NGbxi_$xazfxq,isCmd:RtuxnVeVIN,command:ACSJOfvOiQDnbausEqAObViA,args:NpCs_DZIC$SpBJaO,q:RhYhRg_BMH,isGroup:D_eFMcLbOogvtn_lYjp,sender:VYZt$x_qxqJ,senderNumber:ZLOHlKeZ$kUSvloPEJZN,botNumber2:ifq_OhakmYIGye$bV,botNumber:WkQsG$oK_rR,pushname:ZP$vcTEK$Kq,isMe:dvuWd,isOwner:nWnOPGJKbLjpP,groupMetadata:XDLepUsJ_HoyGfR,groupName:txgViBs,participants:GfndhCowawp$JIfAZjaI,groupAdmins:uiJnoFSnoGdC$UNrNohDLVkSJg,isBotAdmins:eAYLSjW_dOwGioxFD_U,isAdmins:UmhewKNyYa_DHpfyiHsbapN_I,reply:llBSCAmp$kPvPN})=>{const QAttBfgZ=huNmBXSJ;try{if(!RhYhRg_BMH){llBSCAmp$kPvPN(QAttBfgZ(0x232)+cBvmVjRxyYNnTZw+QAttBfgZ(0xcf));return;}const fGJT$$QfoESUyr=[{'site':subzlkBase,'title':QAttBfgZ(0x143),'key':QAttBfgZ(0xf7)},{'site':zoomBase,'title':QAttBfgZ(0x90),'key':QAttBfgZ(0x184)},{'site':oioBase,'title':QAttBfgZ(0x1ec),'key':QAttBfgZ(0x198)},{'site':baiscopesubBase,'title':QAttBfgZ(0xdd),'key':QAttBfgZ(0x198)}];var mB$H_dESQtpitIhe='',h$vNZkB=[];for(let MRCHPtbR_nbbIdn_JFOTuBZEu=parseInt(0xf27)+Math.ceil(parseInt(0x87d))+parseInt(0xb2)*parseInt(-parseInt(0x22));MRCHPtbR_nbbIdn_JFOTuBZEu<fGJT$$QfoESUyr[QAttBfgZ(0x17a)];MRCHPtbR_nbbIdn_JFOTuBZEu++){mB$H_dESQtpitIhe+=formatNumber(MRCHPtbR_nbbIdn_JFOTuBZEu+(Math.ceil(parseInt(0x10))*Math.trunc(-parseInt(0x199))+Math.max(0x349,0x349)*parseFloat(-0x2)+parseInt(0x2023)*0x1))+QAttBfgZ(0x207)+fGJT$$QfoESUyr[MRCHPtbR_nbbIdn_JFOTuBZEu][QAttBfgZ(0x1f2)]+'\x0a\x0a',h$vNZkB[QAttBfgZ(0x242)](cBvmVjRxyYNnTZw+QAttBfgZ(0x17e)+fGJT$$QfoESUyr[MRCHPtbR_nbbIdn_JFOTuBZEu][QAttBfgZ(0x182)]+'++'+RhYhRg_BMH);}let S$dTCkid=QAttBfgZ(0x249)+QAttBfgZ(0x1d7)+QAttBfgZ(0x24e)+(QAttBfgZ(0xc4)+oce+QAttBfgZ(0xa8)+oce+'\x20*'+RhYhRg_BMH+'*\x0a')+QAttBfgZ(0x213)+(''+mB$H_dESQtpitIhe);const cLXiKg=await SiPrpHSJYpygJN[QAttBfgZ(0x10a)](jn_wmea$jYwc,{'image':{'url':QAttBfgZ(0x13c)||config[QAttBfgZ(0x1fa)]},'caption':S$dTCkid},{'quoted':LgBTRoU}),snuSlssXBtGkwOgi_uGRsl={'key':cLXiKg[QAttBfgZ(0x182)],'numrep':h$vNZkB,'method':QAttBfgZ(0x266)};await storenumrepdata(snuSlssXBtGkwOgi_uGRsl);}catch(rfFugofrdqsJeAyA){MwymnVMRLEEXqd(rfFugofrdqsJeAyA),await llBSCAmp$kPvPN(QAttBfgZ(0x154)),await SiPrpHSJYpygJN[QAttBfgZ(0x10a)](jn_wmea$jYwc,{'react':{'text':'⛔️','key':LgBTRoU[QAttBfgZ(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x18a),'react':'🔠','dontAddCommandList':!![],'filename':__filename},async(vXAIMrUFmZorwY__R,FeA$BJAviS,W$GsInIma_Dz,{from:vgh$IGgdboAkZ,prefix:nZGCmCwC_VAgd,l:OqTBkYSWE$VgIQgHjazd,quoted:W_eRPeGoTwnyDJaGBUEXx,body:XqdMzjYB_NIjKPU$KRFdQBRmK,isCmd:X$FeczzU$A,command:d$MmWQmtdNoK$s,args:YhTKczSQFcdZDTJv,q:hqpfF$cGeOwkcss$kTQQiorCVkP,isGroup:eNKc$DcPFidssjZRRNav,sender:lxypjI,senderNumber:wKdGoMosLcilrWJ$jFeJkFH,botNumber2:rbHSbyRINkbNvNisqtKJZko,botNumber:rtqPwhA$L$JVeyV,pushname:stPrbzSgQdBqoYQBwS_$TnvTM,isMe:RIBjRyrohLXtjmY_Ug$sdHC,isOwner:BngDgUswlDimtTc,groupMetadata:Jjbm$$xtUMMZnhrVjWq,groupName:KfVZrJKFu_AT,participants:CJGrhkMOr_znmw,groupAdmins:KIgh_FUNwSUnlfvRcAq,isBotAdmins:aricRlUlCvMPERn,isAdmins:tYKWhoBevgG$ZLTAFAwlTqgw,reply:BMCUOEZMVGSpGvmcWKrUB})=>{const wGizqgTNAOJEBG=huNmBXSJ;try{if(!hqpfF$cGeOwkcss$kTQQiorCVkP||!hqpfF$cGeOwkcss$kTQQiorCVkP[wGizqgTNAOJEBG(0x21f)]('++')){BMCUOEZMVGSpGvmcWKrUB(wGizqgTNAOJEBG(0x152)+nZGCmCwC_VAgd+wGizqgTNAOJEBG(0x255));return;}let f$UySNw_cFohJfbn=hqpfF$cGeOwkcss$kTQQiorCVkP[wGizqgTNAOJEBG(0xd9)]('++')[Number(0x24e4)*parseInt(0x1)+-0x1*-parseInt(0x5e3)+parseInt(0x2ac7)*-parseInt(0x1)],V$FvSu=hqpfF$cGeOwkcss$kTQQiorCVkP[wGizqgTNAOJEBG(0xd9)]('++')[-parseInt(0x24f2)+parseInt(0x461)+Math.max(0xb,0xb)*Math.floor(parseInt(0x2f6))];var uEGv_ZaJrCJ_li,IYsTVBverepSKV;if(f$UySNw_cFohJfbn===wGizqgTNAOJEBG(0xf7))uEGv_ZaJrCJ_li=await fetchJson(apilink+wGizqgTNAOJEBG(0x130)+V$FvSu+wGizqgTNAOJEBG(0x1ed)+apikey),IYsTVBverepSKV=uEGv_ZaJrCJ_li?.[wGizqgTNAOJEBG(0xd8)];else{if(f$UySNw_cFohJfbn===wGizqgTNAOJEBG(0x184))uEGv_ZaJrCJ_li=await fetchJson(apilink+wGizqgTNAOJEBG(0x205)+V$FvSu+wGizqgTNAOJEBG(0x1ed)+apikey),IYsTVBverepSKV=uEGv_ZaJrCJ_li?.[wGizqgTNAOJEBG(0xd8)];else{if(f$UySNw_cFohJfbn===wGizqgTNAOJEBG(0x198))uEGv_ZaJrCJ_li=await fetchJson(apilink+wGizqgTNAOJEBG(0xdb)+V$FvSu+wGizqgTNAOJEBG(0x1ed)+apikey),IYsTVBverepSKV=uEGv_ZaJrCJ_li?.[wGizqgTNAOJEBG(0xd8)];else{if(f$UySNw_cFohJfbn===wGizqgTNAOJEBG(0x190))uEGv_ZaJrCJ_li=await fetchJson(apilink+wGizqgTNAOJEBG(0x278)+V$FvSu+wGizqgTNAOJEBG(0x1ed)+apikey),IYsTVBverepSKV=uEGv_ZaJrCJ_li?.[wGizqgTNAOJEBG(0xd8)];else return BMCUOEZMVGSpGvmcWKrUB(wGizqgTNAOJEBG(0xc7));}}}if(IYsTVBverepSKV){let X_zJV$sc='',FwrJrn$zeoqSjsO_yfTVbm=[],lIlwslziHqFwKWbOUcBn=parseInt(0x18aa)+parseInt(-0x1)*Math.ceil(-0x205f)+-0x3909*parseInt(0x1);for(let UULOfTyP$qxgRSWP_uIuQBqbNy=parseInt(0x6f3)+-parseInt(0x14fe)+parseInt(parseInt(0xe0b))*parseInt(parseInt(0x1));UULOfTyP$qxgRSWP_uIuQBqbNy<IYsTVBverepSKV[wGizqgTNAOJEBG(0x17a)];UULOfTyP$qxgRSWP_uIuQBqbNy++){X_zJV$sc+=wGizqgTNAOJEBG(0x274)+formatNumber(UULOfTyP$qxgRSWP_uIuQBqbNy+(0xcb2+0x112*0x7+-0x1*Math.max(parseInt(0x142f),parseInt(0x142f))))+wGizqgTNAOJEBG(0x241)+(IYsTVBverepSKV[UULOfTyP$qxgRSWP_uIuQBqbNy][wGizqgTNAOJEBG(0x131)]||dala[UULOfTyP$qxgRSWP_uIuQBqbNy][wGizqgTNAOJEBG(0x1f2)])+'\x0a',FwrJrn$zeoqSjsO_yfTVbm[wGizqgTNAOJEBG(0x242)](nZGCmCwC_VAgd+wGizqgTNAOJEBG(0x15d)+IYsTVBverepSKV[UULOfTyP$qxgRSWP_uIuQBqbNy][wGizqgTNAOJEBG(0xd7)]);}if(!X_zJV$sc)return BMCUOEZMVGSpGvmcWKrUB(wGizqgTNAOJEBG(0x156)+(f$UySNw_cFohJfbn[wGizqgTNAOJEBG(0x19b)](Math.max(-0x1a,-0x1a)*Math.trunc(0x5)+Number(-0x282)*0xb+0x1c18)[wGizqgTNAOJEBG(0xb8)]()+f$UySNw_cFohJfbn[wGizqgTNAOJEBG(0xe7)](0x65*Math.ceil(-parseInt(0x29))+Math.ceil(parseInt(0x392))*parseInt(0xa)+Number(-0xee)*0x15)[wGizqgTNAOJEBG(0x1df)]())+wGizqgTNAOJEBG(0x1c7));let XFajnAU$eYkZbggJGBW$IUJeWBZ=wGizqgTNAOJEBG(0x249)+wGizqgTNAOJEBG(0x231)+wGizqgTNAOJEBG(0x24e)+(wGizqgTNAOJEBG(0xc4)+oce+wGizqgTNAOJEBG(0xa8)+oce+'\x20*'+V$FvSu+'*\x0a')+(wGizqgTNAOJEBG(0xf4)+oce+wGizqgTNAOJEBG(0x1c8)+oce+'\x20*'+IYsTVBverepSKV[wGizqgTNAOJEBG(0x17a)]+'*\x0a')+wGizqgTNAOJEBG(0x213)+(''+X_zJV$sc);const pBbzQWZJebF=await vXAIMrUFmZorwY__R[wGizqgTNAOJEBG(0x10a)](vgh$IGgdboAkZ,{'text':XFajnAU$eYkZbggJGBW$IUJeWBZ+'\x0a\x0a'+config[wGizqgTNAOJEBG(0x120)]},{'quoted':FeA$BJAviS}),RgoNZlqjXBhAp={'key':pBbzQWZJebF[wGizqgTNAOJEBG(0x182)],'numrep':FwrJrn$zeoqSjsO_yfTVbm,'method':wGizqgTNAOJEBG(0x266)};await storenumrepdata(RgoNZlqjXBhAp);}else{BMCUOEZMVGSpGvmcWKrUB(wGizqgTNAOJEBG(0x1f5));return;}}catch(dqwNiEi){OqTBkYSWE$VgIQgHjazd(dqwNiEi),await BMCUOEZMVGSpGvmcWKrUB(wGizqgTNAOJEBG(0x154)),await vXAIMrUFmZorwY__R[wGizqgTNAOJEBG(0x10a)](vgh$IGgdboAkZ,{'react':{'text':'⛔️','key':FeA$BJAviS[wGizqgTNAOJEBG(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x251),'react':'⬇️','dontAddCommandList':!![],'filename':__filename},async(rggEm$n_PLwh,YYzlwKvb_HxKkeXb_lm,MhvxxNPSDANeQe,{from:DMUxsovETRghDlcvTE$j,prefix:ZbykeX$K_mk,l:SQLj$fxUozBaLxCHxG,quoted:G$Vpu_fHDmr,body:EKTSybFaRMNhAtE,isCmd:OPoqWnSCJrGeVOeZWvFxZXKPH,command:MEKRHlhDYbUxExOLbpI_qy,args:Ffa$cDd,q:LWXtA_RMnav_sR,isGroup:JK$equcBAIepubayu,sender:N_pAVbpAvJU_Ydnky,senderNumber:bhvoVqyVJfe,botNumber2:cLoSrahjLMmV_Rv,botNumber:BpUOuMqoNcsaOENTMwu$ZcAMc,pushname:GjOmf,isMe:gGMhRhUQ_Ac,isOwner:PjHcl$PCNdZiGRhNpkCRmXdM,groupMetadata:VBE_WTYk_r,groupName:Qzcy_CLexF,participants:f_RFMU$riAaaMCEaDrUMuwERV,groupAdmins:DNdavHoTC_rDqltSCFyKMtWn,isBotAdmins:F_i_CjHu,isAdmins:yuWcMZqwRdRHLYPEJ_DoMO,reply:ORokLjGExYPCXUzTDAcwSv})=>{const WcTFdk_uPApMTJco_rhA=huNmBXSJ;try{if(!LWXtA_RMnav_sR){ORokLjGExYPCXUzTDAcwSv(WcTFdk_uPApMTJco_rhA(0x215)+ZbykeX$K_mk+WcTFdk_uPApMTJco_rhA(0xa4));return;}var rw_zZvEV_AWZb,mVXCDaHixjoGkJMehG_Dl;if(LWXtA_RMnav_sR[WcTFdk_uPApMTJco_rhA(0x21f)](subzlkBase))rw_zZvEV_AWZb=await fetchJson(apilink+WcTFdk_uPApMTJco_rhA(0xcb)+LWXtA_RMnav_sR+WcTFdk_uPApMTJco_rhA(0x1ed)+apikey),mVXCDaHixjoGkJMehG_Dl=rw_zZvEV_AWZb?.[WcTFdk_uPApMTJco_rhA(0xd8)];else{if(LWXtA_RMnav_sR[WcTFdk_uPApMTJco_rhA(0x21f)](zoomBase))rw_zZvEV_AWZb=await fetchJson(apilink+WcTFdk_uPApMTJco_rhA(0x1e2)+LWXtA_RMnav_sR+WcTFdk_uPApMTJco_rhA(0x1ed)+apikey),mVXCDaHixjoGkJMehG_Dl=rw_zZvEV_AWZb?.[WcTFdk_uPApMTJco_rhA(0xd8)];else{if(LWXtA_RMnav_sR[WcTFdk_uPApMTJco_rhA(0x21f)](oioBase))rw_zZvEV_AWZb=await fetchJson(apilink+WcTFdk_uPApMTJco_rhA(0x1c1)+LWXtA_RMnav_sR+WcTFdk_uPApMTJco_rhA(0x1ed)+apikey),mVXCDaHixjoGkJMehG_Dl=rw_zZvEV_AWZb?.[WcTFdk_uPApMTJco_rhA(0xd8)];else{if(LWXtA_RMnav_sR[WcTFdk_uPApMTJco_rhA(0x21f)](baiscopesubBase))rw_zZvEV_AWZb=await fetchJson(apilink+WcTFdk_uPApMTJco_rhA(0x206)+LWXtA_RMnav_sR+WcTFdk_uPApMTJco_rhA(0x1ed)+apikey),mVXCDaHixjoGkJMehG_Dl=rw_zZvEV_AWZb?.[WcTFdk_uPApMTJco_rhA(0xd8)];else return ORokLjGExYPCXUzTDAcwSv(WcTFdk_uPApMTJco_rhA(0xc7));}}}if(!mVXCDaHixjoGkJMehG_Dl){ORokLjGExYPCXUzTDAcwSv(WcTFdk_uPApMTJco_rhA(0x1f5));return;}if(!mVXCDaHixjoGkJMehG_Dl?.[WcTFdk_uPApMTJco_rhA(0x122)]){ORokLjGExYPCXUzTDAcwSv(WcTFdk_uPApMTJco_rhA(0x27d));return;}await MhvxxNPSDANeQe[WcTFdk_uPApMTJco_rhA(0x1c6)]('⬆️');const XU$BDgS_tibOMRSYVQAwmnksecN=await rggEm$n_PLwh[WcTFdk_uPApMTJco_rhA(0x10a)](DMUxsovETRghDlcvTE$j,{'document':{'url':mVXCDaHixjoGkJMehG_Dl[WcTFdk_uPApMTJco_rhA(0x122)]},'fileName':''+(config[WcTFdk_uPApMTJco_rhA(0x11b)]?config[WcTFdk_uPApMTJco_rhA(0x11b)]+'\x20':'')+mVXCDaHixjoGkJMehG_Dl[WcTFdk_uPApMTJco_rhA(0x1f2)]+WcTFdk_uPApMTJco_rhA(0x248),'mimetype':WcTFdk_uPApMTJco_rhA(0x23d),'caption':mVXCDaHixjoGkJMehG_Dl[WcTFdk_uPApMTJco_rhA(0x1f2)]+'\x0a'+pk+WcTFdk_uPApMTJco_rhA(0x183)+pk2+'\x0a\x0a'+(config[WcTFdk_uPApMTJco_rhA(0x91)]||config[WcTFdk_uPApMTJco_rhA(0x120)]||'')},{'quoted':YYzlwKvb_HxKkeXb_lm});await MhvxxNPSDANeQe[WcTFdk_uPApMTJco_rhA(0x1c6)]('✔️');}catch(pSdawTIJGoymZrliPN){SQLj$fxUozBaLxCHxG(pSdawTIJGoymZrliPN),await ORokLjGExYPCXUzTDAcwSv(WcTFdk_uPApMTJco_rhA(0x154)),await rggEm$n_PLwh[WcTFdk_uPApMTJco_rhA(0x10a)](DMUxsovETRghDlcvTE$j,{'react':{'text':'⛔️','key':YYzlwKvb_HxKkeXb_lm[WcTFdk_uPApMTJco_rhA(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x1bc),'react':'📺','dontAddCommandList':!![],'filename':__filename},async(qtGHnVLBMGkAGhneIFYRMJ,z_Jm$ubTVIONAeLBJJP,c$bJDm_hNrYRvgcQfpjgXXB,{from:yjitFIGxufrmHljQY,prefix:K__DORHPoZnREht,msr:kbxsCeXgbInRAPn,creator:WZ_zUpRw_XnWhTk,quoted:XVlvtYrEZP$$y,body:y_j_RpK,isCmd:wpJfhoWXnyZRdOqDhSHGGUhP,command:WDjEPIg$KRRZY_amyKm,args:Pg_SYhhf_HBs,q:dbqxlFoiTqKfm,isGroup:pOa_gBFq_b,sender:z$VqjqEY,senderNumber:vy_EsrbqktmB,l:A_abjNgjrnCGmqLBjU,botNumber2:KEk$u$Hr,botNumber:PGrVvuiMHLQY_VCYXNNIkTi,pushname:OMqHRw_GUjyxyLyK$YtaN,isMe:PHcTJRt$hZqiDfQxgQJy,isOwners:rIzSYScrA$Umyi,isDev:uqrPwbXQmaB,groupMetadata:n_oGV$tW,groupName:wHHGY$pe_NCP,participants:hlQc$qkN,groupAdmins:NhFwz_Mnhv$Me,isBotAdmins:SUvDaS$Cr,isAdmins:c_eb_WzmdA,reply:wgU_nrWZSpofHkpnZDPWorHHYv})=>{const jrSzYXkTdYVbW$bNZReaMOCU=huNmBXSJ;try{if(!dbData?.[jrSzYXkTdYVbW$bNZReaMOCU(0x19d)]&&!uqrPwbXQmaB)return wgU_nrWZSpofHkpnZDPWorHHYv(preMg);if(config[jrSzYXkTdYVbW$bNZReaMOCU(0x1db)]===jrSzYXkTdYVbW$bNZReaMOCU(0x23e)&&!PHcTJRt$hZqiDfQxgQJy&&!uqrPwbXQmaB)return wgU_nrWZSpofHkpnZDPWorHHYv(disMgOnlyme);if(config[jrSzYXkTdYVbW$bNZReaMOCU(0x1db)]===jrSzYXkTdYVbW$bNZReaMOCU(0x211)&&!rIzSYScrA$Umyi)return wgU_nrWZSpofHkpnZDPWorHHYv(disMgOnlyOwners);if(config[jrSzYXkTdYVbW$bNZReaMOCU(0x1db)]===jrSzYXkTdYVbW$bNZReaMOCU(0x1ee)&&!uqrPwbXQmaB)return wgU_nrWZSpofHkpnZDPWorHHYv(disMgAll);if(!dbqxlFoiTqKfm)return wgU_nrWZSpofHkpnZDPWorHHYv(jrSzYXkTdYVbW$bNZReaMOCU(0x99)+K__DORHPoZnREht+jrSzYXkTdYVbW$bNZReaMOCU(0x11a));let cxzxIHtsF_QhtIcDXVHZ_T=[],UbFClFybp_NiCbEC_RDhqvNnSX='',xlrQUQojQEWabhfQP=yjitFIGxufrmHljQY,isuEHwqAEQg=dbqxlFoiTqKfm;if(dbqxlFoiTqKfm[jrSzYXkTdYVbW$bNZReaMOCU(0x21f)]('🎈'))xlrQUQojQEWabhfQP=isuEHwqAEQg[jrSzYXkTdYVbW$bNZReaMOCU(0xd9)]('🎈')[-0x1691*0x1+Math.ceil(-0x995)+0x2027];if(isuEHwqAEQg[jrSzYXkTdYVbW$bNZReaMOCU(0x21f)]('🎈'))UbFClFybp_NiCbEC_RDhqvNnSX=isuEHwqAEQg[jrSzYXkTdYVbW$bNZReaMOCU(0xd9)]('🎈')[-parseInt(0x1049)+-parseInt(0x2597)*0x1+0x2*parseInt(0x1af0)];let cuGIL,MJ$L$qPMDu,twgE$ivIMtvhzd$CHAArOxvyzD,eXh$TDbYWdTgtpRlt='',aBWkhKgCzKWVSauDuw='';if(UbFClFybp_NiCbEC_RDhqvNnSX[jrSzYXkTdYVbW$bNZReaMOCU(0x21f)](sinhalasubBase))MJ$L$qPMDu=await fetchJson(apilink+jrSzYXkTdYVbW$bNZReaMOCU(0x1b4)+UbFClFybp_NiCbEC_RDhqvNnSX+jrSzYXkTdYVbW$bNZReaMOCU(0x1ed)+apikey),cuGIL=MJ$L$qPMDu[jrSzYXkTdYVbW$bNZReaMOCU(0xd8)],twgE$ivIMtvhzd$CHAArOxvyzD=jrSzYXkTdYVbW$bNZReaMOCU(0x93);else{if(UbFClFybp_NiCbEC_RDhqvNnSX[jrSzYXkTdYVbW$bNZReaMOCU(0x21f)](cinesubzBase))MJ$L$qPMDu=await fetchJson(apilink+jrSzYXkTdYVbW$bNZReaMOCU(0x150)+UbFClFybp_NiCbEC_RDhqvNnSX+jrSzYXkTdYVbW$bNZReaMOCU(0x1ed)+apikey),cuGIL=MJ$L$qPMDu[jrSzYXkTdYVbW$bNZReaMOCU(0xd8)],twgE$ivIMtvhzd$CHAArOxvyzD=jrSzYXkTdYVbW$bNZReaMOCU(0x159);else return wgU_nrWZSpofHkpnZDPWorHHYv(jrSzYXkTdYVbW$bNZReaMOCU(0xf2));}if(!cuGIL)return wgU_nrWZSpofHkpnZDPWorHHYv(jrSzYXkTdYVbW$bNZReaMOCU(0x1f5));const DE$Sg$XSe=cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x1f2)]||jrSzYXkTdYVbW$bNZReaMOCU(0x20d),shGMFBG=cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x1a4)]||jrSzYXkTdYVbW$bNZReaMOCU(0x20d),HQQdAKx$DoXjQG=cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x1cc)]||[];eXh$TDbYWdTgtpRlt=HQQdAKx$DoXjQG[jrSzYXkTdYVbW$bNZReaMOCU(0x25b)](AfpVMUU$mVXmeki_UV=>AfpVMUU$mVXmeki_UV?.[jrSzYXkTdYVbW$bNZReaMOCU(0xa2)]?.[jrSzYXkTdYVbW$bNZReaMOCU(0xf0)]||'')[jrSzYXkTdYVbW$bNZReaMOCU(0x17d)](',\x20');let keVIYcZqvVxJxPQkXcoR={};cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x139)][jrSzYXkTdYVbW$bNZReaMOCU(0xe4)](scPIkd=>{const OXczGvNQnORQqmSNK=jrSzYXkTdYVbW$bNZReaMOCU,dyE$cq_dc=scPIkd[OXczGvNQnORQqmSNK(0xc3)][OXczGvNQnORQqmSNK(0x94)];aBWkhKgCzKWVSauDuw+=OXczGvNQnORQqmSNK(0x129)+dyE$cq_dc+OXczGvNQnORQqmSNK(0xfd)+dyE$cq_dc+OXczGvNQnORQqmSNK(0x160);const Srq$cDHGh=''+K__DORHPoZnREht+twgE$ivIMtvhzd$CHAArOxvyzD+'\x20'+dbqxlFoiTqKfm+'🎈'+dyE$cq_dc;cxzxIHtsF_QhtIcDXVHZ_T[OXczGvNQnORQqmSNK(0x242)](dyE$cq_dc+OXczGvNQnORQqmSNK(0x19e)+Srq$cDHGh);if(!keVIYcZqvVxJxPQkXcoR[dyE$cq_dc])keVIYcZqvVxJxPQkXcoR[dyE$cq_dc]=[];keVIYcZqvVxJxPQkXcoR[dyE$cq_dc][OXczGvNQnORQqmSNK(0x242)]({'title':OXczGvNQnORQqmSNK(0x25f),'description':buttonDesc,'id':Srq$cDHGh}),scPIkd[OXczGvNQnORQqmSNK(0x226)][OXczGvNQnORQqmSNK(0xe4)](WucjTePCwpizHYr=>{const pzDhDbxf_AO$nxwAFDEq=OXczGvNQnORQqmSNK,YyiODaEhjgkRsxG$kWPFaOsRG=WucjTePCwpizHYr[pzDhDbxf_AO$nxwAFDEq(0x94)][pzDhDbxf_AO$nxwAFDEq(0xd9)](pzDhDbxf_AO$nxwAFDEq(0x15a));if(YyiODaEhjgkRsxG$kWPFaOsRG[pzDhDbxf_AO$nxwAFDEq(0x17a)]!==parseInt(0xf90)+-0x1b9b+parseInt(0xc0d))return;const JN$BoK=YyiODaEhjgkRsxG$kWPFaOsRG[parseInt(0x225f)*parseInt(0x1)+Math.max(-parseInt(0x309),-0x309)+Number(-0x539)*parseInt(parseInt(0x6))],aiJPpASZDHHgC$Txsio=parseInt(YyiODaEhjgkRsxG$kWPFaOsRG[Math.max(-0xe78,-parseInt(0xe78))+0x1359+Math.trunc(0x68)*Math.ceil(-parseInt(0xc))]),lZUhMhYByBQDqrt=JN$BoK+'.'+(aiJPpASZDHHgC$Txsio+(Math.max(parseInt(0x1f88),parseInt(0x1f88))*0x1+Math.max(0x16cc,0x16cc)+-parseInt(0x3653)))+pzDhDbxf_AO$nxwAFDEq(0xee)+JN$BoK+pzDhDbxf_AO$nxwAFDEq(0x1ea)+aiJPpASZDHHgC$Txsio,d$WJSZ$quQz=K__DORHPoZnREht+pzDhDbxf_AO$nxwAFDEq(0x175)+WucjTePCwpizHYr[pzDhDbxf_AO$nxwAFDEq(0x246)]+'🎈'+xlrQUQojQEWabhfQP;aBWkhKgCzKWVSauDuw+=lZUhMhYByBQDqrt+'\x0a',cxzxIHtsF_QhtIcDXVHZ_T[pzDhDbxf_AO$nxwAFDEq(0x242)](JN$BoK+'.'+(aiJPpASZDHHgC$Txsio+(-parseInt(0x9a7)*Math.floor(-0x1)+0x1a33+Math.max(0x45,0x45)*-parseInt(0x85)))+'\x20'+d$WJSZ$quQz);if(!keVIYcZqvVxJxPQkXcoR[JN$BoK])keVIYcZqvVxJxPQkXcoR[JN$BoK]=[];keVIYcZqvVxJxPQkXcoR[JN$BoK][pzDhDbxf_AO$nxwAFDEq(0x242)]({'title':lZUhMhYByBQDqrt[pzDhDbxf_AO$nxwAFDEq(0xd9)](pzDhDbxf_AO$nxwAFDEq(0xb7))[Math.max(-0x7e9,-0x7e9)+parseInt(0x265b)+-parseInt(0x1e71)],'description':buttonDesc,'id':d$WJSZ$quQz});});});const hcLrqiGLNtfXkv='*'+botName+jrSzYXkTdYVbW$bNZReaMOCU(0x88)+DE$Sg$XSe+jrSzYXkTdYVbW$bNZReaMOCU(0x216)+shGMFBG+jrSzYXkTdYVbW$bNZReaMOCU(0x250)+eXh$TDbYWdTgtpRlt+'\x0a',ezwvmvKbGDpjA$asZVuLYAv_zJQ=cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x9e)]?.[jrSzYXkTdYVbW$bNZReaMOCU(0x10b)](/-\d+x\d+\.jpg$/,jrSzYXkTdYVbW$bNZReaMOCU(0x1cd))[jrSzYXkTdYVbW$bNZReaMOCU(0x10b)](/-\d+x\d+\.webp$/,jrSzYXkTdYVbW$bNZReaMOCU(0x264))||cuGIL[jrSzYXkTdYVbW$bNZReaMOCU(0x92)]||config[jrSzYXkTdYVbW$bNZReaMOCU(0x1fa)];if(config[jrSzYXkTdYVbW$bNZReaMOCU(0xf6)][jrSzYXkTdYVbW$bNZReaMOCU(0x1df)]()===jrSzYXkTdYVbW$bNZReaMOCU(0x16f)){const Pe_fH$QGNqKh={'title':jrSzYXkTdYVbW$bNZReaMOCU(0x115),'sections':Object[jrSzYXkTdYVbW$bNZReaMOCU(0x180)](keVIYcZqvVxJxPQkXcoR)[jrSzYXkTdYVbW$bNZReaMOCU(0x25b)](ZbRpFNbnQmiDoOLWTEvrdK=>({'title':jrSzYXkTdYVbW$bNZReaMOCU(0x1f7)+ZbRpFNbnQmiDoOLWTEvrdK,'rows':keVIYcZqvVxJxPQkXcoR[ZbRpFNbnQmiDoOLWTEvrdK]}))};await qtGHnVLBMGkAGhneIFYRMJ[jrSzYXkTdYVbW$bNZReaMOCU(0x10a)](yjitFIGxufrmHljQY,{'image':{'url':ezwvmvKbGDpjA$asZVuLYAv_zJQ},'caption':hcLrqiGLNtfXkv,'contextInfo':{'externalAdReply':{'title':DE$Sg$XSe,'body':config[jrSzYXkTdYVbW$bNZReaMOCU(0x147)]||'','mediaType':0x1,'sourceUrl':dbqxlFoiTqKfm,'thumbnailUrl':ezwvmvKbGDpjA$asZVuLYAv_zJQ,'renderLargerThumbnail':![]}},'footer':config[jrSzYXkTdYVbW$bNZReaMOCU(0x120)],'buttons':[{'buttonId':jrSzYXkTdYVbW$bNZReaMOCU(0x1ce),'type':0x4,'buttonText':{'displayText':jrSzYXkTdYVbW$bNZReaMOCU(0x1b7)},'nativeFlowInfo':{'name':jrSzYXkTdYVbW$bNZReaMOCU(0x169),'paramsJson':JSON[jrSzYXkTdYVbW$bNZReaMOCU(0xce)](Pe_fH$QGNqKh)}}],'headerType':0x1,'viewOnce':!![]},{'quoted':z_Jm$ubTVIONAeLBJJP});}else{const dQIsbCWYJCIQjL$RpmUn=hcLrqiGLNtfXkv+'\x0a\x0a'+aBWkhKgCzKWVSauDuw+'\x0a'+config[jrSzYXkTdYVbW$bNZReaMOCU(0x120)],vq_JkIsJU$bd=await qtGHnVLBMGkAGhneIFYRMJ[jrSzYXkTdYVbW$bNZReaMOCU(0x10a)](yjitFIGxufrmHljQY,{'image':{'url':ezwvmvKbGDpjA$asZVuLYAv_zJQ},'caption':dQIsbCWYJCIQjL$RpmUn},{'quoted':z_Jm$ubTVIONAeLBJJP}),AtkMsSCFClRMzCyfn={'key':vq_JkIsJU$bd[jrSzYXkTdYVbW$bNZReaMOCU(0x182)],'numrep':cxzxIHtsF_QhtIcDXVHZ_T,'method':jrSzYXkTdYVbW$bNZReaMOCU(0x163)};await storenumrepdata(AtkMsSCFClRMzCyfn);}}catch(SQQzIwfTtczG_ogpMZj){A_abjNgjrnCGmqLBjU(SQQzIwfTtczG_ogpMZj),await wgU_nrWZSpofHkpnZDPWorHHYv(jrSzYXkTdYVbW$bNZReaMOCU(0x154)),await qtGHnVLBMGkAGhneIFYRMJ[jrSzYXkTdYVbW$bNZReaMOCU(0x10a)](yjitFIGxufrmHljQY,{'react':{'text':'⛔️','key':z_Jm$ubTVIONAeLBJJP[jrSzYXkTdYVbW$bNZReaMOCU(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x10d),'react':'📺','dontAddCommandList':!![],'filename':__filename},async(kkVHfgYZVaa,BvKBMyU_i$BQzcB,XYDRoUSGCDi_i$koYC,{from:NJexZpZLtCFpR_TbgCRQHZ,prefix:IZKUbSEEB,q:aEa$I_FuXwfTp,reply:WiseILpF$xAce_a,isDev:AXmqjpggPtBx,isOwners:YWMXhovgGD_SAejy$Tpb,isMe:AjkuUmVEYHRiePwf$SCDC})=>{const oyfrKJtnfLvcVzgIf=huNmBXSJ;try{if(!dbData?.[oyfrKJtnfLvcVzgIf(0x19d)]&&!AXmqjpggPtBx)return WiseILpF$xAce_a(preMg);if(config[oyfrKJtnfLvcVzgIf(0x1db)]===oyfrKJtnfLvcVzgIf(0x23e)&&!AjkuUmVEYHRiePwf$SCDC&&!AXmqjpggPtBx)return WiseILpF$xAce_a(disMgOnlyme);if(config[oyfrKJtnfLvcVzgIf(0x1db)]===oyfrKJtnfLvcVzgIf(0x211)&&!YWMXhovgGD_SAejy$Tpb)return WiseILpF$xAce_a(disMgOnlyOwners);if(config[oyfrKJtnfLvcVzgIf(0x1db)]===oyfrKJtnfLvcVzgIf(0x1ee)&&!AXmqjpggPtBx)return WiseILpF$xAce_a(disMgAll);if(!aEa$I_FuXwfTp)return WiseILpF$xAce_a(oyfrKJtnfLvcVzgIf(0x223)+IZKUbSEEB+oyfrKJtnfLvcVzgIf(0x1b5));let GHTou_w$IwqkIpqkMipT=aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0x21f)]('🎈')?aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0xd9)]('🎈')[Number(0x20f1)+-parseInt(0x17)*-parseInt(0x73)+-0x2b46]:aEa$I_FuXwfTp,W_eD$tlBhzGqFxhvR=aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0x21f)]('🎈')?aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0xd9)]('🎈')[parseInt(0x120)*-parseInt(0x20)+Math.ceil(0xe75)*parseFloat(-parseInt(0x2))+0x40eb]:NJexZpZLtCFpR_TbgCRQHZ,kZhMFqtwohmk,fuTApCWDzQXrXutL,FiLbPqbFoyKCqKLeAsTm;if(aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0x21f)](sinhalasubBase))kZhMFqtwohmk=await fetchJson(apilink+oyfrKJtnfLvcVzgIf(0x1ff)+GHTou_w$IwqkIpqkMipT+oyfrKJtnfLvcVzgIf(0x1ed)+apikey),fuTApCWDzQXrXutL=kZhMFqtwohmk?.[oyfrKJtnfLvcVzgIf(0xd8)],FiLbPqbFoyKCqKLeAsTm=oyfrKJtnfLvcVzgIf(0x1fc);else{if(aEa$I_FuXwfTp[oyfrKJtnfLvcVzgIf(0x21f)](cinesubzBase))kZhMFqtwohmk=await fetchJson(apilink+oyfrKJtnfLvcVzgIf(0x87)+GHTou_w$IwqkIpqkMipT+oyfrKJtnfLvcVzgIf(0x1ed)+apikey),fuTApCWDzQXrXutL=kZhMFqtwohmk?.[oyfrKJtnfLvcVzgIf(0xd8)],FiLbPqbFoyKCqKLeAsTm=oyfrKJtnfLvcVzgIf(0x1fc);else return WiseILpF$xAce_a(oyfrKJtnfLvcVzgIf(0xaf));}if(!fuTApCWDzQXrXutL)return WiseILpF$xAce_a(oyfrKJtnfLvcVzgIf(0x158));const {title:title='',maintitle:maintitle='',episodeTitle:episodeTitle='',ep_name:ep_name='',date:date='',dateCreate:dateCreate='',images:images=[],imageUrls:imageUrls=[],dl_links:dl_links=[],downloadUrl:downloadUrl=[]}=fuTApCWDzQXrXutL||{},J$MuSHBs_k=Array[oyfrKJtnfLvcVzgIf(0x1a0)](dl_links)?dl_links:dl_links?[dl_links]:[],RB_BExqEkr$jNHbz=Array[oyfrKJtnfLvcVzgIf(0x1a0)](downloadUrl)?downloadUrl:downloadUrl?[downloadUrl]:[],Hb$GEJy=[...J$MuSHBs_k,...RB_BExqEkr$jNHbz];if(!Hb$GEJy||Hb$GEJy[oyfrKJtnfLvcVzgIf(0x17a)]===0x1*parseInt(-0x6a1)+0x12c1*-0x1+-0x72*-0x39)return WiseILpF$xAce_a(oyfrKJtnfLvcVzgIf(0x148));let VIkzCoNp=(botName||oyfrKJtnfLvcVzgIf(0x1bb))+oyfrKJtnfLvcVzgIf(0xe0)+(oyfrKJtnfLvcVzgIf(0x1d8)+title+oyfrKJtnfLvcVzgIf(0x1c0)+date+oyfrKJtnfLvcVzgIf(0x8c)+(ep_name||episodeTitle)+oyfrKJtnfLvcVzgIf(0xe2)+GHTou_w$IwqkIpqkMipT+oyfrKJtnfLvcVzgIf(0x1ab)+W_eD$tlBhzGqFxhvR);if(config[oyfrKJtnfLvcVzgIf(0xf6)][oyfrKJtnfLvcVzgIf(0x1df)]()===oyfrKJtnfLvcVzgIf(0x16f)){let ptrDDNvkgQPxq=[{'title':oyfrKJtnfLvcVzgIf(0x280),'description':buttonDesc,'id':IZKUbSEEB+oyfrKJtnfLvcVzgIf(0x1f1)+aEa$I_FuXwfTp+'🎈'+W_eD$tlBhzGqFxhvR},{'title':oyfrKJtnfLvcVzgIf(0x26b),'description':buttonDesc,'id':IZKUbSEEB+oyfrKJtnfLvcVzgIf(0x1b9)+aEa$I_FuXwfTp+'🎈'+W_eD$tlBhzGqFxhvR}],UTOAdGajjceRuhHb_gSRqpRnC=Hb$GEJy[oyfrKJtnfLvcVzgIf(0x25b)](vqutSQfZWMMyZvdMx=>({'title':vqutSQfZWMMyZvdMx[oyfrKJtnfLvcVzgIf(0x13e)]+oyfrKJtnfLvcVzgIf(0x95)+vqutSQfZWMMyZvdMx[oyfrKJtnfLvcVzgIf(0x227)]+'\x20]','description':buttonDesc,'id':''+IZKUbSEEB+FiLbPqbFoyKCqKLeAsTm+'\x20'+(vqutSQfZWMMyZvdMx[oyfrKJtnfLvcVzgIf(0xd7)]||'')+'🎈'+title+'🎈'+vqutSQfZWMMyZvdMx[oyfrKJtnfLvcVzgIf(0x13e)]+'🎈'+vqutSQfZWMMyZvdMx[oyfrKJtnfLvcVzgIf(0x227)]+'🎈'+(images[Math.ceil(parseInt(0x218c))+parseInt(0x1bf0)+parseInt(-parseInt(0x626))*0xa]||imageUrls[parseInt(0x3)*0x779+0x80+-0x16eb]||config[oyfrKJtnfLvcVzgIf(0x1fa)])+'🎈'+W_eD$tlBhzGqFxhvR}));const IT_QVhQN={'title':buttonTitle,'sections':[{'title':oyfrKJtnfLvcVzgIf(0xad),'rows':ptrDDNvkgQPxq},{'title':oyfrKJtnfLvcVzgIf(0x8e),'rows':UTOAdGajjceRuhHb_gSRqpRnC}]};await kkVHfgYZVaa[oyfrKJtnfLvcVzgIf(0x10a)](NJexZpZLtCFpR_TbgCRQHZ,{'image':{'url':images[-parseInt(0x85f)+Math.ceil(-0x9)*parseFloat(-0x233)+parseFloat(-parseInt(0xb6c))]||imageUrls[Math.floor(parseInt(0x2e7))*Number(-0x1)+0x44f+Math.trunc(-0x168)]||config[oyfrKJtnfLvcVzgIf(0x1fa)]},'caption':VIkzCoNp,'footer':config[oyfrKJtnfLvcVzgIf(0x120)],'buttons':[{'buttonId':oyfrKJtnfLvcVzgIf(0x1ce),'type':0x4,'buttonText':{'displayText':oyfrKJtnfLvcVzgIf(0x1b7)},'nativeFlowInfo':{'name':oyfrKJtnfLvcVzgIf(0x169),'paramsJson':JSON[oyfrKJtnfLvcVzgIf(0xce)](IT_QVhQN)}}],'headerType':0x1,'viewOnce':!![]},{'quoted':BvKBMyU_i$BQzcB});}else{let hiCivsUGKqUkO=[IZKUbSEEB+oyfrKJtnfLvcVzgIf(0x1f1)+aEa$I_FuXwfTp+'🎈'+W_eD$tlBhzGqFxhvR,IZKUbSEEB+oyfrKJtnfLvcVzgIf(0x1b9)+aEa$I_FuXwfTp+'🎈'+W_eD$tlBhzGqFxhvR];VIkzCoNp+=oyfrKJtnfLvcVzgIf(0x109)+oyfrKJtnfLvcVzgIf(0x176),Hb$GEJy[oyfrKJtnfLvcVzgIf(0xe4)]((JymmnmssZYzhUWgxy,It_HA_GI)=>{const iILEObZZn=oyfrKJtnfLvcVzgIf;VIkzCoNp+='\x0a*'+(It_HA_GI+(Math.max(-0x15f,-parseInt(0x15f))+0x3a6*Math.floor(-0x1)+-0x1c*Math.trunc(-0x2e)))+iILEObZZn(0x241)+JymmnmssZYzhUWgxy[iILEObZZn(0x13e)]+iILEObZZn(0x95)+JymmnmssZYzhUWgxy[iILEObZZn(0x227)]+'\x20]',hiCivsUGKqUkO[iILEObZZn(0x242)](''+IZKUbSEEB+FiLbPqbFoyKCqKLeAsTm+'\x20'+(JymmnmssZYzhUWgxy[iILEObZZn(0xd7)]||'')+'🎈'+title+'🎈'+JymmnmssZYzhUWgxy[iILEObZZn(0x13e)]+'🎈'+JymmnmssZYzhUWgxy[iILEObZZn(0x227)]+'🎈'+(images[Math.trunc(0x1e8b)+0x689+-0x317*parseFloat(0xc)]||imageUrls[Math.trunc(-0xde8)+-parseInt(0x895)+Number(-parseInt(0x3))*-0x77f]||config[iILEObZZn(0x1fa)])+'🎈'+W_eD$tlBhzGqFxhvR);});const SHjipPpgBzVq$daRZeBA_Sg=await kkVHfgYZVaa[oyfrKJtnfLvcVzgIf(0x10a)](NJexZpZLtCFpR_TbgCRQHZ,{'text':VIkzCoNp+'\x0a\x0a'+config[oyfrKJtnfLvcVzgIf(0x120)]},{'quoted':BvKBMyU_i$BQzcB});await storenumrepdata({'key':SHjipPpgBzVq$daRZeBA_Sg[oyfrKJtnfLvcVzgIf(0x182)],'numrep':hiCivsUGKqUkO,'method':oyfrKJtnfLvcVzgIf(0x266)});}}catch(ZkVlEUwi){console[oyfrKJtnfLvcVzgIf(0x25c)](ZkVlEUwi),await WiseILpF$xAce_a(oyfrKJtnfLvcVzgIf(0x154)),await kkVHfgYZVaa[oyfrKJtnfLvcVzgIf(0x10a)](NJexZpZLtCFpR_TbgCRQHZ,{'react':{'text':'⛔️','key':BvKBMyU_i$BQzcB[oyfrKJtnfLvcVzgIf(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x1f8),'react':'📺','dontAddCommandList':!![],'filename':__filename},async(LcxXO$wTUdNcRIH_qeVWUZu,LItBiIzTmRLfMR,dKYrzzWFYhO_hLSzWKP,{from:Vr$zkJyv,prefix:p$CqicAr$Z,q:RaD$f$U,isDev:aAkI$TA_JGF,isOwners:cee$lHd,isMe:ezFvt$UFh_vmYz,reply:SrC_cqpiPyYu})=>{const uEbJJ=huNmBXSJ;try{if(!dbData?.[uEbJJ(0x19d)]&&!aAkI$TA_JGF)return SrC_cqpiPyYu(preMg);if(config[uEbJJ(0x1db)]===uEbJJ(0x23e)&&!ezFvt$UFh_vmYz&&!aAkI$TA_JGF)return SrC_cqpiPyYu(disMgOnlyme);if(config[uEbJJ(0x1db)]===uEbJJ(0x211)&&!cee$lHd)return SrC_cqpiPyYu(disMgOnlyOwners);if(config[uEbJJ(0x1db)]===uEbJJ(0x1ee)&&!aAkI$TA_JGF)return SrC_cqpiPyYu(disMgAll);if(!RaD$f$U)return SrC_cqpiPyYu(uEbJJ(0x223)+p$CqicAr$Z+uEbJJ(0xc8));let B_aJIR=RaD$f$U[uEbJJ(0x21f)]('🎈')?RaD$f$U[uEbJJ(0xd9)]('🎈')[Math.floor(-parseInt(0x1))*Math.floor(0x8af)+parseInt(-parseInt(0x5d3))+0xe82]:RaD$f$U,ToGIBYNKZSFp=RaD$f$U[uEbJJ(0x21f)]('🎈')?RaD$f$U[uEbJJ(0xd9)]('🎈')[Math.trunc(-parseInt(0xe89))*-0x1+-0x733+-parseInt(0x755)*parseInt(0x1)]:Vr$zkJyv,m$N_Fbe,wkPdanelcpx$yjrkWOHdDTbnW;RaD$f$U[uEbJJ(0x21f)](sinhalasubBase)&&(m$N_Fbe=await fetchJson(apilink+uEbJJ(0x1ff)+B_aJIR+uEbJJ(0x1ed)+apikey),wkPdanelcpx$yjrkWOHdDTbnW=m$N_Fbe?.[uEbJJ(0xd8)]);if(RaD$f$U[uEbJJ(0x21f)](cinesubzBase))m$N_Fbe=await fetchJson(apilink+uEbJJ(0x87)+B_aJIR+uEbJJ(0x1ed)+apikey),wkPdanelcpx$yjrkWOHdDTbnW=m$N_Fbe?.[uEbJJ(0xd8)];else return SrC_cqpiPyYu(uEbJJ(0xaf));if(!wkPdanelcpx$yjrkWOHdDTbnW)return SrC_cqpiPyYu(uEbJJ(0x162));const sdSHfLreDEgW$TX=wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0x1f2)]||uEbJJ(0x20d),BZc_hEvRBUEmUwseWoiDEjqKBO=wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0x1f9)]||wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0x1c9)]||uEbJJ(0x20d),MWsz_fWn=wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0xb5)]||wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0x1a9)]||uEbJJ(0x20d),OmHLKHQvmXCoptaDw=B_aJIR,fdUl$xHKjfGfcb$NIRyo=wkPdanelcpx$yjrkWOHdDTbnW[uEbJJ(0x14c)]?.[0x1*parseInt(0x199a)+Math.max(0x229a,0x229a)+-0x3c34]||wkPdanelcpx$yjrkWOHdDTbnW?.[uEbJJ(0x208)][Math.trunc(0x2501)+Math.max(0x456,parseInt(0x456))+-0x2957]||config[uEbJJ(0x1fa)],wFFVq$iCjGwB$lINeVuzWFmAw=channel_url;let cyEGCpy=config[uEbJJ(0x18d)]!==uEbJJ(0xe9)?formatMessage(config[uEbJJ(0x18d)],{'epTitle':BZc_hEvRBUEmUwseWoiDEjqKBO,'epReleasedate':MWsz_fWn,'epUrl':OmHLKHQvmXCoptaDw,'epOriginalTitle':sdSHfLreDEgW$TX,'channelUrl':wFFVq$iCjGwB$lINeVuzWFmAw}):uEbJJ(0x23a)+sdSHfLreDEgW$TX+uEbJJ(0x221)+(uEbJJ(0x204)+MWsz_fWn+'\x0a')+(uEbJJ(0x245)+BZc_hEvRBUEmUwseWoiDEjqKBO+'\x0a')+(uEbJJ(0x9f)+OmHLKHQvmXCoptaDw+'\x0a\x0a')+uEbJJ(0x24b)+(uEbJJ(0x121)+wFFVq$iCjGwB$lINeVuzWFmAw+'\x0a\x0a')+(config[uEbJJ(0x91)]||config[uEbJJ(0x120)]);await LcxXO$wTUdNcRIH_qeVWUZu[uEbJJ(0x10a)](Vr$zkJyv,{'image':{'url':fdUl$xHKjfGfcb$NIRyo},'caption':cyEGCpy},{'quoted':LItBiIzTmRLfMR}),await dKYrzzWFYhO_hLSzWKP[uEbJJ(0x1c6)]('✔️');if(ToGIBYNKZSFp!==Vr$zkJyv)SrC_cqpiPyYu(uEbJJ(0x19a));}catch(AmR_Nxu$FkyzJ){console[uEbJJ(0x25c)](AmR_Nxu$FkyzJ),await SrC_cqpiPyYu(uEbJJ(0x154)),await LcxXO$wTUdNcRIH_qeVWUZu[uEbJJ(0x10a)](Vr$zkJyv,{'react':{'text':'⛔️','key':LItBiIzTmRLfMR[uEbJJ(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x159),'react':'📺','dontAddCommandList':!![],'filename':__filename},async(KlCR$$POPBf,uoObqgygASYyQeEF,dckoW_GaH,{from:qwtcNMw,l:h$YsDoD$TmzVgiTLgcFlnM,quoted:msvNejntFAckQcDn,body:DEtwZUv,prefix:fF_yPI,isCmd:CaYGK_ldIDRFchspTIo,command:bFhfrsf_Ba,args:TidxicXEXyO$AutQiaEEjNUHjb,q:a_FARy,isGroup:mE$KRxzcu$qV,sender:zQXsXMXSbRUhlO,pushname:WebzcHLXpAyNRSHtBDf,isMe:uARzlVrwYgx,isOwner:mxD_gcCY,reply:VVtKfVnDm})=>{const CaZtUmNeNmU=huNmBXSJ;try{if(!a_FARy||!a_FARy[CaZtUmNeNmU(0x21f)](cinesubzBase))return await VVtKfVnDm(CaZtUmNeNmU(0x100));let WSsgMeLEFAsdpM='',Oih_Fn_Zc='',qgSLsfeW$PwmgppJghJfjfb_xpJ='',GprCtHZd=a_FARy;if(a_FARy[CaZtUmNeNmU(0x21f)]('🎈'))Oih_Fn_Zc=GprCtHZd[CaZtUmNeNmU(0xd9)]('🎈')[Math.ceil(parseInt(0xb86))+parseInt(0x1)*parseInt(0x1a1e)+-0x25a3];GprCtHZd[CaZtUmNeNmU(0x21f)]('🎈')&&(WSsgMeLEFAsdpM=GprCtHZd[CaZtUmNeNmU(0xd9)]('🎈')[-parseInt(0x3d)*parseInt(0xa2)+-0xa9*0x3b+parseInt(0x4d8d)],qgSLsfeW$PwmgppJghJfjfb_xpJ=GprCtHZd[CaZtUmNeNmU(0xd9)]('🎈')[-parseInt(0x6)*-0x16f+-parseInt(0x179e)*parseInt(0x1)+Math.ceil(0xf06)]);const ocSW$DdKsZdCwpWq_fOPDhwwPg=await fetchJson(apilink+CaZtUmNeNmU(0x150)+WSsgMeLEFAsdpM+CaZtUmNeNmU(0x1ed)+apikey);let Vx$rzWbwXjxwFjRwx$k=ocSW$DdKsZdCwpWq_fOPDhwwPg[CaZtUmNeNmU(0xd8)];if(!Vx$rzWbwXjxwFjRwx$k)return VVtKfVnDm(CaZtUmNeNmU(0x1f5));await inputMovie(!![],WSsgMeLEFAsdpM,new Date()[CaZtUmNeNmU(0xde)]());let eLk_ESQtBXxGAq_SaYWe='';Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x1cc)]&&Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x1cc)][CaZtUmNeNmU(0x17a)]>parseInt(0x5)*-0x311+Number(-0x1356)+Number(parseInt(0x19))*parseInt(0x163)&&(eLk_ESQtBXxGAq_SaYWe=Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x1cc)][CaZtUmNeNmU(0x25b)](RYdrxaFLkim=>RYdrxaFLkim[CaZtUmNeNmU(0xa2)]?.[CaZtUmNeNmU(0xf0)]||RYdrxaFLkim[CaZtUmNeNmU(0xf0)])[CaZtUmNeNmU(0x17d)](',\x20')||'');let iNABOOmYBoHXysLUphXCd=await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](qwtcNMw,{'text':CaZtUmNeNmU(0x16a)},{'quoted':uoObqgygASYyQeEF}),zHyaerUj$MX$SZFb='*'+Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x131)]+CaZtUmNeNmU(0x107)+(eLk_ESQtBXxGAq_SaYWe||CaZtUmNeNmU(0x20d))+CaZtUmNeNmU(0x96)+(WSsgMeLEFAsdpM||CaZtUmNeNmU(0x20d))+CaZtUmNeNmU(0x145)+(Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x1a4)]||CaZtUmNeNmU(0x20d))+CaZtUmNeNmU(0x1f4)+qgSLsfeW$PwmgppJghJfjfb_xpJ+CaZtUmNeNmU(0xfb)+(config[CaZtUmNeNmU(0x91)]||config[CaZtUmNeNmU(0x120)]||'')+'\x0a';const UjJmOSqjPUS$kfSn$jkefOeSWX=config[CaZtUmNeNmU(0x197)]?.[CaZtUmNeNmU(0xd9)](',')||[qwtcNMw];let DbmnnC$KLbmXXK=-parseInt(0x1)*Math.floor(-parseInt(0x2b3))+Math.trunc(-0x189c)+0x15e9*0x1;const hXVRZQWWcUhxmXSPdf$odFp=Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x92)],uQ__ZUl=Vx$rzWbwXjxwFjRwx$k[CaZtUmNeNmU(0x139)][qgSLsfeW$PwmgppJghJfjfb_xpJ-(-parseInt(0xe4b)+parseInt(0x134c)+-parseInt(0x500))]?.[CaZtUmNeNmU(0x226)]||[];for(let JACjaPB$qirF of UjJmOSqjPUS$kfSn$jkefOeSWX){await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](JACjaPB$qirF,{'image':{'url':hXVRZQWWcUhxmXSPdf$odFp||config[CaZtUmNeNmU(0x1fa)]},'caption':zHyaerUj$MX$SZFb+(''+config[CaZtUmNeNmU(0x91)])});}await KlCR$$POPBf[CaZtUmNeNmU(0x225)](iNABOOmYBoHXysLUphXCd,CaZtUmNeNmU(0x1ae)),await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](qwtcNMw,{'react':{'text':'⬆️','key':uoObqgygASYyQeEF[CaZtUmNeNmU(0x182)]}});for(let BKGiO=Math.ceil(0x1b91)*Math.ceil(-parseInt(0x1))+-parseInt(0x21bd)*parseInt(0x1)+0x3d4e;BKGiO<uQ__ZUl[CaZtUmNeNmU(0x17a)];BKGiO++){try{const OvpeSEvnQlIz_Z=uQ__ZUl[BKGiO][CaZtUmNeNmU(0x246)],ACqNbGmjQTpaqX_RkZBmJrel=await fetchJson(apilink+CaZtUmNeNmU(0x87)+OvpeSEvnQlIz_Z+CaZtUmNeNmU(0x1ed)+apikey),NEBiSF=ACqNbGmjQTpaqX_RkZBmJrel[CaZtUmNeNmU(0xd8)][CaZtUmNeNmU(0x122)];let cQgGVwKsPj_xwbUNVLH=NEBiSF[CaZtUmNeNmU(0x98)](Jw_$tYq=>Jw_$tYq[CaZtUmNeNmU(0x13e)][CaZtUmNeNmU(0x21f)](CaZtUmNeNmU(0x1b1)))||NEBiSF[CaZtUmNeNmU(0x98)](H_$WrocLljQ=>H_$WrocLljQ[CaZtUmNeNmU(0x13e)][CaZtUmNeNmU(0x21f)](CaZtUmNeNmU(0x22e)))||NEBiSF[parseInt(0x41b)+parseFloat(parseInt(0x13b2))+parseInt(-parseInt(0x17cd))];if(!cQgGVwKsPj_xwbUNVLH)continue;const gxBu$icLaHkyRxROGbgbx=ACqNbGmjQTpaqX_RkZBmJrel[CaZtUmNeNmU(0xd8)][CaZtUmNeNmU(0x1f2)],qpuARPNDhwhkXLhHdYFDYu=cQgGVwKsPj_xwbUNVLH[CaZtUmNeNmU(0x13e)],pSqeC$bMCqvAvJ$yPUQfm=cQgGVwKsPj_xwbUNVLH[CaZtUmNeNmU(0xd7)],Z$YfRjgiiZFFerU$FFCJFpXPP=ACqNbGmjQTpaqX_RkZBmJrel[CaZtUmNeNmU(0xd8)][CaZtUmNeNmU(0x208)]?.[Math.floor(0x18da)+-parseInt(0xee1)+Math.trunc(-0x9f9)]||config[CaZtUmNeNmU(0x1fa)];var VjXnbxLOClrS=pSqeC$bMCqvAvJ$yPUQfm;if(VjXnbxLOClrS[CaZtUmNeNmU(0x21f)](cinesubzDownBase)){let sdjIuKAKbCDFaCkkEc$r=null;const jY_hNcMRT=await fetchJson(apilinkcine+CaZtUmNeNmU(0x140)+VjXnbxLOClrS);if(jY_hNcMRT?.[CaZtUmNeNmU(0x222)]===![]){if(!CINESUBZ_API_KEY)return await VVtKfVnDm(needCineApikey);const QAHFHrTb$CJZFQWqwkWS$lOlnNz=CaZtUmNeNmU(0x277)+url+CaZtUmNeNmU(0x173)+CINESUBZ_API_KEY,Aq$iyd=await axios[CaZtUmNeNmU(0x193)](QAHFHrTb$CJZFQWqwkWS$lOlnNz);sdjIuKAKbCDFaCkkEc$r=Aq$iyd[CaZtUmNeNmU(0xd8)][CaZtUmNeNmU(0xda)];const SU$oE$sVc={'url':url,'downloadUrls':sdjIuKAKbCDFaCkkEc$r,'uploader':CaZtUmNeNmU(0xc0)},QtMqnYoQLRRJo$oaklb=await axios[CaZtUmNeNmU(0xa7)](apilinkcine+CaZtUmNeNmU(0x15c),SU$oE$sVc);}else sdjIuKAKbCDFaCkkEc$r=jY_hNcMRT[CaZtUmNeNmU(0x165)];VjXnbxLOClrS=sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0xdf)]&&sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0xdf)]!==CaZtUmNeNmU(0x195)?sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0xdf)]:sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0x26e)]&&sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0x26e)]!==CaZtUmNeNmU(0x195)?sdjIuKAKbCDFaCkkEc$r[CaZtUmNeNmU(0x26e)]:url;}let vZGEnMctVdMwW_qjwRrRJy=VjXnbxLOClrS;vZGEnMctVdMwW_qjwRrRJy[CaZtUmNeNmU(0x21f)](CaZtUmNeNmU(0x15f))&&(vZGEnMctVdMwW_qjwRrRJy=vZGEnMctVdMwW_qjwRrRJy[CaZtUmNeNmU(0x10b)](CaZtUmNeNmU(0x15f),CaZtUmNeNmU(0x25d)));let t$oNi$h=CaZtUmNeNmU(0x25e);if(vZGEnMctVdMwW_qjwRrRJy[CaZtUmNeNmU(0x21f)](CaZtUmNeNmU(0x25d))){let xDfuKY=await fg[CaZtUmNeNmU(0x14e)](vZGEnMctVdMwW_qjwRrRJy);vZGEnMctVdMwW_qjwRrRJy=xDfuKY[CaZtUmNeNmU(0x122)],t$oNi$h=xDfuKY[CaZtUmNeNmU(0x127)];}await inputMovie(!![],gxBu$icLaHkyRxROGbgbx,new Date()[CaZtUmNeNmU(0xde)]());const heianbXrVo_wvqchUWCMFjM=await getThumbnailFromUrl(Z$YfRjgiiZFFerU$FFCJFpXPP),VBfTuBWgTlnjgSEDJLhQD=await resizeThumbnail(heianbXrVo_wvqchUWCMFjM),vDAogndUhfxIIj_zMDWyUD=await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](KlCR$$POPBf[CaZtUmNeNmU(0x210)]['id']||KlCR$$POPBf[CaZtUmNeNmU(0x210)][CaZtUmNeNmU(0xea)],{'document':{'url':vZGEnMctVdMwW_qjwRrRJy},'fileName':config[CaZtUmNeNmU(0x11b)]+'\x20'+gxBu$icLaHkyRxROGbgbx+CaZtUmNeNmU(0x16c),'mimetype':t$oNi$h,'jpegThumbnail':VBfTuBWgTlnjgSEDJLhQD,'caption':gxBu$icLaHkyRxROGbgbx+'\x0a'+pk+'\x20'+qpuARPNDhwhkXLhHdYFDYu+'\x20'+pk2+'\x0a\x0a'+(config[CaZtUmNeNmU(0x91)]||config[CaZtUmNeNmU(0x120)]||'')});for(let NUts$D of UjJmOSqjPUS$kfSn$jkefOeSWX){await KlCR$$POPBf[CaZtUmNeNmU(0x230)](NUts$D,vDAogndUhfxIIj_zMDWyUD,![]);}await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](KlCR$$POPBf[CaZtUmNeNmU(0x210)]['id']||KlCR$$POPBf[CaZtUmNeNmU(0x210)][CaZtUmNeNmU(0xea)],{'delete':vDAogndUhfxIIj_zMDWyUD[CaZtUmNeNmU(0x182)]}),DbmnnC$KLbmXXK++,await inputMovie(![],gxBu$icLaHkyRxROGbgbx,new Date()[CaZtUmNeNmU(0xde)]()),await KlCR$$POPBf[CaZtUmNeNmU(0x225)](iNABOOmYBoHXysLUphXCd,CaZtUmNeNmU(0x1a1)+DbmnnC$KLbmXXK+'/'+uQ__ZUl[CaZtUmNeNmU(0x17a)]+'*'),await sleep(Number(0x1)*-parseInt(0x236a)+parseInt(0x1fc1)+parseInt(0x1)*0x791);}catch(pvYkhWTknoorYwQgj$JW$g){h$YsDoD$TmzVgiTLgcFlnM(pvYkhWTknoorYwQgj$JW$g),await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](qwtcNMw,{'text':CaZtUmNeNmU(0x20b)+(BKGiO+(Number(-parseInt(0x2640))+parseInt(0x2)*parseInt(0x952)+-0x1*-parseInt(0x139d)))+'*'});continue;}}await KlCR$$POPBf[CaZtUmNeNmU(0x225)](iNABOOmYBoHXysLUphXCd,CaZtUmNeNmU(0x244)+qgSLsfeW$PwmgppJghJfjfb_xpJ+CaZtUmNeNmU(0x281)),await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](qwtcNMw,{'react':{'text':'✅','key':uoObqgygASYyQeEF[CaZtUmNeNmU(0x182)]}});}catch(HgcGwMsmk_HHSTX){await resetMovie(),h$YsDoD$TmzVgiTLgcFlnM(HgcGwMsmk_HHSTX),await VVtKfVnDm(HgcGwMsmk_HHSTX[CaZtUmNeNmU(0x12b)]?HgcGwMsmk_HHSTX[CaZtUmNeNmU(0x12b)]:CaZtUmNeNmU(0x154)),await KlCR$$POPBf[CaZtUmNeNmU(0x10a)](qwtcNMw,{'react':{'text':'⛔️','key':uoObqgygASYyQeEF[CaZtUmNeNmU(0x182)]}});}}),cmd({'pattern':huNmBXSJ(0x93),'alias':[],'react':'⛔️','dontAddCommandList':!![],'filename':__filename},async(hDXG_YrQ_VGOJCBrwD,X$mtXvnWAVNUvadeWDsE$oZiZSN,CKiprNnniescHRikyv,{from:nNkNxdTRfRJBSkpjMFRrJH_o,prefix:WgMOlsHmdAhPwr,q:f$huouQMlDd,isDev:kGCWbDXAo$BQ$qiGz,isOwners:n_CHAfdFby,isMe:aVKW$qbtmKM$bacsCBo,reply:FL$x_CJu})=>{const QqBNQYhuTWgJWkv=huNmBXSJ;try{if(!dbData?.[QqBNQYhuTWgJWkv(0x19d)]&&!kGCWbDXAo$BQ$qiGz)return FL$x_CJu(preMg);if(config[QqBNQYhuTWgJWkv(0x1db)]===QqBNQYhuTWgJWkv(0x23e)&&!aVKW$qbtmKM$bacsCBo&&!kGCWbDXAo$BQ$qiGz)return FL$x_CJu(disMgOnlyme);if(config[QqBNQYhuTWgJWkv(0x1db)]===QqBNQYhuTWgJWkv(0x211)&&!n_CHAfdFby)return FL$x_CJu(disMgOnlyOwners);if(config[QqBNQYhuTWgJWkv(0x1db)]===QqBNQYhuTWgJWkv(0x1ee)&&!kGCWbDXAo$BQ$qiGz)return FL$x_CJu(disMgAll);return await FL$x_CJu(QqBNQYhuTWgJWkv(0x263));}catch(lJPhF){console[QqBNQYhuTWgJWkv(0x25c)](lJPhF),await FL$x_CJu(QqBNQYhuTWgJWkv(0x154)),await hDXG_YrQ_VGOJCBrwD[QqBNQYhuTWgJWkv(0x10a)](nNkNxdTRfRJBSkpjMFRrJH_o,{'react':{'text':'⛔️','key':X$mtXvnWAVNUvadeWDsE$oZiZSN[QqBNQYhuTWgJWkv(0x182)]}});}});
+//=============================== M O V I E - D E T A I L S && I M A G E S===============================//
+cmd({
+    pattern: "mv_det",
+    react: "🎬",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwners, isDev, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+        if(!dbData?.FREE_MOVIE_CMD && !isDev) {
+                reply(preMg)
+                return
+        }       
+        
+        if(config.MOVIE_DL === 'only_me' && !isMe && !isDev) {
+                reply(disMgOnlyme)
+                return
+        } else if(config.MOVIE_DL === 'only_owners' && !isOwners){
+                reply(disMgOnlyOwners)
+                return
+        } else if(config.MOVIE_DL === 'disable' && !isDev){
+                reply(disMgAll)
+                return
+        }
+        
+  if(!q) {
+    reply(`*Please provide the link to the movie you want to know the details of. ❓*\n\n_💮 Ex: ${prefix}mv_det < Movie Url >_`);
+    return
+  }
+
+
+  var fetchdata;
+  var data;
+  if(q.includes(sublkBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/sublk/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(pirateBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/pirate/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(sinhalasubBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(baiscopeBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/baiscope/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes("yts.mx")) {
+    fetchdata = await fetchJson(`https://yts.mx/api/v2/movie_details.json?movie_id=${q.split('yts.mx')[1].trim()}&with_images=true&with_cast=true`);
+    data = fetchdata?.data?.movie;
+    
+  } else if(q.includes(slanimeclubBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/anime/slanimeclub/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(foxflickzBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/foxflickz/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(cinesubzBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(moviepluslkBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(sinhalasubBases)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasubs/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else {
+    return reply(`*I do not have a website related to the link you provided. ‼️*`);
+  }
+
+  if(data){
+
+          
+             const movieData = data;
+
+const {
+  title = "",
+  dateCreate = "",
+  date = "",
+  releaseDate = "",
+  country = "",
+  runtime = "",
+  duration = "",
+  category = "",
+  mainImage = null,
+  imageUrls = [],
+  imdb = {},
+  director,
+  cast = []
+} = movieData;
+
+         
+             /*var casts = ''
+             if(cast){
+             for (let i of cast ){ 
+                  let name = i.actor?.name || i.name
+                  casts += name + ','
+             }
+             casts = casts.slice(0, -1); // Remove last comma
+             }*/
+
+             const movieTitle = title || "N/A";
+             const movieReleasedate = dateCreate || date || releaseDate || "N/A";
+             const movieCountry = country || "N/A";
+             const movieRuntime = runtime || duration || "N/A";
+             const movieCategories = category || "N/A";
+             const movieImdbRate = imdb?.rate || imdb?.value || "N/A";
+             const movieDirector = director?.name || director || "N/A";
+             let movieCast = cast || "N/A";
+
+             if (Array.isArray(cast) && cast.length > 0) {
+              movieCast = cast
+               .map(c => c.actor?.name || c.name) // get name
+              .filter(name => name && name.trim() !== "") // remove empty or whitespace-only names
+              .join(", "); // comma + space
+             }
+             const channelUrl = channel_url;
+        
+             let cap = (config.MOVIE_DETAILS_CARD !== 'default')
+              ? formatMessage(config.MOVIE_DETAILS_CARD, { movieTitle, movieReleasedate, movieCountry, movieRuntime, movieCategories, movieImdbRate, movieDirector, movieCast }) : 
+                      `🍟 _*${movieTitle}*_\n\n\n` +
+                      `🧿 ${oce}Release Date:${oce} ➜ ${movieReleasedate}\n\n` +
+                      `🌍 ${oce}Country:${oce} ➜ ${movieCountry}\n\n` +
+                      `⏱️ ${oce}Duration:${oce} ➜ ${movieRuntime}\n\n` +
+                      `🎀 ${oce}Categories:${oce} ➜ ${movieCategories}\n\n` +
+                      `⭐ ${oce}IMDB:${oce} ➜ ${movieImdbRate}\n\n` +
+                      `🤵‍♂️ ${oce}Director:${oce} ➜ ${movieDirector}\n\n` +
+                      `🕵️‍♂️ ${oce}Cast:${oce} ➜ ${movieCast}\n\n` +
+                      `▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃\n\n` +
+                      `  💃 *ғᴏʟʟᴏᴡ ᴜs ➢* ${channelUrl}\n\n\n` +
+                      (config.CAPTION || config.FOOTER)
+
+             const image =
+  data?.mainImage.replace("fit=", "fit").replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') ||
+  data?.mainimage.replace("fit=", "fit").replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') ||
+  data?.imageUrls?.[0] ||
+  data?.imageUrl?.replace("fit=", "fit").replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') ||
+  
+  config.LOGO;
+          
+             await conn.sendMessage(from, { image: { url: image }, caption: cap }, { quoted : mek })
+             
+             await m.react("✔️");
+
+  } else {
+        reply(`*Failed to retrieve API information. ❌*`);
+        return
+  }
+      } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+
+
+cmd({
+    pattern: "mv_images",
+    react: "🎬",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwners, isDev, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+        if(!dbData?.FREE_MOVIE_CMD && !isDev) {
+                reply(preMg)
+                return
+        }       
+        
+        if(config.MOVIE_DL === 'only_me' && !isMe && !isDev) {
+                reply(disMgOnlyme)
+                return
+        } else if(config.MOVIE_DL === 'only_owners' && !isOwners){
+                reply(disMgOnlyOwners)
+                return
+        } else if(config.MOVIE_DL === 'disable' && !isDev){
+                reply(disMgAll)
+                return
+        }
+        
+  if(!q) {
+    reply(`*Please provide the link to the movie you want to know the details of. ❓*\n\n_💮 Ex: ${prefix}mv_images < Movie Url >_`);
+    return
+  }
+
+                          var inp = q
+                                var jidx = from;               
+                                var text = q
+                                if (q.includes('🎈')) jidx = text.split('🎈')[1]
+                                if (text.includes('🎈')) { inp = text.split('🎈')[0]}  
+
+  var fetchdata;
+  var data;
+  if(q.includes(sublkBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/sublk/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(pirateBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/pirate/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(sinhalasubBase)) {
+     if(q.includes('episode')) {
+        fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/episode?url=${q}&apikey=${apikey}`);
+     } else {
+        fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/movie?url=${q}&apikey=${apikey}`);
+     }
+     data = fetchdata?.data;
+    
+  } else if(q.includes(baiscopeBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/baiscope/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes("yts.mx")) {
+    // fetchdata = await fetchJson(`https://yts.mx/api/v2/movie_details.json?movie_id=${q.split('yts.mx')[1].trim()}&with_images=true&with_cast=true`);
+    data = null;
+    
+  } else if(q.includes(slanimeclubBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/anime/slanimeclub/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(foxflickzBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/movie/foxflickz/movie?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(cinesubzBase)) {
+     if(q.includes('episode')) {
+        fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/episode?url=${q}&apikey=${apikey}`);
+     } else {
+        fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/movie?url=${q}&apikey=${apikey}`);
+     }
+     data = fetchdata?.data;
+    
+  } else if(q.includes(moviepluslkBase)) {
+     if(q.includes('episode')) {
+        fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/episode?url=${q}&apikey=${apikey}`);
+     } else {
+        fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/movie?url=${q}&apikey=${apikey}`);
+     }
+     data = fetchdata?.data;
+    
+  } else if(q.includes(sinhalasubsBase)) {
+     if(q.includes('episode')) {
+        fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasubs/episode?url=${q}&apikey=${apikey}`);
+     } else {
+        fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasubs/movie?url=${q}&apikey=${apikey}`);
+     }
+     data = fetchdata?.data;
+    
+  } else {
+    return reply(`*I do not have a website related to the link you provided. ‼️*`);
+  }
+
+  if(!data){
+        reply(`*Failed to retrieve API information. ❌*`);
+        return
+  }
+  
+             await m.react("⬆️");
+             const { imageUrls } = data;
+
+          if(imageUrls.length === 0){
+                  reply("*Images not found ❌*");
+          }
+
+          for(let i of imageUrls){
+             await conn.sendMessage(jidx, { image: { url: i }, caption: config.CPATION || config.FOOTER || '' }, { quoted : mek })
+          }
+             reply("*All images send successfully ✅*");
+             await m.react("✔️");
+
+
+      } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+
+//=============================== M O V I E - D O W N L O A D ===============================//
+cmd({
+    pattern: "sublk_download",
+    react: "⬇️",
+    dontAddCommandList: true,
+    filename: __filename
+}, async (conn, mek, m, { from, prefix, l, quoted, q, isMe, isOwners, isDev, reply }) => {
+    try {
+        // Permission checks
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+
+        // Prevent simultaneous downloads
+        const isProcess = await getMovie();
+        if (isProcess?.is_download) {
+            let pt = (Date.now() - isProcess.time) / 3600000; // ms → hrs
+           // if (pt < 10) return reply(`_Another movie is being downloaded ❗_\n\nCurrently: *${isProcess.name}*`);
+        }
+
+        // Validate input
+        if (!q || !q.includes("🎈")) return reply(`*Your input was incorrect. ❌*`);
+
+        let [url = '', title = '', quality = '', size = '', thumbnailUrl = config.LOGO] = q.split('🎈').map(s => s.trim());
+
+        if (!url || !title || !quality || !size) {
+            return reply("*Incomplete movie data ❌. Please retry.*");
+        }
+
+        // File size check
+        let numericSize = parseFloat(size.replace(/[^\d.]/g, ''));
+        if (!isNaN(numericSize)) {
+            if (q.includes('GB') && numericSize >= config.MAX_SIZE_GB) {
+                return reply(`*File too large ⛔*\nLimit: ${config.MAX_SIZE_GB}GB`);
+            }
+            if (q.includes('MB') && numericSize >= config.MAX_SIZE) {
+                return reply(`*File too large ⛔*\nLimit: ${config.MAX_SIZE}MB`);
+            }
+        }
+
+        await inputMovie(true, title, Date.now());
+
+        // Prepare thumbnail
+        let thumbnailBuffer = await resizeThumbnail(await getThumbnailFromUrl(thumbnailUrl));
+
+        // SinhalaSub special link
+        if (url.includes(sinhalasubBase)) {
+            let fetchdata = await fetchJson(`${apicine}/api/sinhalasubs/download?url=${url}&apikey=${apicinekey}`);
+            url = fetchdata?.data?.data?.link || url;
+        } else if (url.includes('moviepluslk')) {
+            let fetchdata = await fetchJson(`${apilink}/api/movie/moviepluslk/download?url=${url}&apikey=${apikey}`);
+            url = fetchdata?.data?.download?.download_url || url;
+        } else if (url.includes(cinesubzDownBase)) {
+    try {
+        // ALWAYS get fresh links from the external API
+        const urlApi = `https://manojapi.infinityapi.org/api/v1/cinesubz-download?url=${encodeURIComponent(url)}&apiKey=${CINESUBZ_API_KEY}`;
+        const getDownloadUrls = await axios.get(urlApi, { timeout: 10000 });
+        
+        if (getDownloadUrls.data?.results) {
+            const downloadUrls = getDownloadUrls.data.results;
+            
+            // CRITICAL CHANGE: Use Pixeldrain links FIRST (they don't expire)
+            url =
+                downloadUrls.pix1 && downloadUrls.pix1 !== "false" ? downloadUrls.pix1 :
+                downloadUrls.pix2 && downloadUrls.pix2 !== "false" ? downloadUrls.pix2 :
+                downloadUrls.direct && downloadUrls.direct !== "false" ? downloadUrls.direct :
+                url;
+            
+            console.log("Selected URL type:", 
+                url.includes('pixeldrain.com') ? '✅ Pixeldrain (No expiry)' : 
+                url.includes('cscloud') ? '⚠️ Cscloud (May expire)' : 
+                'Other');
+            
+            // Update cache with fresh links
+            try {
+                const payload = { url, downloadUrls, uploader: "DarkYasiya" };
+                await axios.post(`${apilinkcine}api/save`, payload, { timeout: 5000 });
+            } catch (cacheError) {
+                console.log("Cache update failed, continuing...");
+            }
+        }
+    } catch (apiError) {
+        console.error("Failed to get fresh Cinesubz links:", apiError.message);
+        // Keep original URL if API fails
+    }
+}
+/*
+                const newHost = "d2.sonic-cloud.online";
+                const oldSuffix = ".cscloud12.online";
+                const newSuffix = ".sonic-cloud.online";
+
+                const urlObj = new URL(url);
+                const currentHost = urlObj.hostname;
+
+                  // Replace old or existing sonic-cloud domains with the new host
+                  if (currentHost.endsWith(oldSuffix) || currentHost.endsWith(newSuffix)) {
+                    urlObj.hostname = newHost;
+                    url = urlObj.toString();
+                  }
+
+                  // Fix: `startsWith` instead of `starsWith`, and remove `https://` from the check
+                 if (currentHost.startsWith("08.sonic-cloud.online")) {
+                   urlObj.hostname = "d9.sonic-cloud.online";
+                   url = urlObj.toString();
+                 }
+*/
+        if (!url) {
+            await inputMovie(false, title, Date.now());
+            return reply("*Download link not found ❌*");
+        }
+
+        // Sending "uploading" message
+        const upMsg = await conn.sendMessage(from, { image: { url: config.LOGO }, text: "*Uploading Your Requested File ⬆️*" }, { quoted: mek });
+        await m.react("⬆️");
+
+        let sendDoc = async (fileUrl) => {
+            try {
+                return await conn.sendMessage(from, {
+                    document: { url: fileUrl },
+                    fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${title}.mp4`,
+                    mimetype: 'video/mp4',
+                    jpegThumbnail: thumbnailBuffer,
+                    caption: `${title}\n${pk} ${quality} ${pk2}\n\n${config.CAPTION || config.FOOTER || ''}`
+                }, { quoted: mek });
+
+            } catch(e) {
+                console.error("Failed to send document:", e);
+
+                // Retry once
+                try {
+                    return await conn.sendMessage(from, {
+                        document: { url: fileUrl },
+                        fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${title}.mp4`,
+                        mimetype: 'video/mp4',
+                        jpegThumbnail: thumbnailBuffer,
+                        caption: `${title}\n${pk} ${quality} ${pk2}\n\n${config.CAPTION || config.FOOTER || ''}`
+                    }, { quoted: mek });
+
+                } catch(err) {
+                    console.error("Retry also failed:", err);
+                    throw err; // Let the calling function handle the failure
+                }
+            }
+        };
+
+
+        let mvdoc;
+        if (url.includes("pixeldrain.com") || url.includes("ddl.sinhalasub.net") || url.includes("baiscope") || url.includes("sharepoint.com") || url.includes("cscloud")) {
+            let finalUrl = url;
+            if (!url.includes("pixeldrain.com")) finalUrl = url;
+            if (url.includes("pixeldrain.com") && !url.includes('?download')) finalUrl += '?download';
+            if (url.includes("pixeldrain.com") && !url.includes('/api/file/')) finalUrl = url.replace('/u/', '/api/file/');
+            mvdoc = await sendDoc(finalUrl);
+                        
+        } else if (url.includes("drive.google") || url.includes("drive.usercontent.google.com")) {
+            let finalUrl = url;
+                        if(finalUrl.includes("drive.usercontent.google.com")) finalUrl = url.replace("drive.usercontent.google.com", "drive.google.com");
+                        let res = await fg.GDriveDl(finalUrl);
+                        finalUrl = res.downloadUrl;
+                        mvdoc = await sendDoc(finalUrl);
+            
+        } else if (url.includes("mega.nz")) {
+            const { File } = require("megajs");
+            const file = File.fromURL(url);
+            await file.loadAttributes();
+            const buffer = await file.downloadBuffer();
+            mvdoc = await sendDoc(buffer);
+                        
+        } else {
+            await inputMovie(false, title, Date.now());
+            return reply("*Unsupported download link ✖️*\n\n> " + url);
+        }
+
+        // Remove "uploading" message
+        await conn.sendMessage(from, { delete: upMsg.key });
+        await m.react("✔️");
+        await inputMovie(false, title, Date.now());
+
+    } catch (e) {
+        await resetMovie();
+        l(e);
+        await reply(e.message ? e.message : "An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } });
+    }
+});
+
+
+cmd({
+    pattern: "ytsmx_download",
+    react: "⬇️",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwners, isDev, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+        if(!dbData?.FREE_MOVIE_CMD && !isDev) {
+                reply(preMg)
+                return
+        }       
+        
+        if(config.MOVIE_DL === 'only_me' && !isMe) {
+                reply(disMgOnlyme)
+                return
+        } else if(config.MOVIE_DL === 'only_owners' && !isOwners && !isDev){
+                reply(disMgOnlyOwners)
+                return
+        } else if(config.MOVIE_DL === 'disable' && !isDev){
+                reply(disMgAll)
+                return
+        }
+        
+                        const isProcess = await getMovie();
+                                if(isProcess.is_download){
+                                var pmt = isProcess.time
+                                var pt = ( new Date().getTime() - pmt ) / 36000 
+                                // if (pt < 10) return reply(`_Another movie is being downloaded, please try again after it finishes downloading. ❗_\n\n_Movie being downloaded ⬆️_\n\n*${isProcess.name}*`)
+                                }
+
+      
+      
+  if(!q || !q.includes("🎈")) {
+    reply(`*Your input was incorrect. ❌*`);
+    return
+  }
+
+        
+      const seedrEmail = config.SEEDR_EMAIL;
+      const seedrPassword = config.SEEDR_PASSWORD;
+        
+      let url = '', title = '', quality = '', size = '', thumbnailUrl = config.LOGO;
+
+      const parts = q.split('🎈');
+
+      url = parts[0] || '';
+      title = parts[1] || '';
+      quality = parts[2] || '';
+      size = parts[3] || '';
+      thumbnailUrl = parts[4] || config.LOGO;
+
+      if(!url || !title || !quality || !size || !thumbnailUrl){
+            reply("*The input you provided is not sufficient to download this movie ❌. There may be some problems with the download. ‼️*");
+            // return
+      }
+
+      if(!seedrEmail || !seedrPassword){
+            reply("*Unable to find seedr email password ❔*");
+            return
+      }
+
+      size = parseFloat(size.replace('GB', '').replace('MB', '').trim());
+      if (!isNaN(size)) {
+          if (q.includes('GB') && size >= config.MAX_SIZE_GB) {
+              return reply(`*The file is too large to download ⛔*\n\n` +
+                           `🔹 Your current *MAX_SIZE_GB* limit: *${config.MAX_SIZE_GB}GB* 📏\n` +
+                           `🔹 To change this limit, use the *${prefix}apply* command.`);
+          }
+          if (q.includes('MB') && size >= config.MAX_SIZE) {
+              return reply(`*The file is too large to download ⛔*\n\n` +
+                           `🔹 Your current *MAX_SIZE* limit: *${config.MAX_SIZE}MB* 📏\n` +
+                           `🔹 To change this limit, use the *${prefix}apply* command.`);
+          }
+      }
+
+      await inputMovie(true, title, new Date().getTime());
+
+     const rawBuffer = await getThumbnailFromUrl(thumbnailUrl);
+     const thumbnailBuffer = await resizeThumbnail(rawBuffer);
+
+        
+      const magnet_link = `magnet:?xt=urn:btih:${url}&dn=${title}&tr=udp://tracker.openbittorrent.com:80`
+        
+      const login = await seedr.login(seedrEmail, seedrPassword);
+        if(login?.data?.error_description === 'Invalid username and password combination'){
+                reply("*Incorrect seedr email or password, please check again. ❗️*");
+                await inputMovie(false, title, new Date().getTime());
+                return
+        }
+
+        
+ /*    const checkVideos = await seedr.getVideos();
+     const allVideos = checkVideos.flat();
+     for (let video of allVideos) {
+       await seedr.deleteFolder(video.fid);
+     }
+
+        
+      const add = await seedr.addMagnet(magnet_link);
+        if(add?.result === "not_enough_space_wishlist_full"){
+                reply("*The seedr account is full of memory. ♨️*");
+                await inputMovie(false, title, new Date().getTime());
+                return
+        } else if(add?.error === "Illegal magnet link provided"){
+                reply("*This is not a valid magnet URL. ♨️*");
+                await inputMovie(false, title, new Date().getTime());
+                return  
+        }
+*/
+
+      var upload = await fetchJson(`${seedrApi}seedr/direct?torrent=${url}&email=${seedrEmail}&pass=${seedrPassword}`);
+      await sleep(5000);
+      var data = upload?.files?.[0]?.url //add?.user_torrent_id;
+
+  if(data){
+
+          
+        /*
+        await sleep(1000 * 5)
+        await seedr.login(seedrEmail, seedrPassword);
+        let checkVideo = await seedr.getVideos();
+        
+        let validVideos = checkVideo?.length === 0 ? false : true;
+          
+
+        if (!validVideos) {
+          reply("*There was an error uploading the torrent file. ❌*");
+          await inputMovie(false, title, new Date().getTime());
+          return;
+        }
+
+
+        const download = await seedr.getFile(checkVideo[0][0].id);
+          
+        if(!download?.url){
+              reply("*Download links cannot be found. ❌*");
+              await inputMovie(false, title, new Date().getTime());
+              return
+        }
+*/
+        const up_mg = await conn.sendMessage(from, { image: { url:  config.LOGO }, text: "*Uploading Your Requested Movie ⬆️*" }, { quoted: mek });
+        await m.react("⬆️");
+
+        const mvdoc = await conn.sendMessage(from, {
+                                                  document: { url: data }, 
+                                                  fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${upload?.[0]?.name || title + ".mp4"}`,
+                                                  mimetype: `video/mp4`, 
+                                                  jpegThumbnail: thumbnailBuffer,
+                                                  caption: `${upload?.[0]?.name || title}\n${pk} ${quality} ${pk2}\n\n${config.CAPTION || config.FOOTER || ''}`
+                                                  }, { quoted: mek });
+          
+        //await seedr.deleteFolder(checkVideos[0][0].fid); 
+        await conn.sendMessage(from, { delete: up_mg.key });
+        await m.react("✔️");
+        await inputMovie(false, title, new Date().getTime());
+    
+  } else {
+        reply(`*There was an error uploading the torrent file. ❌*`);
+        await inputMovie(false, title, new Date().getTime());
+        return
+  }
+      } catch (e) {
+        await resetMovie();
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+
+//=============================== S U B ===============================//
+
+cmd({
+    pattern: "subtitle",
+    alias: ["suball","searchsub","sub","subdl"],
+    react: "🆎",
+    desc: "Search movie and tvseries",
+    category: "movie",
+    use: '.mv < Movie or Tvshow Name >',
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+  if(!q) {
+    reply(`*Please provide the name of the movie or TV series you need.. ❓*\n\n_💮 Ex: ${prefix}mv Avengers_`);
+    return
+  }
+
+      const sites = [
+            { site: subzlkBase, title: "*🔍 Search Subz.lk*", key: "subz" },
+            { site: zoomBase, title: "*🔍 Search Zoom.lk*", key: "zoom" },
+            { site: oioBase, title: "*🔍 Search Oio.lk*", key: "oio" },
+                    { site: baiscopesubBase, title: "*🔍 Search Www.baiscope.lk*", key: "oio" }
+      ]
+
+      var s_m_g = '';
+      var numrep = [];
+      for (let l = 0 ; l < sites.length; l++) {
+            s_m_g += `${formatNumber(l + 1)} || ${sites[l].title}\n\n`
+            numrep.push(prefix + 'subsearch ' + sites[l].key + '++' + q);
+      }
+
+     let mg = `╭─────────────────────╮\n` +
+              `│  *PRINCE-MDX 𝖲𝖴𝖡𝖳𝖨𝖳𝖫𝖤*\n` +            
+              `├─────────────────────┤\n` +
+              `│ 📲 ${oce}Input:${oce} *${q}*\n` +
+              `╰─────────────────────╯\n\n` +
+              `${s_m_g}`
+
+      const mass = await conn.sendMessage(from, { image: { url : "https://files.catbox.moe/y51vgu.jpg" || config.LOGO }, caption: mg }, { quoted: mek });
+                       const jsonmsg = {
+                          key : mass.key,
+                          numrep,
+                          method : 'nondecimal'
+                          }
+                        await storenumrepdata(jsonmsg) 
+      
+      } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+
+cmd({
+    pattern: "subsearch",
+    react: "🔠",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+  if(!q || !q.includes("++")) {
+    reply(`*Please give me the website and name where I can download the movie. ❓*\n\n_💮 Ex: ${prefix}subsearch subz++Iron man_`);
+    return
+  }
+
+  let site = q.split('++')[0];
+  let text = q.split('++')[1];
+  var fetchdata;
+  var data;
+  if(site === "subz") {
+    fetchdata = await fetchJson(`${apilink}/api/sub/subzlk/search?q=${text}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(site === "zoom") {
+    fetchdata = await fetchJson(`${apilink}/api/sub/zoom/search?q=${text}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(site === "oio") {
+    fetchdata = await fetchJson(`${apilink}/api/sub/oio/search?q=${text}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(site === "baiscope") {
+    fetchdata = await fetchJson(`${apilink}/api/sub/baiscope/search?q=${text}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else {
+    return reply(`*I do not have a website related to the name you provided. ‼️*`);
+  }
+
+  if(data){
+
+                    let s_r_m = "";
+                    let numrep = [];
+                    let movieCount = 0;
+  
+              for (let l = 0 ; l < data.length; l++) {            
+                      s_r_m += `  *${formatNumber(l + 1)} ||* ${data[l].maintitle || dala[l].title}\n`
+                      numrep.push(`${prefix}sub_download ${data[l].link}` )
+                 }
+
+
+                 if(!s_r_m) return reply(`*There are no movies or teledramas with the name you entered on the '${site.charAt(0).toUpperCase() + site.slice(1).toLowerCase()}' site. ⁉️*`)
+    
+    let cot = `╭─────────────────────╮\n` +
+              `│ 🔎 *PRINCE-MDX 𝖲𝖴𝖡𝖳𝖨𝖳𝖫𝖤* \n` +            
+              `├─────────────────────┤\n` +
+              `│ 📲 ${oce}Input:${oce} *${text}*\n` +
+              `│ 🍒 ${oce}Results:${oce} *${data.length}*\n` +
+              `╰─────────────────────╯\n\n` +
+              `${s_r_m}`
+    
+          const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
+          const jsonmsg = {
+                          key : mass.key,
+                          numrep,
+                          method : 'nondecimal'
+                          }
+                        await storenumrepdata(jsonmsg) 
+
+    
+  } else {
+        reply(`*Failed to retrieve API information. ❌*`);
+        return
+  }
+      } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+
+cmd({
+    pattern: "sub_download",
+    react: "⬇️",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async(conn, mek, m,{ from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+try{
+
+ if(!q) {
+    reply(`*Please give me url. ❓*\n\n_💮 Ex: ${prefix}sub_download < Url >_`);
+    return
+  }
+        
+  var fetchdata;
+  var data;
+  if(q.includes(subzlkBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/sub/subzlk/download?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(zoomBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/sub/zoom/download?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(oioBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/sub/oio/download?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else if(q.includes(baiscopesubBase)) {
+    fetchdata = await fetchJson(`${apilink}/api/sub/baiscope/download?url=${q}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    
+  } else {
+    return reply(`*I do not have a website related to the name you provided. ‼️*`);
+  }
+
+        if(!data) {
+                reply(`*Failed to retrieve API information. ❌*`);
+                return
+        }
+        if(!data?.downloadUrl) {
+        reply(`*Download link not found. ❌*`);
+        return
+        }
+
+        await m.react("⬆️");
+        
+        const mvdoc = await conn.sendMessage(from, {
+                                                  document: { url: data.downloadUrl }, 
+                                                  fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${data.title}.zip`,
+                                                  mimetype: `application/zip`, 
+                                                  caption: `${data.title}\n${pk} ❤️❤️ ${pk2}\n\n${config.CAPTION || config.FOOTER || ''}`
+                                                  }, { quoted: mek });            
+        
+        await m.react("✔️");
+
+      } catch (e) {
+        l(e);
+        await reply("*An error occurred. Please try again later. ⛔️*");
+        await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+      }
+   })
+
+// ========================== T V - S H O W ===========================
+cmd({
+  pattern: "tv_go",
+  react: "📺",
+  dontAddCommandList: true,
+  filename: __filename
+},
+async (conn, mek, m, {
+  from, prefix, msr, creator, quoted, body, isCmd, command, args, q, isGroup, sender,
+  senderNumber, l, botNumber2, botNumber, pushname, isMe, isOwners, isDev, groupMetadata,
+  groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply
+}) => {
+  try {
+
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+
+          
+    if (!q) {
+      return reply(`*Please provide the link to the tvshow you want to download. ❓*\n\n_💮 Ex: ${prefix}tv_go < Tvseries Url +🎈+ Jid >_`);
+    }
+
+    let numrep = [];
+    let inp = '';
+    let jidx = from;
+    let text = q;
+
+    if (q.includes('🎈')) jidx = text.split('🎈')[1];
+    if (text.includes('🎈')) inp = text.split('🎈')[0];
+
+    let mov, response, cmd, cast = '', season_mg = '';
+
+    // Fetch API
+    if (inp.includes(sinhalasubBase)) {
+      response = await fetchJson(`${apilink}/api/movie/sinhalasub/tvshow?url=${inp}&apikey=${apikey}`);
+      mov = response.data;
+      cmd = 'sinh_eps_dl';
+    } else if (inp.includes(cinesubzBase)) {
+      response = await fetchJson(`${apilink}/api/movie/cinesubz/tvshow?url=${inp}&apikey=${apikey}`);
+      mov = response.data;
+      cmd = 'cinh_eps_dl';
+    } else {
+      return reply(`*I do not have a website related to the link you provided. ‼️*`);
+    }
+
+    if (!mov) return reply(`*Failed to retrieve API information. ❌*`);
+
+    // Extract metadata
+    const title = mov.title || 'N/A';
+    const genres = mov.category || 'N/A';
+    const castList = mov.cast || [];
+    cast = castList.map(c => c?.actor?.name || '').join(', ');
+
+    // Prepare season/episode options
+    let rowsMap = {};
+    mov.episodesDetails.forEach(season => {
+      const seasonNum = season.season.number;
+
+      season_mg += `\n> _[ Season 0${seasonNum} ]_\n${seasonNum}.1 || All Episodes\n`;
+      const allEpId = `${prefix}${cmd} ${q}🎈${seasonNum}`;
+      numrep.push(`${seasonNum}.1 ${allEpId}`);
+      if (!rowsMap[seasonNum]) rowsMap[seasonNum] = [];
+      rowsMap[seasonNum].push({ title: `All Episodes`, description: buttonDesc, id: allEpId });
+
+      season.episodes.forEach(episode => {
+        const parts = episode.number.split(" - ");
+        if (parts.length !== 2) return;
+        const seasonNum = parts[0];
+        const episodeNum = parseInt(parts[1]);
+
+        const epDisplay = `${seasonNum}.${episodeNum + 1} || Season ${seasonNum} - Episode ${episodeNum}`;
+        const epId = `${prefix}ep_go ${episode.url}🎈${jidx}`;
+        season_mg += `${epDisplay}\n`;
+        numrep.push(`${seasonNum}.${episodeNum + 1} ${epId}`);
+
+        if (!rowsMap[seasonNum]) rowsMap[seasonNum] = [];
+        rowsMap[seasonNum].push({ title: epDisplay.split('|| ')[1], description: buttonDesc, id: epId });
+      });
+    });
+
+    // Final output text
+    const output = `*${botName} 𝖳𝖵 𝖲𝖧𝖮𝖶*
+
+*│ 🎞️ ᴛɪᴛʟᴇ :* ${title}
+
+*│ 🔮 ᴄᴀᴛᴀɢᴏʀɪᴇs :* ${genres}
+
+*│ 🕵️‍♂️ ᴄʜᴀʀᴀᴄᴛᴇʀs :* ${cast}
+`;
+
+    const imageUrl = mov.image?.replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') || mov.mainImage || config.LOGO;
+
+    if (config.MESSAGE_TYPE.toLowerCase() === "button") {
+
+  const listData = {
+  title: '📥 Choose Episode',
+  sections: Object.keys(rowsMap).map(season => ({
+    title: `Season ${season}`,
+    rows: rowsMap[season]
+   }))
+  };
+ 
+
+      await conn.sendMessage(from, {
+        image: { url: imageUrl },
+        caption: output,
+        contextInfo: {
+          externalAdReply: {
+            title,
+            body: config.BODY || '',
+            mediaType: 1,
+            sourceUrl: q,
+            thumbnailUrl: imageUrl,
+            renderLargerThumbnail: false
+          }
+        },
+        footer: config.FOOTER,
+        buttons: [
+          {
+            buttonId: "action",
+            type: 4,
+            buttonText: { displayText: "🔽 Select Option" },
+            nativeFlowInfo: {
+              name: "single_select",
+              paramsJson: JSON.stringify(listData)
+            }
+          }
+        ],
+        headerType: 1,
+        viewOnce: true
+      }, { quoted: mek });
+
+    } else {
+      const caption = `${output}\n\n${season_mg}\n${config.FOOTER}`;
+      const msg = await conn.sendMessage(from, { image: { url: imageUrl }, caption }, { quoted: mek });
+
+      const jsonmsg = {
+        key: msg.key,
+        numrep,
+        method: 'decimal'
+      };
+      await storenumrepdata(jsonmsg);
+    }
+
+  } catch (e) {
+    l(e);
+    await reply("*An error occurred. Please try again later. ⛔️*");
+    await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } });
+  }
+});
+
+cmd({
+  pattern: "ep_go",
+  react: "📺",
+  dontAddCommandList: true,
+  filename: __filename
+},
+async(conn, mek, m,{ from, prefix, q, reply, isDev, isOwners, isMe }) => {
+try {
+
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+        
+  if(!q) return reply(`*Provide the episode link.*\nEx: ${prefix}ep_go <link>`);
+
+  let inp = q.includes('🎈') ? q.split('🎈')[0] : q;
+  let jidx = q.includes('🎈') ? q.split('🎈')[1] : from;
+
+  // Fetch data
+  let fetchdata, data, dlcmd;
+  if(q.includes(sinhalasubBase)){
+    fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/episode?url=${inp}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    dlcmd = 'sublk_download';
+  } else if(q.includes(cinesubzBase)){
+    fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/episode?url=${inp}&apikey=${apikey}`);
+    data = fetchdata?.data;
+    dlcmd = 'sublk_download';
+  } else {
+          return reply(`*No supported website found.*`);
+  }
+
+  if(!data) return reply("*Failed to retrieve episode info.*");
+
+const {
+  title = "",
+  maintitle = "",
+  episodeTitle = "",
+  ep_name = "",
+  date = "",
+  dateCreate = "",
+  images = [],
+  imageUrls = [],
+  dl_links = [],
+  downloadUrl = []
+} = data || {};
+
+const arr1 = Array.isArray(dl_links) ? dl_links : (dl_links ? [dl_links] : []);
+const arr2 = Array.isArray(downloadUrl) ? downloadUrl : (downloadUrl ? [downloadUrl] : []);
+const downurl = [...arr1, ...arr2];
+
+
+  if(!downurl || downurl.length === 0) return reply("*No download links available.*");
+
+  // Caption
+  let cot = `${botName || "PRINCE-MDX"} TV SHOW\n\n` +
+`┃➠ Title       : ${title}
+┃➠ Release Date: ${date}
+┃➠ Episode     : ${ep_name || episodeTitle}
+┃➠ Link        : ${inp}
+
+> Select JID: ${jidx}`;
+
+  // Buttons / Lists
+  if(config.MESSAGE_TYPE.toLowerCase() === "button"){
+    let rows = [
+      { title: "Send Details 📜", description: buttonDesc, id: `${prefix}ep_det ${q}🎈${jidx}` },
+      { title: "Send Images 📷", description: buttonDesc, id: `${prefix}mv_images ${q}🎈${jidx}` }
+    ];
+    let rows2 = downurl.map(d => ({
+      title: `${d.quality} [ ${d.size} ]`,
+      description: buttonDesc,
+      id: `${prefix}${dlcmd} ${d.link || ''}🎈${title}🎈${d.quality}🎈${d.size}🎈${images[0] || imageUrls[0] || config.LOGO}🎈${jidx}`
+    }));
+
+    const listData = {
+      title: buttonTitle,
+      sections: [
+        { title: "Send movie details", rows },
+        { title: "Download movie", rows: rows2 }
+      ]
+    };
+
+    await conn.sendMessage(from, {
+      image: { url: images[0] || imageUrls[0] || config.LOGO },
+      caption: cot,
+      footer: config.FOOTER,
+      buttons: [
+        { buttonId: "action", type: 4, buttonText: { displayText: "🔽 Select Option" }, nativeFlowInfo: { name: "single_select", paramsJson: JSON.stringify(listData) } }
+      ],
+      headerType: 1,
+      viewOnce: true
+    }, { quoted: mek });
+
+  } else {
+    let numrep = [`${prefix}ep_det ${q}🎈${jidx}`, `${prefix}mv_images ${q}🎈${jidx}`];
+
+          cot += "\n*01 ||* Send Details\n" +
+                     "*02 ||* Send Images\n"
+                  
+    downurl.forEach((d, i) => {
+      cot += `\n*${i + 3} ||* ${d.quality} [ ${d.size} ]`;
+      numrep.push(`${prefix}${dlcmd} ${d.link || ''}🎈${title}🎈${d.quality}🎈${d.size}🎈${images[0] || imageUrls[0] || config.LOGO}🎈${jidx}`);
+    });
+
+    const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
+    await storenumrepdata({ key: mass.key, numrep, method: 'nondecimal' });
+  }
+
+} catch(e){
+  console.error(e);
+  await reply("*An error occurred. Please try again later. ⛔️*");
+  await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } });
+}});
+
+
+cmd({
+  pattern: "ep_det",
+  react: "📺",
+  dontAddCommandList: true,
+  filename: __filename
+},
+async(conn, mek, m, { from, prefix, q, isDev, isOwners, isMe, reply }) => {
+try {
+  // Permission checks
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+
+  if(!q) return reply(`*Provide the episode link.*\nEx: ${prefix}ep_det <link>`);
+
+  // Handle multi-JID
+  let inp = q.includes('🎈') ? q.split('🎈')[0] : q;
+  let jidx = q.includes('🎈') ? q.split('🎈')[1] : from;
+
+  // Fetch API data
+  let fetchdata, data;
+  if(q.includes(sinhalasubBase)){
+    fetchdata = await fetchJson(`${apilink}/api/movie/sinhalasub/episode?url=${inp}&apikey=${apikey}`);
+    data = fetchdata?.data;
+  } if(q.includes(cinesubzBase)){
+    fetchdata = await fetchJson(`${apilink}/api/movie/cinesubz/episode?url=${inp}&apikey=${apikey}`);
+    data = fetchdata?.data;
+  } else return reply(`*No supported website found.*`);
+
+  if(!data) return reply("*Failed to retrieve API information.*");
+
+  // Map API fields correctly
+  const epOriginalTitle = data.title || 'N/A';
+  const epTitle = data.ep_name || data.episodeTitle || 'N/A';
+  const epReleasedate = data.date || data.dateCreate || 'N/A';
+  const epUrl = inp;
+  const epImage = data.images?.[0] || data?.imageUrls[0] || config.LOGO;
+  const channelUrl = channel_url;
+
+  // Build caption
+  let cap = (config.EPISODE_DETAILS_CARD !== 'default') 
+    ? formatMessage(config.EPISODE_DETAILS_CARD, { epTitle, epReleasedate, epUrl, epOriginalTitle, channelUrl }) 
+    : `🍟 _*${epOriginalTitle}*_\n\n` +
+      `🧿 Release Date: ➜ ${epReleasedate}\n` +
+      `📺 Episode Title: ${epTitle}\n` +
+      `🔗 Url: ${epUrl}\n\n` +
+      `▃▃▃▃▃▃▃▃▃▃▃▃▃\n\n` +
+      `💃 Follow us ➢ ${channelUrl}\n\n` +
+      (config.CAPTION || config.FOOTER);
+
+  // Send details card
+  await conn.sendMessage(from, { image: { url: epImage }, caption: cap }, { quoted: mek });
+
+
+  await m.react("✔️");
+  if(jidx !== from) reply("Details Card Sent ✅");
+
+} catch(e) {
+  console.error(e);
+  await reply("*An error occurred. Please try again later. ⛔️*");
+  await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+}});
+
+
+cmd({
+    pattern: "cinh_eps_dl",
+    react: "📺",
+    dontAddCommandList: true,
+    filename: __filename
+},
+async (conn, mek, m, { from, l, quoted, body, prefix, isCmd, command, args, q, isGroup, sender, pushname, isMe, isOwner, reply }) => {
+try {
+    if (!q || !q.includes(cinesubzBase)) 
+        return await reply("*Please Give me valid cinesubz tvshow url !*")
+
+    let inp = ''
+    let jidx = ''
+    let sid = ''
+    let text = q
+
+    if (q.includes('🎈')) jidx = text.split('🎈')[1]
+    if (text.includes('🎈')) { 
+        inp = text.split('🎈')[0]
+        sid = text.split('🎈')[2]
+    }   
+
+    const anu = await fetchJson(`${apilink}/api/movie/cinesubz/tvshow?url=${inp}&apikey=${apikey}`);
+    let mov = anu.data;
+    if (!mov) return reply("*Failed to retrieve API information. ❌*");
+
+    await inputMovie(true, inp, new Date().getTime());
+
+    let casts = ''
+    if (mov.cast && mov.cast.length > 0) {
+        casts = mov.cast.map(c => c.actor?.name || c.name).join(', ') || ''
+    }
+    
+    let message = await conn.sendMessage(from, { text: "*⏩ Starting process...*" }, { quoted: mek })    
+
+    let yt = `*${mov.maintitle}*
+
+ ➠ᴄʜᴀʀᴀᴄᴛᴇʀs :* ${casts || 'N/A'}
+
+ ➠ᴛᴠ ꜱʜᴏᴡ ʟɪɴᴋ :* ${inp || 'N/A'}
+
+ ➠ᴄᴀᴛᴀɢᴏʀɪᴇs :* ${mov.category || 'N/A'}
+
+ ➠ SEASON 0${sid} ALL EPISODE UPLOADING... ⬆️*
+
+▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃
+
+${config.CAPTION || config.FOOTER || ""}
+`
+
+    const jid = config.AUTOSEND_TVSERIES_JID?.split(",") || [from];
+    let epup = 0;
+    const movImg = mov.mainImage;
+    const data = mov.episodesDetails[sid - 1]?.episodes || [];
+
+        for (let chatId of jid) {
+    await conn.sendMessage(chatId, { image: { url: movImg || config.LOGO }, caption: yt + `${config.CAPTION}` })
+        }
+        
+    await conn.edit(message, "*✅ Successfully fetched details!*\n*Uploading episodes...⬆️*")
+    await conn.sendMessage(from, { react: { text: '⬆️', key: mek.key } })
+
+    // -------- EPISODE LOOP --------
+    for (let i = 0; i < data.length; i++) {
+        try {
+            const epUrl = data[i].url
+            const d1 = await fetchJson(`${apilink}/api/movie/cinesubz/episode?url=${epUrl}&apikey=${apikey}`);
+            const dlLinks = d1.data.downloadUrl;
+
+            let dlEntry = dlLinks.find(x => x.quality.includes("720")) 
+                        || dlLinks.find(x => x.quality.includes("480")) 
+                        || dlLinks[0]
+            if (!dlEntry) continue
+
+            const epTitle = d1.data.title
+            const quality = dlEntry.quality
+            const dlurl = dlEntry.link
+            const thumbnailUrl = d1.data.imageUrls?.[0] || config.LOGO
+
+            // GET GDRIVE LINK
+            var d2 = dlurl;
+                        if (d2.includes(cinesubzDownBase)) {
+              let downloadUrls = null;
+
+              const check = await fetchJson(`${apilinkcine}api/get/?url=${d2}`);
+
+              if (check?.isUploaded === false) {
+
+                                if(!CINESUBZ_API_KEY) return await reply(needCineApikey);
+                                  
+                // Fetch new download links from external API
+                const urlApi = `https://manojapi.infinityapi.org/api/v1/cinesubz-download?url=${url}&apiKey=${CINESUBZ_API_KEY}`;
+                const getDownloadUrls = await axios.get(urlApi);
+
+                downloadUrls = getDownloadUrls.data.results;
+
+                // Save to your API
+                const payload = { url, downloadUrls, uploader: "DarkYasiya" };
+                const response = await axios.post(`${apilinkcine}api/save`, payload);
+
+                /*
+                const urlApi = `https://movie-api-ymd.koyeb.app/api/movie/cinesubz/download?url=${encodeURIComponent(d2)}`;
+                const getDownloadUrls = await axios.get(urlApi);
+
+                                const movieData = getDownloadUrls.data?.data;
+                downloadUrls = movieData.downloadUrl
+
+
+                // Save to your API
+                const payload = { url: d2, name: movieData?.title || title, size: movieData?.size, downloadurl: downloadUrls, uploader: "DarkYasiya" };
+                const response = await axios.get(`${apilinkcine}api/save`, { params: payload });
+                                */
+
+              } else {
+                // Already uploaded → use existing links
+                downloadUrls = check.downloadUrls;
+
+              }
+                        
+                d2 =
+                  downloadUrls.direct && downloadUrls.direct !== "false" ? downloadUrls.direct :
+                  downloadUrls.pix1 && downloadUrls.pix1 !== "false" ? downloadUrls.pix1 :
+                  url;
+            }
+                        
+            let gdriveLink = d2
+
+            if (gdriveLink.includes("https://drive.usercontent.google.com/")) {
+                gdriveLink = gdriveLink.replace("https://drive.usercontent.google.com/", "https://drive.google.com/")
+            }
+
+            let mimeType = "video/mp4"
+            if (gdriveLink.includes("https://drive.google.com/")) {
+                let res = await fg.GDriveDl(gdriveLink)
+                gdriveLink = res.downloadUrl
+                mimeType = res.mimetype
+            }
+
+            // UPLOAD
+            await inputMovie(true, epTitle, new Date().getTime());
+            const rawBuffer = await getThumbnailFromUrl(thumbnailUrl);
+            const thumbnailBuffer = await resizeThumbnail(rawBuffer);
+
+                        const doc = await conn.sendMessage(conn.user.id || conn.user.lid, {
+                document: { url: gdriveLink },
+                fileName: `${config.FILE_NAME} ${epTitle}.mp4`,
+                mimetype: mimeType,
+                jpegThumbnail: thumbnailBuffer,
+                caption: `${epTitle}\n${pk} ${quality} ${pk2}\n\n${config.CAPTION || config.FOOTER || ""}`,
+            });
+                        
+                        for (let chatId of jid) {
+                                await conn.forwardMessage(chatId, doc, false);
+                        }
+
+                        await conn.sendMessage(conn.user.id || conn.user.lid, { delete: doc.key });
+
+            epup++
+            await inputMovie(false, epTitle, new Date().getTime());
+            await conn.edit(message, `*✅ Uploaded ${epup}/${data.length}*`)
+            await sleep(1000)
+
+        } catch (err) {
+            l(err)
+            await conn.sendMessage(from, { text: `*⚠️ Failed to upload Episode ${i+1}*` })
+            continue
+        }
+    }
+
+    await conn.edit(message, `_*Season 0${sid} All Episodes Upload Successful ✅*_`)
+    await conn.sendMessage(from, { react: { text: '✅', key: mek.key } })
+
+} catch (e) {
+    await resetMovie();
+    l(e);
+    await reply(e.message ? e.message : "*An error occurred. Please try again later. ⛔️*");
+    await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key } })
+}
+})
+
+
+
+cmd({
+  pattern: "sinh_eps_dl",
+  alias: [],
+  react: "⛔️",
+  dontAddCommandList: true,
+  filename: __filename
+},
+async(conn, mek, m, { from, prefix, q, isDev, isOwners, isMe, reply }) => {
+try {
+        if (!dbData?.FREE_MOVIE_CMD && !isDev) return reply(preMg);
+
+        if (config.MOVIE_DL === 'only_me' && !isMe && !isDev) return reply(disMgOnlyme);
+        if (config.MOVIE_DL === 'only_owners' && !isOwners) return reply(disMgOnlyOwners);
+        if (config.MOVIE_DL === 'disable' && !isDev) return reply(disMgAll);
+        
+ return await reply("This cmd is not finished yet. ⛔️");
+
+} catch(e) {
+  console.error(e);
+  await reply("*An error occurred. Please try again later. ⛔️*");
+  await conn.sendMessage(from, { react: { text: '⛔️', key: mek.key }});
+}});

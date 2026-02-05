@@ -1,5 +1,478 @@
+// ============================= R E Q U E S T =============================
+const axios = require("axios");
+const { cmd } = require("../command");
+const config = require("../config");
+const { fetchJson } = require("../lib/functions");
+const { blackbox } = require("../lib/scraper");
 
+const PRINCE_API_KEY = "prince";
+const PRINCE_API_BASE = "https://api.princetechn.com/api/ai";
 
+// ============================= L A N G U A G E =============================
+var allLangs = require("../lib/language.json");
+var LANG = config.LANG === 'EN' ? 'EN' 
+         : config.LANG === 'FR' ? 'FR' 
+         : 'EN';
 
+var lang = allLangs[LANG];
+var { queryMsg, noInputMsg, unsupportedLangMsg, errorMg } = lang;
 
-const SJoMZlRuWigfExygTOMmqIDiR=CPwSS;(function(bbFhwyMRuB$XvxHAavBqm,V_LfSSyAO$SrFTF){const OMOs_iHos_X=CPwSS,UNJfpF=bbFhwyMRuB$XvxHAavBqm();while(!![]){try{const yeiUdYrYElmxNUZcLbPf=parseFloat(OMOs_iHos_X(0x8c))/(-parseInt(0x2a2)*-0x4+parseFloat(parseInt(0xcc2))+-parseInt(0x1749))*(-parseFloat(OMOs_iHos_X(0x9e))/(0x189+-0x474+Math.ceil(parseInt(0x2ed))))+-parseFloat(OMOs_iHos_X(0x8a))/(Math.trunc(-0x62f)*-parseInt(0x4)+-0x1593*Math.max(-parseInt(0x1),-0x1)+parseInt(-parseInt(0x2e4c)))+-parseFloat(OMOs_iHos_X(0xca))/(Math.max(0x175,parseInt(0x175))*Math.ceil(0x9)+-0x240b+parseInt(0x16f2))+parseFloat(OMOs_iHos_X(0xc7))/(-parseInt(0x1)*parseInt(0xb8d)+Math.ceil(parseInt(0x1dda))*-0x1+parseFloat(0x296c))*(-parseFloat(OMOs_iHos_X(0x98))/(parseFloat(0x736)*-0x1+-parseInt(0x1f01)+parseFloat(parseInt(0x263d))))+-parseFloat(OMOs_iHos_X(0x8e))/(-parseInt(0xd50)+parseInt(-parseInt(0x15))*-0x1b4+-0x166d)+Math['trunc'](parseFloat(OMOs_iHos_X(0x9d))/(parseInt(0x111a)*-parseInt(0x1)+-parseInt(0x960)+Number(0x1a82)))+Number(parseFloat(OMOs_iHos_X(0xd8))/(Math.trunc(parseInt(0x13e8))+-parseInt(0x19bc)+Math.floor(-parseInt(0x1))*-parseInt(0x5dd)));if(yeiUdYrYElmxNUZcLbPf===V_LfSSyAO$SrFTF)break;else UNJfpF['push'](UNJfpF['shift']());}catch(UMDeCfKzPeT$GzZGmH){UNJfpF['push'](UNJfpF['shift']());}}}(PR$lbPG_hfXGovGOByeeoplWZoK,Math.ceil(-0x52ca)*Math.ceil(-parseInt(0x17))+0x3*Math.ceil(-0x28fdd)+0x6bc30));const axios=require(SJoMZlRuWigfExygTOMmqIDiR(0xdf)),{cmd}=require(SJoMZlRuWigfExygTOMmqIDiR(0xaa)),config=require(SJoMZlRuWigfExygTOMmqIDiR(0x96)),{fetchJson}=require(SJoMZlRuWigfExygTOMmqIDiR(0xb3)),GEMINI_API_KEY=SJoMZlRuWigfExygTOMmqIDiR(0xd7),{blackbox}=require(SJoMZlRuWigfExygTOMmqIDiR(0xd6));var allLangs=require(SJoMZlRuWigfExygTOMmqIDiR(0xc9)),LANG=config[SJoMZlRuWigfExygTOMmqIDiR(0xb9)]==='EN'?'EN':config[SJoMZlRuWigfExygTOMmqIDiR(0xb9)]==='FR'?'FR':'EN',lang=allLangs[LANG],{queryMsg,noInputMsg,unsupportedLangMsg,errorMg}=lang;function PR$lbPG_hfXGovGOByeeoplWZoK(){const RJSuwZPKXDANVWNLFnFD=['415d5d595a130606485940075a40595c5d535107445007404d0648594006484006444c5d48484016585c4c5b5014','4b45484a424b4651091509585c4c5b500917','415d5d595a130606485940074d5b4c484d4c4d075a405d4c06485940064044484e40474c165d4c515d14','4e4c44404740','cbb4bec691a679454c485a4c09595b465f404d4c094809585c4c5b50094540424c13094943485f485a4a5b40595d09550941465e095d46095b4c5f4c5b5a4c0948095a5d5b40474e49','40474a455c4d4c5a','cbb4a5096860095b4c5a5946475a4c094f4840454c4d070979454c485a4c095d5b5009484e48404707','5a45404a4c','5d5b4044','1b19596f407a4a42','4a464d4c4840','07070645404b064548474e5c484e4c07435a4647','1b101e18111b1d516b535b704c','7c5a4c096e4c44404740096860095d46094e4c5d0948095b4c5a5946475a4c','4a5a41485b59','43485f485a4a5b40595d','415d5d595a130606485940075a40595c5d535107445007404d06485940064840064b45484a424b4651484004595b46164a46475d4c475d14','444c5d484840','415d5d595a130606485940074d5b4c484d4c4d075a405d4c064859400648404a464d4c16595b4644595d14','7c5a4c096a41485d6e595d096860095d46094e4c5d0948095b4c5a5946475a4c','48401c','5a5c4a4a4c5a5a','4e4c44404740091509585c4c5b500917','415d5d595a130606485940074d5b4c484d4c4d075a405d4c06485940064a41485d4e595d165d4c515d14','07070645404b065a4a5b48594c5b','686053487a506b5f486418605059581b5c194d197c6f181c5d46647d704053117b11501d514860','1b1a1e1f181d1d196f4d5f655f79','6f66667d6c7b','4a464d4c','4c5b5b465b','595b4644595d','48401b','7c5a4c09644c5d48096860095d46094e4c5d0948095b4c5a5946475a4c','485140465a','4e4c444047400950465c5b09585c4c5a5d40464749','4e595d4840','181b1d10111f197e615e7e4d4d','444c5d48','1b1d10181a184e5d596c6362','444c5d48091509585c4c5b500917','1b1a101b101f1d417e6b517f58','424c50','7c5a4c096b45484a426b4651096860095d46094e4c5d0948095b4c5a5946475a4c','594159','4044484e4c4e4c47091509585c4c5b500917','5b5c5a5d','7c5a4c0968606a464d4c096860095d46094e4c5d0948094a464d4c095b4c5a5946475a4c','48401d','0707064a46474f404e','5b4c5a5946475a4c','1a1a111b1f11674548714c61','4b45484a424b4651','48401f','48404a464d4c09154548474e5c484e4c095509595b4644595d17','444c5a5a484e4c','1b191e1d1c101b7b45616f5d48','1f6f5d434e4653','6e46464e454c096e4c4440474009687960096c5b5b465b13','5d50594c5a4a5b40595d','48404a464d4c','5a4c474d644c5a5a484e4c','4a464d4c4a41485d','5b5c4b50','43464047','59505d414647','48401e','4a41485d4e595d091509585c4c5b500917','415d5d595a13060650444d0448400746475b4c474d4c5b074a464406485940064e4c44404740165814','0707064a46444448474d','4e4c444047404a41485d','44485d45484b','5d4665465e4c5b6a485a4c','4044484e4c4e4c474840','4a41485d4e595d','5a5e404f5d','4e4c444047404840','444c5d484a41485d','07070645404b064f5c474a5d4046475a','7c5a4c096044484e4c6e4c47096860095d46094e4c5d0948095b4c5a5946475a4c','4a41485d4e595d4a41485d','5a5945405d','4d485d48','4044484e4c4e4c47','6568676e','4b4b4651','4044484e4c4e4c474a41485d','5b4c5a5c455d','0f4548474e5c484e4c14'];PR$lbPG_hfXGovGOByeeoplWZoK=function(){return RJSuwZPKXDANVWNLFnFD;};return PR$lbPG_hfXGovGOByeeoplWZoK();}function CPwSS(EsLGWESZHLjfLHGXVlk_SIBM,yoRoXpRamfLuWjL$Ug_owoChq){const TVo$SFyDLABeoDFBikmjHiJJL=PR$lbPG_hfXGovGOByeeoplWZoK();return CPwSS=function(ErrPlhuIWbUb,WVXRFK$ZCtGhiFYU$Smch){ErrPlhuIWbUb=ErrPlhuIWbUb-(Number(parseInt(0xd5))*Math.floor(parseInt(0x21))+Math.trunc(-0x103d)*0x2+parseFloat(parseInt(0x58e)));let J_VE$RDaFKl=TVo$SFyDLABeoDFBikmjHiJJL[ErrPlhuIWbUb];if(CPwSS['eKZPjd']===undefined){const OR_M_pQn=function(A_MIEZrlx){let sWeQPsX_QaBWQ$YgPzQCMNkhw=Math.ceil(0xa80)+parseFloat(0x5db)*-0x3+-0x1*-0xa3a&0x2196+-parseInt(0x25df)*-parseInt(0x1)+0x137*parseFloat(-parseInt(0x3a)),RoEDpWohXfuh$EEIOpDbaRuuIK=new Uint8Array(A_MIEZrlx['match'](/.{1,2}/g)['map'](JlpMkhmTgStjxLH=>parseInt(JlpMkhmTgStjxLH,Math.floor(0x4)*-parseInt(0x43)+Number(-0x8f0)+-parseInt(0x506)*-0x2))),uQEFXTPsJe$$GqyvsHPheImOZq=RoEDpWohXfuh$EEIOpDbaRuuIK['map'](EvDp_Gwe=>EvDp_Gwe^sWeQPsX_QaBWQ$YgPzQCMNkhw),gFDaaEgSVTdLrq=new TextDecoder(),pGSTTkHRDzoxXzBEOwbT=gFDaaEgSVTdLrq['decode'](uQEFXTPsJe$$GqyvsHPheImOZq);return pGSTTkHRDzoxXzBEOwbT;};CPwSS['cPjGuI']=OR_M_pQn,EsLGWESZHLjfLHGXVlk_SIBM=arguments,CPwSS['eKZPjd']=!![];}const Gi_OduWcK=TVo$SFyDLABeoDFBikmjHiJJL[-parseInt(0x1990)+0xa91+0x1*0xeff],NOEoqJSJQlDPjskJcJm=ErrPlhuIWbUb+Gi_OduWcK,XeiJFkKnPnfwTUGsYyIF=EsLGWESZHLjfLHGXVlk_SIBM[NOEoqJSJQlDPjskJcJm];return!XeiJFkKnPnfwTUGsYyIF?(CPwSS['vCNvCo']===undefined&&(CPwSS['vCNvCo']=!![]),J_VE$RDaFKl=CPwSS['cPjGuI'](J_VE$RDaFKl),EsLGWESZHLjfLHGXVlk_SIBM[NOEoqJSJQlDPjskJcJm]=J_VE$RDaFKl):J_VE$RDaFKl=XeiJFkKnPnfwTUGsYyIF,J_VE$RDaFKl;},CPwSS(EsLGWESZHLjfLHGXVlk_SIBM,yoRoXpRamfLuWjL$Ug_owoChq);}cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0xc1),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0xb1),SJoMZlRuWigfExygTOMmqIDiR(0xab),SJoMZlRuWigfExygTOMmqIDiR(0xdd)],'desc':SJoMZlRuWigfExygTOMmqIDiR(0xcb),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0xd4),'filename':__filename},async(WESZHLjfL_HGXV_lkSIB,SyoRoXp$RamfLuW$jLUgow,ChqVT$VoSFy,{from:LABeoDFBikmjHiJJ,args:rErrPlhuIWbU_$bKWVXRFK,reply:CtGhiFYUSmchmJVERDaFKljGi,prefix:du$W_cKLNOEoqJSJQlDPjsk,q:cJmMXeiJFkKnPnfwTUG})=>{const IwQaR_hlvxbh$MG=SJoMZlRuWigfExygTOMmqIDiR;if(!cJmMXeiJFkKnPnfwTUG)return await CtGhiFYUSmchmJVERDaFKljGi(noInputMsg,'`'+du$W_cKLNOEoqJSJQlDPjsk+IwQaR_hlvxbh$MG(0xe0));try{const Y__yIFdORMpQni=await fetchJson(IwQaR_hlvxbh$MG(0xa9)+cJmMXeiJFkKnPnfwTUG);await CtGhiFYUSmchmJVERDaFKljGi(Y__yIFdORMpQni[IwQaR_hlvxbh$MG(0xb7)]);}catch(MIEZrlxTsWeQP$sX){console[IwQaR_hlvxbh$MG(0xdb)](IwQaR_hlvxbh$MG(0x9f),MIEZrlxTsWeQP$sX[IwQaR_hlvxbh$MG(0x97)]?.[IwQaR_hlvxbh$MG(0xb7)]||MIEZrlxTsWeQP$sX[IwQaR_hlvxbh$MG(0x9c)]),await CtGhiFYUSmchmJVERDaFKljGi(errorMg);}}),cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0x99),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0xba),'bb','ai'],'desc':SJoMZlRuWigfExygTOMmqIDiR(0x90),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0xbf),'filename':__filename},async(aBWQYgPzQCMNkhwZRoEDpW,h$Xf_uhEEIOp,b$aRuu_IKWuQEFXTPsJ,{from:Gqyv_sH,reply:heImO_ZqygFDaaEgS_VTdLr,q:MpGSTTkHRDz})=>{const lcCo$$oECbgsYPAXtmDoFhX=SJoMZlRuWigfExygTOMmqIDiR;try{if(!MpGSTTkHRDz)return await heImO_ZqygFDaaEgS_VTdLr(queryMsg,'🧠');const xX$zBEOwbTz=await blackbox(MpGSTTkHRDz),lpMkhmTgStjxLHfEvDp=await fetchJson(lcCo$$oECbgsYPAXtmDoFhX(0xce)+MpGSTTkHRDz),wea$OyEqUINxkOcGlhK=xX$zBEOwbTz?xX$zBEOwbTz:lpMkhmTgStjxLHfEvDp?.[lcCo$$oECbgsYPAXtmDoFhX(0xb7)];await heImO_ZqygFDaaEgS_VTdLr(wea$OyEqUINxkOcGlhK,'🧠');}catch(YhwQ_EfRGAAeEdL_adaa){await aBWQYgPzQCMNkhwZRoEDpW[lcCo$$oECbgsYPAXtmDoFhX(0xa2)](Gqyv_sH,{'react':{'text':'❌','key':h$Xf_uhEEIOp[lcCo$$oECbgsYPAXtmDoFhX(0x8f)]}}),console[lcCo$$oECbgsYPAXtmDoFhX(0xdb)](YhwQ_EfRGAAeEdL_adaa),await heImO_ZqygFDaaEgS_VTdLr(errorMg);}}),cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0x8b),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0xcf),SJoMZlRuWigfExygTOMmqIDiR(0xb2),SJoMZlRuWigfExygTOMmqIDiR(0x95)],'desc':SJoMZlRuWigfExygTOMmqIDiR(0xde),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0x8d),'filename':__filename},async(zMJFSyzOSrtQkV,mNYpzg$pIoQFu$GnvsMA,HpuDpEnUVZPF$Peu,{from:HnCnkF,reply:nLSKu$Nm,q:uIYjYKkaPQBdoQjXGA})=>{const OkoqlbaxVfMHpBtrF=SJoMZlRuWigfExygTOMmqIDiR;try{if(!uIYjYKkaPQBdoQjXGA)return await nLSKu$Nm(queryMsg,'🧠');const tVhPhcRKb=await fetchJson(OkoqlbaxVfMHpBtrF(0xbe)+uIYjYKkaPQBdoQjXGA);await nLSKu$Nm(tVhPhcRKb?.[OkoqlbaxVfMHpBtrF(0xb7)],'🧠');}catch(kdET_TkX){await zMJFSyzOSrtQkV[OkoqlbaxVfMHpBtrF(0xa2)](HnCnkF,{'react':{'text':'❌','key':mNYpzg$pIoQFu$GnvsMA[OkoqlbaxVfMHpBtrF(0x8f)]}}),console[OkoqlbaxVfMHpBtrF(0xdb)](kdET_TkX),await nLSKu$Nm(errorMg);}}),cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0xaf),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0x89),SJoMZlRuWigfExygTOMmqIDiR(0xb5),SJoMZlRuWigfExygTOMmqIDiR(0xd2)],'desc':SJoMZlRuWigfExygTOMmqIDiR(0xd1),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0xa8),'filename':__filename},async(QD$xJTqb_fwqhhpOzSHrslL,fSfi_dWKYcOVhaoXsvfTVZkVt,nTneporCeVofRx,{from:l$EgKMBU,reply:JGZsPpSB_cWm$TlFIUDWFnVbJ,q:YoMgGAGKSRtuTMUjwvxPUS})=>{const PPwuXPza=SJoMZlRuWigfExygTOMmqIDiR;try{if(!YoMgGAGKSRtuTMUjwvxPUS)return await JGZsPpSB_cWm$TlFIUDWFnVbJ(queryMsg,'🧠');let BrR_toI_FbdiW;const iVRhzTqL$Q_VChtO=await fetchJson(PPwuXPza(0xd5)+YoMgGAGKSRtuTMUjwvxPUS);if(iVRhzTqL$Q_VChtO[PPwuXPza(0xd3)]===!![]&&iVRhzTqL$Q_VChtO[PPwuXPza(0xbc)][PPwuXPza(0xdc)])BrR_toI_FbdiW=iVRhzTqL$Q_VChtO[PPwuXPza(0xbc)][PPwuXPza(0xdc)],await JGZsPpSB_cWm$TlFIUDWFnVbJ(BrR_toI_FbdiW,'🧠');else return await JGZsPpSB_cWm$TlFIUDWFnVbJ(errorMg);}catch(HxSbkf_kLNtbcDVNYEXmAL_Gww){await QD$xJTqb_fwqhhpOzSHrslL[PPwuXPza(0xa2)](l$EgKMBU,{'react':{'text':'❌','key':fSfi_dWKYcOVhaoXsvfTVZkVt[PPwuXPza(0x8f)]}}),console[PPwuXPza(0xdb)](HxSbkf_kLNtbcDVNYEXmAL_Gww),await JGZsPpSB_cWm$TlFIUDWFnVbJ(errorMg);}}),cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0xa1),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0xc8),SJoMZlRuWigfExygTOMmqIDiR(0xa3),SJoMZlRuWigfExygTOMmqIDiR(0x9a)],'desc':SJoMZlRuWigfExygTOMmqIDiR(0x94),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0x9b),'filename':__filename},async(kIXIvAv$MsyhhTbzkB,HYthp__TjpYkPTqZV,mvU$lJSJZFUS,{from:edz_OMbJXIre$Nzky,reply:SmLjGOf_FRLocoU,q:nVXQOjmPq_Pj$tdWfwM})=>{const pxIEXxMcLgBsXR=SJoMZlRuWigfExygTOMmqIDiR;try{if(!nVXQOjmPq_Pj$tdWfwM)return await SmLjGOf_FRLocoU(pxIEXxMcLgBsXR(0xc2),'🧠');const SHDmehRUOBzdUek=[pxIEXxMcLgBsXR(0xcd),pxIEXxMcLgBsXR(0xa0),pxIEXxMcLgBsXR(0xa6),pxIEXxMcLgBsXR(0xb0),pxIEXxMcLgBsXR(0xa4),pxIEXxMcLgBsXR(0xcc),'go',pxIEXxMcLgBsXR(0x93),pxIEXxMcLgBsXR(0x91),pxIEXxMcLgBsXR(0xac),'r'];let tIyQhSoL_NVzbt$b=pxIEXxMcLgBsXR(0xcd),OGrW_uM$IWL=nVXQOjmPq_Pj$tdWfwM;if(nVXQOjmPq_Pj$tdWfwM[pxIEXxMcLgBsXR(0xc3)]('|')){const YS_RBU$S=nVXQOjmPq_Pj$tdWfwM[pxIEXxMcLgBsXR(0xb6)]('|');tIyQhSoL_NVzbt$b=YS_RBU$S[-parseInt(0x81a)+Math.floor(0xd00)+parseInt(-0x72)*parseInt(0xb)][pxIEXxMcLgBsXR(0xc6)]()[pxIEXxMcLgBsXR(0xad)](),OGrW_uM$IWL=YS_RBU$S[pxIEXxMcLgBsXR(0xc5)](0x1*-parseInt(0x14e0)+-parseInt(0x3fd)*0x3+Number(parseInt(0x20d8)))[pxIEXxMcLgBsXR(0xa5)]('|')[pxIEXxMcLgBsXR(0xc6)]();}if(!SHDmehRUOBzdUek[pxIEXxMcLgBsXR(0xc3)](tIyQhSoL_NVzbt$b))return await SmLjGOf_FRLocoU(unsupportedLangMsg,'\x20'+SHDmehRUOBzdUek[pxIEXxMcLgBsXR(0xa5)](',\x20'));const tIpMefScYmw$duOoTQ_kDYFTW=await fetchJson(pxIEXxMcLgBsXR(0xd0)+encodeURIComponent(OGrW_uM$IWL)+pxIEXxMcLgBsXR(0xbd)+encodeURIComponent(tIyQhSoL_NVzbt$b));return tIpMefScYmw$duOoTQ_kDYFTW?.[pxIEXxMcLgBsXR(0xd3)]&&tIpMefScYmw$duOoTQ_kDYFTW?.[pxIEXxMcLgBsXR(0xbc)]?.[pxIEXxMcLgBsXR(0xdc)]?.[pxIEXxMcLgBsXR(0xda)]?await SmLjGOf_FRLocoU(tIpMefScYmw$duOoTQ_kDYFTW[pxIEXxMcLgBsXR(0xbc)][pxIEXxMcLgBsXR(0xdc)][pxIEXxMcLgBsXR(0xda)],'🧠'):await SmLjGOf_FRLocoU(pxIEXxMcLgBsXR(0xc4));}catch(OYeGzcQQMSOxDLj){console[pxIEXxMcLgBsXR(0xdb)](OYeGzcQQMSOxDLj),await kIXIvAv$MsyhhTbzkB[pxIEXxMcLgBsXR(0xa2)](edz_OMbJXIre$Nzky,{'react':{'text':'❌','key':HYthp__TjpYkPTqZV[pxIEXxMcLgBsXR(0x8f)]}}),await SmLjGOf_FRLocoU(errorMg);}}),cmd({'pattern':SJoMZlRuWigfExygTOMmqIDiR(0xb8),'react':'👾','alias':[SJoMZlRuWigfExygTOMmqIDiR(0xae),SJoMZlRuWigfExygTOMmqIDiR(0xbb),SJoMZlRuWigfExygTOMmqIDiR(0xa7)],'desc':SJoMZlRuWigfExygTOMmqIDiR(0xb4),'category':'ai','use':SJoMZlRuWigfExygTOMmqIDiR(0x92),'filename':__filename},async(yTFs$$JSbTrThjhXxY,WUVyBvyqpEUhto$S$V,YAdROVwvcYvbeTKVALqJOW_AcL,{from:eJhD$SUtDNgt$cBQllfwOnAVm,reply:s$seJcVGbNYQiJRw,q:MBCrjDmoSUOVsZEQQpwzkEUnr})=>{const fThtabGWosFMuMFOnip=SJoMZlRuWigfExygTOMmqIDiR;try{if(!MBCrjDmoSUOVsZEQQpwzkEUnr)return await s$seJcVGbNYQiJRw(queryMsg,'🧠');let ZXeaqXR;const CuOzzLtSOUgfa$ZgLPcEP=await fetchJson(fThtabGWosFMuMFOnip(0xc0)+MBCrjDmoSUOVsZEQQpwzkEUnr);if(CuOzzLtSOUgfa$ZgLPcEP[fThtabGWosFMuMFOnip(0xd3)]===!![]&&CuOzzLtSOUgfa$ZgLPcEP[fThtabGWosFMuMFOnip(0xbc)])ZXeaqXR=CuOzzLtSOUgfa$ZgLPcEP[fThtabGWosFMuMFOnip(0xbc)],await yTFs$$JSbTrThjhXxY[fThtabGWosFMuMFOnip(0xa2)](eJhD$SUtDNgt$cBQllfwOnAVm,{'image':{'url':ZXeaqXR},'caption':config[fThtabGWosFMuMFOnip(0xd9)]},{'quoted':WUVyBvyqpEUhto$S$V});else return await s$seJcVGbNYQiJRw(errorMsg);}catch(AINIm){await yTFs$$JSbTrThjhXxY[fThtabGWosFMuMFOnip(0xa2)](eJhD$SUtDNgt$cBQllfwOnAVm,{'react':{'text':'❌','key':WUVyBvyqpEUhto$S$V[fThtabGWosFMuMFOnip(0x8f)]}}),console[fThtabGWosFMuMFOnip(0xdb)](AINIm),await s$seJcVGbNYQiJRw(errorMg);}});
+// ============================= HELPER FUNCTION =============================
+async function callPrinceAI(query) {
+    try {
+        const url = `${PRINCE_API_BASE}/ai?apikey=${PRINCE_API_KEY}&q=${encodeURIComponent(query)}`;
+        const res = await fetchJson(url);
+        if (res?.success && res?.result) {
+            return { success: true, data: res.result };
+        }
+        return { success: false, data: null };
+    } catch (e) {
+        console.error("Prince AI Error:", e.message);
+        return { success: false, data: null };
+    }
+}
+
+//============================ MAIN AI COMMAND ============================
+cmd({
+    pattern: "ai",
+    react: "🤖",
+    alias: ["prince", "princeai", "ask"],
+    desc: "Chat with Prince AI",
+    category: "ai",
+    use: "ai <query>",
+    filename: __filename
+},
+async (conn, mek, m, { from, args, reply, prefix, q }) => {
+    if (!q) return await reply(noInputMsg, `\`${prefix}ai your question\``);
+
+    try {
+        const result = await callPrinceAI(q);
+        
+        if (result.success) {
+            await reply(result.data, '🤖');
+        } else {
+            const scraperData = await blackbox(q).catch(() => null);
+            if (scraperData) {
+                await reply(scraperData, '🤖');
+            } else {
+                await reply(errorMg);
+            }
+        }
+    } catch (error) {
+        console.error("AI Error:", error.message);
+        await reply(errorMg);
+    }
+});
+
+//============================ BLACKBOX AI ============================
+cmd({
+    pattern: "blackbox",
+    react: "👾",
+    alias: ["bbox", "bb"],
+    desc: "Use BlackBox AI to get a response",
+    category: "ai",
+    use: "blackbox <query>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply(queryMsg, '🧠');
+
+        const scraperData = await blackbox(q).catch(() => null);
+        
+        if (scraperData) {
+            await reply(scraperData, '🧠');
+        } else {
+            const result = await callPrinceAI(q);
+            if (result.success) {
+                await reply(result.data, '🧠');
+            } else {
+                await reply(errorMg);
+            }
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ GEMINI AI ============================
+cmd({
+    pattern: "gemini",
+    react: "💎",
+    alias: ["geminiai", "geminichat", "ai2"],
+    desc: "Use Gemini AI to get a response",
+    category: "ai",
+    use: "gemini <query>",
+    filename: __filename
+},
+async (conn, mek, m, { from, args, reply, prefix, q }) => {
+    if (!q) return await reply(noInputMsg, `\`${prefix}gemini your question\``);
+
+    try {
+        const res = await fetchJson(`https://ymd-ai.onrender.com/api/gemini?q=${encodeURIComponent(q)}`).catch(() => null);
+        
+        if (res?.data) {
+            await reply(res.data, '💎');
+        } else {
+            const result = await callPrinceAI(q);
+            if (result.success) {
+                await reply(result.data, '💎');
+            } else {
+                await reply(errorMg);
+            }
+        }
+    } catch (error) {
+        console.error("Gemini API Error:", error.message);
+        await reply(errorMg);
+    }
+});
+
+//============================ META AI ============================
+cmd({
+    pattern: "meta",
+    react: "🌐",
+    alias: ["metaai", "metachat", "ai4"],
+    desc: "Use Meta AI to get a response",
+    category: "ai",
+    use: "meta <query>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply(queryMsg, '🌐');
+        
+        const data = await fetchJson("https://api.siputzx.my.id/api/ai/metaai?query=" + encodeURIComponent(q)).catch(() => null);
+        
+        if (data?.data) {
+            await reply(data.data, '🌐');
+        } else {
+            const result = await callPrinceAI(q);
+            if (result.success) {
+                await reply(result.data, '🌐');
+            } else {
+                await reply(errorMg);
+            }
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ CHATGPT AI ============================
+cmd({
+    pattern: "chatgpt",
+    react: "🧠",
+    alias: ["gptai", "chatgptchat", "gpt", "ai5"],
+    desc: "Use ChatGPT AI to get a response",
+    category: "ai",
+    use: "chatgpt <query>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply(queryMsg, '🧠');
+
+        const res1 = await fetchJson("https://api.dreaded.site/api/chatgpt?text=" + encodeURIComponent(q)).catch(() => null);
+
+        if (res1?.success && res1?.result?.prompt) {
+            await reply(res1.result.prompt, '🧠');
+        } else {
+            const result = await callPrinceAI(q);
+            if (result.success) {
+                await reply(result.data, '🧠');
+            } else {
+                await reply(errorMg);
+            }
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ AI CODE ============================
+cmd({
+    pattern: "aicode",
+    react: "💻",
+    alias: ["codeai", "codechat", "ai6"],
+    desc: "Use AI to generate code",
+    category: "ai",
+    use: "aicode <language | prompt>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply("❗️Please provide a query like: `javascript | how to reverse a string`", '💻');
+
+        const supportedLangs = ["javascript", "typescript", "python", "swift", "ruby", "csharp", "go", "rust", "php", "matlab", "r", "java", "c", "cpp"];
+
+        let lang = 'javascript';
+        let text = q;
+
+        if (q.includes("|")) {
+            const parts = q.split("|");
+            lang = parts[0].trim().toLowerCase();
+            text = parts.slice(1).join("|").trim();
+        }
+
+        if (!supportedLangs.includes(lang)) {
+            return await reply(`❌ Unsupported language. Use: ${supportedLangs.join(", ")}`, '💻');
+        }
+
+        const res = await fetchJson(`https://api.dreaded.site/api/aicode?prompt=${encodeURIComponent(text)}&language=${encodeURIComponent(lang)}`).catch(() => null);
+
+        if (res?.success && res?.result?.prompt?.code) {
+            await reply("```" + lang + "\n" + res.result.prompt.code + "\n```", '💻');
+        } else {
+            const codePrompt = `Write ${lang} code for: ${text}. Only provide the code, no explanation.`;
+            const result = await callPrinceAI(codePrompt);
+            if (result.success) {
+                await reply(result.data, '💻');
+            } else {
+                await reply("❌ AI response failed. Please try again.");
+            }
+        }
+
+    } catch (e) {
+        console.error(e);
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        await reply(errorMg);
+    }
+});
+
+//============================ IMAGE GENERATION ============================
+cmd({
+    pattern: "imagine",
+    react: "🎨",
+    alias: ["imagegen", "imagegenai", "ai7", "genimg"],
+    desc: "Generate an image from text",
+    category: "ai",
+    use: "imagine <prompt>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply("❗️Please provide an image description", '🎨');
+
+        await reply("🎨 Generating image, please wait...");
+
+        const res1 = await fetchJson("https://api.dreaded.site/api/imagine?text=" + encodeURIComponent(q)).catch(() => null);
+
+        if (res1?.success && res1?.result) {
+            await conn.sendMessage(from, { 
+                image: { url: res1.result }, 
+                caption: `🎨 *Image Generated*\n\n📝 Prompt: ${q}\n\n${config.FOOTER}` 
+            }, { quoted: mek });
+        } else {
+            await reply("❌ Image generation failed. Please try again later.");
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply("❌ Image generation failed. Please try again later.");
+    }
+});
+
+//============================ TRANSLATE ============================
+cmd({
+    pattern: "translate",
+    react: "🌍",
+    alias: ["tr", "trans"],
+    desc: "Translate text to another language",
+    category: "ai",
+    use: "translate <lang> | <text>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply("❗️Usage: .translate en | Bonjour", '🌍');
+
+        let targetLang = 'en';
+        let text = q;
+
+        if (q.includes("|")) {
+            const parts = q.split("|");
+            targetLang = parts[0].trim().toLowerCase();
+            text = parts.slice(1).join("|").trim();
+        }
+
+        const translatePrompt = `Translate the following text to ${targetLang}: "${text}". Only provide the translation, no explanation.`;
+        const result = await callPrinceAI(translatePrompt);
+        
+        if (result.success) {
+            await reply(`🌍 *Translation (${targetLang.toUpperCase()})*\n\n${result.data}`, '🌍');
+        } else {
+            await reply(errorMg);
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ SUMMARIZE ============================
+cmd({
+    pattern: "summarize",
+    react: "📝",
+    alias: ["sum", "summary", "tldr"],
+    desc: "Summarize text or article",
+    category: "ai",
+    use: "summarize <text>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply("❗️Please provide text to summarize", '📝');
+
+        const summarizePrompt = `Summarize the following text in a concise manner: "${q}"`;
+        const result = await callPrinceAI(summarizePrompt);
+        
+        if (result.success) {
+            await reply(`📝 *Summary*\n\n${result.data}`, '📝');
+        } else {
+            await reply(errorMg);
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ EXPLAIN ============================
+cmd({
+    pattern: "explain",
+    react: "📚",
+    alias: ["eli5", "define"],
+    desc: "Explain a concept simply",
+    category: "ai",
+    use: "explain <topic>",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q }) => {
+    try {
+        if (!q) return await reply("❗️Please provide a topic to explain", '📚');
+
+        const explainPrompt = `Explain "${q}" in simple terms that anyone can understand. Be concise but thorough.`;
+        const result = await callPrinceAI(explainPrompt);
+        
+        if (result.success) {
+            await reply(`📚 *Explanation: ${q}*\n\n${result.data}`, '📚');
+        } else {
+            await reply(errorMg);
+        }
+
+    } catch (e) {
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        console.error(e);
+        await reply(errorMg);
+    }
+});
+
+//============================ BIBLE AI COMMAND ============================
+const bibleSourcesCache = new Map();
+
+cmd({
+    pattern: "bibleai",
+    react: "📖",
+    alias: ["aibible", "scripture"],
+    desc: "Ask Bible-based questions and get answers with references",
+    category: "ai",
+    use: "bibleai <question>",
+    filename: __filename
+},
+async (conn, mek, m, { from, args, reply, prefix, q }) => {
+    if (!q) return await reply(`📖 Ask a Bible question.\n\nExample: ${prefix}bibleai what is faith`);
+
+    try {
+        const res = await axios.get(`https://apiskeith.vercel.app/ai/bible?q=${encodeURIComponent(q)}`);
+        const data = res.data;
+
+        if (!data.status || !data.result?.results?.data?.answer) {
+            return reply("❌ No Bible answer found.");
+        }
+
+        const answer = data.result.results.data.answer;
+        const sources = data.result.results.data.sources;
+
+        const caption = `📖 *${q}*\n\n${answer}\n\n📌 *Sources:* Reply with a number to view\n` +
+            sources.map((src, i) => {
+                if (src.type === "verse") return `${i + 1}. 📜 ${src.text}`;
+                if (src.type === "article") return `${i + 1}. 📘 ${src.title}`;
+                return `${i + 1}. ${src.text || src.title || "Source"}`;
+            }).join("\n");
+
+        const sent = await conn.sendMessage(from, { text: caption }, { quoted: mek });
+        const messageId = sent.key.id;
+        
+        bibleSourcesCache.set(messageId, { sources, from, timestamp: Date.now() });
+        
+        setTimeout(() => bibleSourcesCache.delete(messageId), 5 * 60 * 1000);
+
+    } catch (e) {
+        console.error("bibleai error:", e);
+        await reply("❌ Error fetching Bible answer: " + e.message);
+    }
+});
+
+cmd({
+    on: "body"
+}, async (conn, mek, m, { from, body }) => {
+    try {
+        const quoted = mek.message?.extendedTextMessage?.contextInfo;
+        if (!quoted?.stanzaId) return;
+        
+        const cached = bibleSourcesCache.get(quoted.stanzaId);
+        if (!cached || cached.from !== from) return;
+        
+        const index = parseInt(body?.trim()) - 1;
+        if (isNaN(index)) return;
+        
+        const selected = cached.sources[index];
+        if (!selected) {
+            return conn.sendMessage(from, { text: "❌ Invalid number. Reply with a valid source number." }, { quoted: mek });
+        }
+
+        await conn.sendMessage(from, { react: { text: "📖", key: mek.key } });
+
+        if (selected.type === "verse") {
+            const ref = selected.bcv?.referenceLong?.replace(/\s+/g, "").replace(":", ":") || selected.text;
+            try {
+                const verseRes = await axios.get(`https://apiskeith.vercel.app/search/bible?q=${encodeURIComponent(ref)}`);
+                const verseData = verseRes.data;
+
+                if (!verseData.status || !verseData.result?.verses) {
+                    return conn.sendMessage(from, { text: `❌ Couldn't fetch verse: ${selected.text}` }, { quoted: mek });
+                }
+
+                const verses = verseData.result.verses.map(v =>
+                    `📖 *${v.book} ${v.chapter}:${v.verse}*\n${v.text}`
+                ).join("\n\n");
+
+                await conn.sendMessage(from, { text: verses }, { quoted: mek });
+            } catch (err) {
+                console.error("Verse fetch error:", err);
+                await conn.sendMessage(from, { text: "❌ Error fetching verse text." }, { quoted: mek });
+            }
+        } else if (selected.type === "article") {
+            await conn.sendMessage(from, {
+                image: { url: selected.image },
+                caption: `📘 *${selected.title}*\n\n${selected.text}\n\n🔗 ${selected.url}`
+            }, { quoted: mek });
+        }
+    } catch (e) {
+        console.log("Bible source handler error:", e.message);
+    }
+});

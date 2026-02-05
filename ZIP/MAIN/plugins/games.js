@@ -1,6 +1,2935 @@
+const axios = require("axios");
+const { cmd } = require("../command");
 
+// ================= CONFIG =================
+const config = require("../config");
 
+// ================= LANGUAGE =================
+const allLangs = require("../lib/language.json");
+const LANG = config.LANG === 'EN' ? 'EN' 
+         : config.LANG === 'FR' ? 'FR' 
+         : 'EN';
+const lang = allLangs[LANG];
 
+// Import game strings
+const {
+    flagGameStarted, flagGameAlreadyRunning, flagGameNotRunning, flagGameHostOnlyStop, flagGameStopped,
+    flagRoundText, flagCorrectAnswer, flagWrongAnswer, flagTimeExceeded, flagGameOver, flagAlreadyJoined,
+    flagJoined, flagGameCancelled,
+    
+    triviaGameStarted, triviaGameAlreadyRunning, triviaRoundText, triviaCorrect, triviaWrong,
+    triviaTimeExceeded, triviaGameOver, triviaGameCancelled,
+    
+    guessGameStarted, guessGameAlreadyRunning, guessRoundText, guessCorrect, guessWrong,
+    guessTimeExceeded, guessGameOver, guessGameCancelled,
+    
+    tttGameStart, tttWinner, tttDraw, tttGameEnded, tttNoGame, tttReplyToStart,
+    tttCantPlaySelf, tttPlayerAlreadyInGame, tttNotYourTurn, tttPositionUsed,
+    
+    gameOnlyInGroups, triviaOnlyInGroups, guessOnlyInGroups
+} = lang;
 
+// Helper function to format strings with placeholders
+function formatString(template, replacements) {
+    let result = template;
+    for (const [key, value] of Object.entries(replacements)) {
+        result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+    }
+    return result;
+}
 
-const ljX_RP=jPV$MHiBAkHT_D;(function(Cjb_$FPbzcgOhHlyj,mKUFO$RTevVq$wr){const PJjDwErEuJAdbFGA=jPV$MHiBAkHT_D,ffrgXUrea$vY_weceULb=Cjb_$FPbzcgOhHlyj();while(!![]){try{const ogZ$Tskx=Math['trunc'](parseFloat(PJjDwErEuJAdbFGA(0x1c4))/(parseFloat(-parseInt(0x4b4))+parseInt(0xb89)+Math.ceil(-parseInt(0x6d4))))+-parseFloat(PJjDwErEuJAdbFGA(0x231))/(-parseInt(0xf52)+parseFloat(-parseInt(0x1d9f))+Math.floor(0x1)*0x2cf3)+parseFloat(-parseFloat(PJjDwErEuJAdbFGA(0x259))/(parseInt(0xb)*Number(0x2ba)+parseInt(-parseInt(0x5))*Math.ceil(0x253)+-0x125c))+parseFloat(PJjDwErEuJAdbFGA(0x25a))/(-parseInt(0x6f2)+parseInt(0x3ba)*parseFloat(-parseInt(0x3))+parseInt(0xac)*parseInt(0x1b))+parseFloat(PJjDwErEuJAdbFGA(0x216))/(Math.ceil(-parseInt(0xe5))*0x2b+Math.trunc(0x65b)+parseInt(0x2021))*(parseFloat(PJjDwErEuJAdbFGA(0x238))/(Number(-parseInt(0x9b))*Math.trunc(parseInt(0x3b))+Math.ceil(-parseInt(0x59f))*-parseInt(0x1)+-0x2*parseFloat(-parseInt(0xf10))))+-parseFloat(PJjDwErEuJAdbFGA(0x1c0))/(-0x6a1*parseInt(0x1)+0x1*parseInt(0x25f9)+Math.trunc(0x1)*Math.floor(-0x1f51))*parseFloat(-parseFloat(PJjDwErEuJAdbFGA(0x1fe))/(parseFloat(-0x1387)*parseInt(0x2)+parseInt(0x9)*-parseInt(0x139)+parseFloat(0x3217)*0x1))+-parseFloat(PJjDwErEuJAdbFGA(0x21b))/(parseFloat(parseInt(0x1009))+Number(-parseInt(0x7))*parseInt(0x4b)+0x1*-parseInt(0xdf3))*(parseFloat(PJjDwErEuJAdbFGA(0x1e0))/(Math.trunc(-0x2)*-parseInt(0xca2)+Math.max(-parseInt(0x115),-parseInt(0x115))+Math.trunc(parseInt(0x373))*-parseInt(0x7)));if(ogZ$Tskx===mKUFO$RTevVq$wr)break;else ffrgXUrea$vY_weceULb['push'](ffrgXUrea$vY_weceULb['shift']());}catch(RvsUsOWMsjtOZKjdQQheAzB){ffrgXUrea$vY_weceULb['push'](ffrgXUrea$vY_weceULb['shift']());}}}(WJNSLoCHwcjNd$N_nRkFw,parseFloat(-0x1a1331)+parseInt(0x1b6fdc)+0x1c995*parseInt(0x7)));const axios=require(ljX_RP(0x20e)),{cmd}=require(ljX_RP(0x1e9)),config=require(ljX_RP(0x1e5)),allLangs=require(ljX_RP(0x1d4)),LANG=config[ljX_RP(0x264)]==='EN'?'EN':config[ljX_RP(0x264)]==='FR'?'FR':'EN',lang=allLangs[LANG],{flagGameStarted,flagGameAlreadyRunning,flagGameNotRunning,flagGameHostOnlyStop,flagGameStopped,flagRoundText,flagCorrectAnswer,flagWrongAnswer,flagTimeExceeded,flagGameOver,flagAlreadyJoined,flagJoined,flagGameCancelled,triviaGameStarted,triviaGameAlreadyRunning,triviaRoundText,triviaCorrect,triviaWrong,triviaTimeExceeded,triviaGameOver,triviaGameCancelled,guessGameStarted,guessGameAlreadyRunning,guessRoundText,guessCorrect,guessWrong,guessTimeExceeded,guessGameOver,guessGameCancelled,tttGameStart,tttWinner,tttDraw,tttGameEnded,tttNoGame,tttReplyToStart,tttCantPlaySelf,tttPlayerAlreadyInGame,tttNotYourTurn,tttPositionUsed,gameOnlyInGroups,triviaOnlyInGroups,guessOnlyInGroups}=lang;function formatString(aSvkRudMEdrQsXy$yPJtJyJS,Tcwrss_jycpL$XBDW){const l$DMvxSSYg$VrTwFrZBXHuDvLt=ljX_RP;let Hw_fMlpXMiMyPGeuZbuj_YIX=aSvkRudMEdrQsXy$yPJtJyJS;for(const [pltthC,JUcL_nWxKhfaLmAY_JK]of Object[l$DMvxSSYg$VrTwFrZBXHuDvLt(0x1fa)](Tcwrss_jycpL$XBDW)){Hw_fMlpXMiMyPGeuZbuj_YIX=Hw_fMlpXMiMyPGeuZbuj_YIX[l$DMvxSSYg$VrTwFrZBXHuDvLt(0x202)](new RegExp('\x5c{'+pltthC+'\x5c}','g'),JUcL_nWxKhfaLmAY_JK);}return Hw_fMlpXMiMyPGeuZbuj_YIX;}const flagGames=new Map(),triviaGames=new Map(),guessGames=new Map(),FLAG_DATA_URL=ljX_RP(0x1d0);let flagCache=null,lastFetch=parseInt(-0xa99)*-0x1+parseFloat(-0x1806)+Math.max(0xd6d,0xd6d);const CACHE_TIME=(parseInt(parseInt(0x1b1a))+Math.max(-parseInt(0x1ed3),-0x1ed3)+-parseInt(0x3be)*-0x1)*(Math.floor(parseInt(0x1796))+Math.trunc(-parseInt(0x2))*parseInt(0xd3f)+Number(0x324))*(-parseInt(0xc)*Math.floor(0x6)+Math.ceil(-0x2b)*Math.trunc(parseInt(0x65))+0x1527);async function fetchFlags(){const GxYNsqvHvRrXSe=ljX_RP,vCfBIM=Date[GxYNsqvHvRrXSe(0x245)]();if(flagCache&&vCfBIM-lastFetch<CACHE_TIME)return flagCache;try{const ysrPfjEADjjmufYpilROUeZs=await axios[GxYNsqvHvRrXSe(0x252)](FLAG_DATA_URL,{'timeout':0x2710});if(Array[GxYNsqvHvRrXSe(0x21f)](ysrPfjEADjjmufYpilROUeZs[GxYNsqvHvRrXSe(0x24e)]))return flagCache=ysrPfjEADjjmufYpilROUeZs[GxYNsqvHvRrXSe(0x24e)],lastFetch=vCfBIM,flagCache;}catch(egAT$qZRqgmD$EbVWpzai){console[GxYNsqvHvRrXSe(0x221)](GxYNsqvHvRrXSe(0x1d3),egAT$qZRqgmD$EbVWpzai[GxYNsqvHvRrXSe(0x1de)]);}return[{'flag':GxYNsqvHvRrXSe(0x1e7),'country':GxYNsqvHvRrXSe(0x26b),'capital':GxYNsqvHvRrXSe(0x227),'continent':GxYNsqvHvRrXSe(0x232),'options':[GxYNsqvHvRrXSe(0x26b),GxYNsqvHvRrXSe(0x1bb),GxYNsqvHvRrXSe(0x26e),GxYNsqvHvRrXSe(0x1ce)]},{'flag':GxYNsqvHvRrXSe(0x23c),'country':GxYNsqvHvRrXSe(0x236),'capital':GxYNsqvHvRrXSe(0x25c),'continent':GxYNsqvHvRrXSe(0x250),'options':[GxYNsqvHvRrXSe(0x236),GxYNsqvHvRrXSe(0x22d),GxYNsqvHvRrXSe(0x218),GxYNsqvHvRrXSe(0x1ee)]},{'flag':GxYNsqvHvRrXSe(0x1c8),'country':GxYNsqvHvRrXSe(0x1c6),'capital':GxYNsqvHvRrXSe(0x275),'continent':GxYNsqvHvRrXSe(0x219),'options':[GxYNsqvHvRrXSe(0x1c6),GxYNsqvHvRrXSe(0x1df),GxYNsqvHvRrXSe(0x265),GxYNsqvHvRrXSe(0x22e)]}];}function nextFlagTurn(jPFKwpfdAyN){const pZqgNl$Z_g=ljX_RP;jPFKwpfdAyN[pZqgNl$Z_g(0x1fc)]++,jPFKwpfdAyN[pZqgNl$Z_g(0x1fc)]>=jPFKwpfdAyN[pZqgNl$Z_g(0x261)][pZqgNl$Z_g(0x226)]&&(jPFKwpfdAyN[pZqgNl$Z_g(0x1fc)]=-parseInt(0x109)*-parseInt(0x8)+-parseInt(0x1be)+parseInt(-parseInt(0x68a)),jPFKwpfdAyN[pZqgNl$Z_g(0x267)]++);}function shuffleArray(uahjGh){const U$ixTDJDqYJIHEZzBPHG=ljX_RP,fH$Qhj$C=[...uahjGh];for(let uDltVAPrszhJcr$C$QJSmDn=fH$Qhj$C[U$ixTDJDqYJIHEZzBPHG(0x226)]-(parseInt(0x495)*parseInt(0x8)+-0x1f4e+-parseInt(0x559));uDltVAPrszhJcr$C$QJSmDn>0x1a5*Math.trunc(0x1)+Math.ceil(-parseInt(0x1977))*0x1+0x2*0xbe9;uDltVAPrszhJcr$C$QJSmDn--){const HzAwmDgZIC_PrW_E=Math[U$ixTDJDqYJIHEZzBPHG(0x1e1)](Math[U$ixTDJDqYJIHEZzBPHG(0x1c2)]()*(uDltVAPrszhJcr$C$QJSmDn+(Math.floor(0x335)*Math.ceil(-parseInt(0x7))+-0xd9b+parseInt(0x240f)*parseInt(0x1))));[fH$Qhj$C[uDltVAPrszhJcr$C$QJSmDn],fH$Qhj$C[HzAwmDgZIC_PrW_E]]=[fH$Qhj$C[HzAwmDgZIC_PrW_E],fH$Qhj$C[uDltVAPrszhJcr$C$QJSmDn]];}return fH$Qhj$C;}async function startFlagRound(DN_zTog$omgcF,SQ$yy_tEJ){const UJfePZBy$$eGCR=ljX_RP,XYMYnGJuXITeeYsxJP_qvpWqvZ=flagGames[UJfePZBy$$eGCR(0x252)](SQ$yy_tEJ);if(!XYMYnGJuXITeeYsxJP_qvpWqvZ)return;if(XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x267)]>XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x21e)]){await endFlagGame(DN_zTog$omgcF,SQ$yy_tEJ);return;}const BuErCCJJXndRoZWqZux=await fetchFlags(),FFnZOhJO__AcHudqWdtNhojfZkO=BuErCCJJXndRoZWqZux[UJfePZBy$$eGCR(0x1db)](NXF_NoVMWA_VhgY=>!XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x1f1)][UJfePZBy$$eGCR(0x23b)](NXF_NoVMWA_VhgY[UJfePZBy$$eGCR(0x1f2)])),ItgfSW=FFnZOhJO__AcHudqWdtNhojfZkO[UJfePZBy$$eGCR(0x226)]>-parseInt(0x1f2)*0x7+parseInt(0x1)*parseInt(0x17da)+-parseInt(0xa3c)?FFnZOhJO__AcHudqWdtNhojfZkO[Math[UJfePZBy$$eGCR(0x1e1)](Math[UJfePZBy$$eGCR(0x1c2)]()*FFnZOhJO__AcHudqWdtNhojfZkO[UJfePZBy$$eGCR(0x226)])]:BuErCCJJXndRoZWqZux[Math[UJfePZBy$$eGCR(0x1e1)](Math[UJfePZBy$$eGCR(0x1c2)]()*BuErCCJJXndRoZWqZux[UJfePZBy$$eGCR(0x226)])],XU_MPhVaXmh=shuffleArray([...ItgfSW[UJfePZBy$$eGCR(0x276)]]),fdwGT$vDuRXlWcxrCsXeIRIhG=XU_MPhVaXmh[UJfePZBy$$eGCR(0x200)](MW_XbqxVONVUUdSpkyqkgDpQMU=>MW_XbqxVONVUUdSpkyqkgDpQMU===ItgfSW[UJfePZBy$$eGCR(0x1f2)]);XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x1f1)][UJfePZBy$$eGCR(0x24a)](ItgfSW[UJfePZBy$$eGCR(0x1f2)]),XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x1da)]={...ItgfSW,'shuffledOptions':XU_MPhVaXmh,'correctNumber':fdwGT$vDuRXlWcxrCsXeIRIhG+(Math.floor(0x1071)*Math.max(parseInt(0x1),parseInt(0x1))+parseInt(0xc35)+Number(-parseInt(0x1ca5)))};const xRqrHzfanyqgczhXMM_zgYUuFT=XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x261)][XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x1fc)]],weVd_ZMBsK$MXjmMEehFAaO=XU_MPhVaXmh[UJfePZBy$$eGCR(0x20b)]((PauwGIWJBFjWXIA,CAbBdORd_XtUM_GjwWJXkc)=>'•\x20'+(CAbBdORd_XtUM_GjwWJXkc+(Math.floor(-0xad)*Math.floor(0x17)+parseInt(-0x25a)*parseInt(0x5)+-parseInt(0x1d2)*Number(-parseInt(0xf))))+'.\x20'+PauwGIWJBFjWXIA)[UJfePZBy$$eGCR(0x21d)]('\x0a');await DN_zTog$omgcF[UJfePZBy$$eGCR(0x246)](SQ$yy_tEJ,{'text':formatString(flagRoundText,{'round':XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x267)],'maxRounds':XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x21e)],'flag':ItgfSW[UJfePZBy$$eGCR(0x1f3)],'options':weVd_ZMBsK$MXjmMEehFAaO,'player':xRqrHzfanyqgczhXMM_zgYUuFT['id'][UJfePZBy$$eGCR(0x212)]('@')[Math.trunc(parseInt(0x1446))+parseInt(0x24ef)+Number(-0x91)*parseInt(0x65)]}),'mentions':[xRqrHzfanyqgczhXMM_zgYUuFT['id']]});if(XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x224)])clearTimeout(XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x224)]);XYMYnGJuXITeeYsxJP_qvpWqvZ[UJfePZBy$$eGCR(0x224)]=setTimeout(async()=>{const kTaxFJiIrWm$$BrSDGd=UJfePZBy$$eGCR;if(!flagGames[kTaxFJiIrWm$$BrSDGd(0x223)](SQ$yy_tEJ))return;await DN_zTog$omgcF[kTaxFJiIrWm$$BrSDGd(0x246)](SQ$yy_tEJ,{'text':formatString(flagTimeExceeded,{'player':xRqrHzfanyqgczhXMM_zgYUuFT['id'][kTaxFJiIrWm$$BrSDGd(0x212)]('@')[Number(-0x14dc)+Math.ceil(-0x15d6)*Math.max(-0x1,-parseInt(0x1))+-0xfa],'country':ItgfSW[kTaxFJiIrWm$$BrSDGd(0x1f2)]}),'mentions':[xRqrHzfanyqgczhXMM_zgYUuFT['id']]}),nextFlagTurn(XYMYnGJuXITeeYsxJP_qvpWqvZ),await startFlagRound(DN_zTog$omgcF,SQ$yy_tEJ);},Number(-parseInt(0xde1f))+0x35b0*-parseInt(0x1)+-parseInt(0x1)*-parseInt(0x188ff));}async function endFlagGame(yWzwF,XKGTRdEmFZPqzDRghaCn){const SHLAI=ljX_RP,lKgektszMvvFGsVSLa_UoS=flagGames[SHLAI(0x252)](XKGTRdEmFZPqzDRghaCn);if(!lKgektszMvvFGsVSLa_UoS)return;const AtRqm$sVaeuOIO=Array[SHLAI(0x258)](lKgektszMvvFGsVSLa_UoS[SHLAI(0x277)][SHLAI(0x1fa)]());AtRqm$sVaeuOIO[SHLAI(0x1f8)]((VV$UELzrpk,noeEMymzAQEj_pYr$CnrybQ)=>noeEMymzAQEj_pYr$CnrybQ[-parseInt(0x1)*Math.floor(parseInt(0x1219))+parseInt(0x2325)+-0x110b]-VV$UELzrpk[-0x1779*-0x1+Math.max(-parseInt(0x81a),-parseInt(0x81a))*0x4+parseFloat(parseInt(0x8f0))]);let KlsyougrditBWgPI='';const rU_KWEvmijxyLJUmQd=[];AtRqm$sVaeuOIO[SHLAI(0x241)](([ixYNl$H,oktFFNs_jR$s],AciVM_JLx$AXPfAemlTs)=>{const tMn_stOfzXKplJY$W=SHLAI;rU_KWEvmijxyLJUmQd[tMn_stOfzXKplJY$W(0x24a)](ixYNl$H),KlsyougrditBWgPI+=AciVM_JLx$AXPfAemlTs+(Math.trunc(-parseInt(0xe2))*0xf+0x121d+-0x2*parseInt(0x26f))+tMn_stOfzXKplJY$W(0x220)+ixYNl$H[tMn_stOfzXKplJY$W(0x212)]('@')[-0x12*0x94+-0x1525+-0x29*-0xc5]+tMn_stOfzXKplJY$W(0x243)+oktFFNs_jR$s+tMn_stOfzXKplJY$W(0x1dc);}),await yWzwF[SHLAI(0x246)](XKGTRdEmFZPqzDRghaCn,{'text':formatString(flagGameOver,{'scores':KlsyougrditBWgPI}),'mentions':rU_KWEvmijxyLJUmQd}),lKgektszMvvFGsVSLa_UoS[SHLAI(0x224)]&&clearTimeout(lKgektszMvvFGsVSLa_UoS[SHLAI(0x224)]),flagGames[SHLAI(0x1c9)](XKGTRdEmFZPqzDRghaCn);}function WJNSLoCHwcjNd$N_nRkFw(){const DecOTsJkK_QOlPEcVR=['4d4150','5454454e44','4a4f494e7048415345','4158494f53','5155455354494f4e','14cf98afc2a383','424f4459','53504c4954','4c4153546d4f5645','454e44','53454e444552','1117161566466e6f4853','15cf98afc2a383','6745524d414e59','61534941','47414d4574494d454f5554','181213181817496e69485561','5641524941424c45','4a4f494e','4d4158724f554e4453','49536152524159','0e0060','4c4f47','c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a42a','484153','5455524e74494d454f5554','4841524457415245','4c454e475448','77415348494e47544f4e00640e630e','454c455048414e54','53485546464c45446f5054494f4e53','c2bdac0067414d450048414e444c4552004552524f521a','5052494e544552','46494e44','6652414e4345','744841494c414e44','11cf98afc2a383','48545450531a0f0f4f50454e5444420e434f4d0f4150490e5048501f414d4f554e541d1106545950451d4d554c5449504c45','191516131210436b596b446c','6e4f52544800614d4552494341','17cf98afc2a383','4d4f4e49544f52','43555252454e54774f5244','754e49544544006b494e47444f4d','53544f50464c4147','1117161518726464765144','53554343455353','53544f50545454','494e434c55444553','d0bfa78cd0bfa787','4e4554574f524b','534554','414c474f524954484d','42414e414e41','464f5265414348','4755455353574f5244','00c2a6b200','494e434f52524543547f414e5357455253','4e4f57','53454e446d455353414745','534f465457415245','56414c554553','54524956494147414d45','50555348','73544f5000464c41470047414d45','00c2b4a300','704c4159455211','44415441','414e44524f4944','6555524f5045','47414d4553','474554','57494e','654e4400744943744143744f45','4649524557414c4c','c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4c2b4a4','774841540049530012000b00121f','46524f4d','14191613171113726752714944','111017121116184b4c45666971','12cf98afc2a383','6c4f4e444f4e','53544f50545249564941','53455474494d454f5554','18cf98afc2a383','43555252454e547155455354494f4e','504c4159455253','4a415641534352495054','53544f504755455353','6c616e67','734f555448006b4f524541','4b4559424f415244','524f554e44','494e5445524e4554','54454c454752414d','47414d45','754e4954454400735441544553','4d4943524f50484f4e45','43524541544567414d45','6d455849434f','735441525400464c4147004755455353494e470047414d45','524553554c5453','54455854','46554e4354494f4e','434845434b77494e4e4552','0e0e0e','744f4b594f','4f5054494f4e53','53434f524553','7354415254004d554c5449504c41594552005452495649410047414d45','5455524e73544152544544','434f5252454354','63414e414441','454e4352595054494f4e','704c4159455212','5354415445','46494c4c','1412586945487a4a','5748415453415050','52414e444f4d','545454','1116121117181752785049414a','544f6c4f57455263415345','6a4150414e','73544f50005452495649410047414d45','d0bfa78fd0bfa795','44454c455445','4558504f525453','73544f50006755455353774f52440047414d45','46524f4d6d45','4845414450484f4e45','6252415a494c','53594d424f4c53','48545450531a0f0f5241570e47495448554255534552434f4e54454e540e434f4d0f6d4159454c5052494e43450f47414d45530f524546530f48454144530f4d41494e0f464c414747414d450f464c4147530e4a534f4e','4d414b456d4f5645','13cf98afc2a383','6641494c454400544f00464554434800464c4147531a','0e0e0f4c49420f4c414e47554147450e4a534f4e','5343414e4e4552','50494e454150504c45','47455467414d45','5452494d','524f424f54494353','43555252454e54664c4147','46494c544552','005054532a','50524f4752414d4d494e47','4d455353414745','6348494e41','15104e55596f434e','464c4f4f52','43555252454e54704c41594552','73544f5000744943744143744f450047414d45','4441544142415345','0e0e0f434f4e464947','464f524d4154624f415244','d0bfa79ad0bfa798','16cf98afc2a383','0e0e0f434f4d4d414e44','434f4d5055544552','4b4559','4e455854','735441525400744943744143744f45','735041494e','54455354','544543484e4f4c4f4759','55534544','434f554e545259','464c4147','454e44694e5445524e414c','5345435552495459','424f415244','4f50504f4e454e54','534f5254','44524157','454e5452494553','54494d454f555453','43555252454e54694e444558','444556454c4f504552','171611131112467070515543','484f5354','46494e44694e444558','534552564552','5245504c414345','5445524d494e414c','464c414747414d45','53495a45','7354415254004d554c5449504c4159455200675545535300774f52440047414d45','434f52524543547f414e53574552','19cf98afc2a383','434c45415274494d454f5554','4c4150544f50'];WJNSLoCHwcjNd$N_nRkFw=function(){return DecOTsJkK_QOlPEcVR;};return WJNSLoCHwcjNd$N_nRkFw();}async function handleFlagInput(UlFoEGIiZdlAkuCWUwuB$PU,X$GgjRxCkQFem$jzyE,wE_IJpuUWF,FTLMIIR$THXMZyQu,dE_rDb){const fkPrxJSvSBVsqyzpafksPhL=ljX_RP,XcdusDexf_mDFT_KU=flagGames[fkPrxJSvSBVsqyzpafksPhL(0x252)](wE_IJpuUWF);if(!XcdusDexf_mDFT_KU)return![];if(X$GgjRxCkQFem$jzyE[fkPrxJSvSBVsqyzpafksPhL(0x1eb)][fkPrxJSvSBVsqyzpafksPhL(0x1cc)])return!![];if(XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x20d)]&&dE_rDb===fkPrxJSvSBVsqyzpafksPhL(0x21d)){const bylYJ_QvtXDtz$FRWyCt=XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x261)][fkPrxJSvSBVsqyzpafksPhL(0x22c)](mnEKuLPLBsabwST=>mnEKuLPLBsabwST['id']===FTLMIIR$THXMZyQu);if(bylYJ_QvtXDtz$FRWyCt)return await UlFoEGIiZdlAkuCWUwuB$PU[fkPrxJSvSBVsqyzpafksPhL(0x246)](wE_IJpuUWF,{'text':formatString(flagAlreadyJoined,{'player':FTLMIIR$THXMZyQu[fkPrxJSvSBVsqyzpafksPhL(0x212)]('@')[Math.floor(-parseInt(0x7))*Math.trunc(-0x4e2)+-0x2506*parseInt(0x1)+Math.max(-parseInt(0x7),-parseInt(0x7))*Number(-parseInt(0x68))],'players':XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x261)][fkPrxJSvSBVsqyzpafksPhL(0x226)]}),'mentions':[FTLMIIR$THXMZyQu]}),!![];return XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x261)][fkPrxJSvSBVsqyzpafksPhL(0x24a)]({'id':FTLMIIR$THXMZyQu}),XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x277)][fkPrxJSvSBVsqyzpafksPhL(0x23e)](FTLMIIR$THXMZyQu,-parseInt(0x1936)+Math.floor(-0x43)*parseInt(0x58)+-parseInt(0xd)*Math.max(-parseInt(0x3b6),-parseInt(0x3b6))),await UlFoEGIiZdlAkuCWUwuB$PU[fkPrxJSvSBVsqyzpafksPhL(0x246)](wE_IJpuUWF,{'text':formatString(flagJoined,{'player':FTLMIIR$THXMZyQu[fkPrxJSvSBVsqyzpafksPhL(0x212)]('@')[parseInt(0x1b26)+-parseInt(0xa)*-parseInt(0x13d)+Math.max(-0x73,-parseInt(0x73))*0x58],'players':XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x261)][fkPrxJSvSBVsqyzpafksPhL(0x226)]}),'mentions':[FTLMIIR$THXMZyQu]}),!![];}if(XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x20d)]||!XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1da)])return!![];XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x224)]&&(clearTimeout(XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x224)]),XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x224)]=null);const XSepLZjuuHOkrelaZPg=XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x261)][XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1fc)]];if(!XSepLZjuuHOkrelaZPg||XSepLZjuuHOkrelaZPg['id']!==FTLMIIR$THXMZyQu)return!![];const upQqzmPa_yK$PznIMcYajg=dE_rDb[fkPrxJSvSBVsqyzpafksPhL(0x1d8)](),K_l_JlwqT=XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1da)][fkPrxJSvSBVsqyzpafksPhL(0x1f2)];let deQD$fGBcwZkn_BogkNWzcY=![];if(/^[1-4]$/[fkPrxJSvSBVsqyzpafksPhL(0x1ef)](upQqzmPa_yK$PznIMcYajg)){const JpHTOHyR$GCr=parseInt(upQqzmPa_yK$PznIMcYajg)-(0x22cf+parseInt(0x21cf)+-0x5*Math.max(0xdb9,parseInt(0xdb9))),VQQFPrODliWVsf=XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1da)][fkPrxJSvSBVsqyzpafksPhL(0x229)][JpHTOHyR$GCr];VQQFPrODliWVsf&&VQQFPrODliWVsf===K_l_JlwqT&&(deQD$fGBcwZkn_BogkNWzcY=!![]);}else upQqzmPa_yK$PznIMcYajg[fkPrxJSvSBVsqyzpafksPhL(0x1c5)]()===K_l_JlwqT[fkPrxJSvSBVsqyzpafksPhL(0x1c5)]()&&(deQD$fGBcwZkn_BogkNWzcY=!![]);if(deQD$fGBcwZkn_BogkNWzcY){const RAKQVioDlFH_RMK$caiztMEFc=(XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x277)][fkPrxJSvSBVsqyzpafksPhL(0x252)](FTLMIIR$THXMZyQu)||parseInt(0x2297)+parseInt(0x17db)+Math.max(-parseInt(0x1d39),-0x1d39)*parseInt(0x2))+(-parseInt(0x1914)+Math.trunc(-0x629)*0x1+parseInt(0x1f47)*parseInt(0x1));XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x277)][fkPrxJSvSBVsqyzpafksPhL(0x23e)](FTLMIIR$THXMZyQu,RAKQVioDlFH_RMK$caiztMEFc),await UlFoEGIiZdlAkuCWUwuB$PU[fkPrxJSvSBVsqyzpafksPhL(0x246)](wE_IJpuUWF,{'text':formatString(flagCorrectAnswer,{'country':XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1da)][fkPrxJSvSBVsqyzpafksPhL(0x1f2)],'player':FTLMIIR$THXMZyQu[fkPrxJSvSBVsqyzpafksPhL(0x212)]('@')[-parseInt(0x1)*0x169f+0xb7f+Number(0xb20)]}),'mentions':[FTLMIIR$THXMZyQu]}),nextFlagTurn(XcdusDexf_mDFT_KU),await startFlagRound(UlFoEGIiZdlAkuCWUwuB$PU,wE_IJpuUWF);}else await UlFoEGIiZdlAkuCWUwuB$PU[fkPrxJSvSBVsqyzpafksPhL(0x246)](wE_IJpuUWF,{'text':formatString(flagWrongAnswer,{'country':XcdusDexf_mDFT_KU[fkPrxJSvSBVsqyzpafksPhL(0x1da)][fkPrxJSvSBVsqyzpafksPhL(0x1f2)]})}),nextFlagTurn(XcdusDexf_mDFT_KU),await startFlagRound(UlFoEGIiZdlAkuCWUwuB$PU,wE_IJpuUWF);return!![];}cmd({'pattern':ljX_RP(0x204),'desc':ljX_RP(0x26f),'category':ljX_RP(0x251),'filename':__filename},async(BEOqxIAOHwpesKjNv,TRsWKAFtiUmIYpJpcZ$tUKd,n_Il_qSjUIPxfKIwSPvxXoCVE,{from:GKfj$RXtTH,isGroup:XHMxUFeTLkzp$o_C,sender:WynnoYchmFhKBwiJboHjdmPXI,reply:Ysmo$d_RRRKaS})=>{const IqxlkLHVGMGbKzNbRfv$EynEAj=ljX_RP;if(!XHMxUFeTLkzp$o_C)return Ysmo$d_RRRKaS(gameOnlyInGroups);if(flagGames[IqxlkLHVGMGbKzNbRfv$EynEAj(0x223)](GKfj$RXtTH))return Ysmo$d_RRRKaS(flagGameAlreadyRunning);const Pduh_$o={'host':WynnoYchmFhKBwiJboHjdmPXI,'players':[{'id':WynnoYchmFhKBwiJboHjdmPXI}],'scores':new Map([[WynnoYchmFhKBwiJboHjdmPXI,-0x13e3*-0x1+parseInt(0x1c53)*-0x1+-0xd8*-0xa]]),'round':0x1,'maxRounds':0x5,'currentIndex':0x0,'currentFlag':null,'joinPhase':!![],'used':[],'turnTimeout':null};flagGames[IqxlkLHVGMGbKzNbRfv$EynEAj(0x23e)](GKfj$RXtTH,Pduh_$o),await BEOqxIAOHwpesKjNv[IqxlkLHVGMGbKzNbRfv$EynEAj(0x246)](GKfj$RXtTH,{'text':formatString(flagGameStarted,{'host':WynnoYchmFhKBwiJboHjdmPXI[IqxlkLHVGMGbKzNbRfv$EynEAj(0x212)]('@')[parseFloat(parseInt(0x1870))+parseFloat(parseInt(0x1d9))*0x1+Math.trunc(-0x1a49)]}),'mentions':[WynnoYchmFhKBwiJboHjdmPXI]},{'quoted':TRsWKAFtiUmIYpJpcZ$tUKd}),setTimeout(async()=>{const fShpH_pFijS$eTjeMz=IqxlkLHVGMGbKzNbRfv$EynEAj,JdusiTn_tKblSBJzakedzR=flagGames[fShpH_pFijS$eTjeMz(0x252)](GKfj$RXtTH);if(!JdusiTn_tKblSBJzakedzR||!JdusiTn_tKblSBJzakedzR[fShpH_pFijS$eTjeMz(0x20d)])return;JdusiTn_tKblSBJzakedzR[fShpH_pFijS$eTjeMz(0x20d)]=![];if(JdusiTn_tKblSBJzakedzR[fShpH_pFijS$eTjeMz(0x261)][fShpH_pFijS$eTjeMz(0x226)]<parseFloat(parseInt(0xd99))+-0x1c2c+Number(parseInt(0xe95)))return flagGames[fShpH_pFijS$eTjeMz(0x1c9)](GKfj$RXtTH),BEOqxIAOHwpesKjNv[fShpH_pFijS$eTjeMz(0x246)](GKfj$RXtTH,{'text':flagGameCancelled});await startFlagRound(BEOqxIAOHwpesKjNv,GKfj$RXtTH);},-0x1bf4*parseInt(0x2)+-0x2ba*-parseInt(0x3a)+parseInt(0xef4));}),cmd({'pattern':ljX_RP(0x237),'desc':ljX_RP(0x24b),'category':ljX_RP(0x251),'filename':__filename},async(Nj$O_rnH,i$QZwlx$iOZMHhEICkzxFTlZjyO,Vf__NgvYb,{from:OtzIWMSErIcaS,sender:cHmDQEz$Kz,reply:JCgSnhleBKOs$mXLgmcjTBSZh})=>{const ZSRVNFWxb=ljX_RP,VbS$pOIimlrgJUugkOGPAhvrj=flagGames[ZSRVNFWxb(0x252)](OtzIWMSErIcaS);if(!VbS$pOIimlrgJUugkOGPAhvrj)return JCgSnhleBKOs$mXLgmcjTBSZh(flagGameNotRunning);if(VbS$pOIimlrgJUugkOGPAhvrj[ZSRVNFWxb(0x1ff)]!==cHmDQEz$Kz)return JCgSnhleBKOs$mXLgmcjTBSZh(flagGameHostOnlyStop);VbS$pOIimlrgJUugkOGPAhvrj[ZSRVNFWxb(0x224)]&&clearTimeout(VbS$pOIimlrgJUugkOGPAhvrj[ZSRVNFWxb(0x224)]),await Nj$O_rnH[ZSRVNFWxb(0x246)](OtzIWMSErIcaS,{'text':formatString(flagGameStopped,{'host':cHmDQEz$Kz[ZSRVNFWxb(0x212)]('@')[0x445+-parseInt(0x147)+-0x1*0x2fe]}),'mentions':[cHmDQEz$Kz]}),flagGames[ZSRVNFWxb(0x1c9)](OtzIWMSErIcaS);});class TicTacToeManager{constructor(){const J_CawtQSEmxwEsq=ljX_RP;this[J_CawtQSEmxwEsq(0x251)]=new Map(),this[J_CawtQSEmxwEsq(0x1fb)]=new Map(),this[J_CawtQSEmxwEsq(0x21a)]=(parseFloat(-0x19c)+-parseInt(0x144f)+Math.trunc(0x750)*parseInt(0x3))*(parseFloat(0x3)*-parseInt(0x5df)+0x202b+Number(-parseInt(0xe52)))*(parseInt(0x7)*-parseInt(0xa9)+parseInt(parseInt(0xfc8))+0x3*-parseInt(0x26b));}[ljX_RP(0x26d)](BPeeVL_aHJ_PFLnfI,wQcdBTecv,We_FscFKHQjZaqWATVw){const ibnE$euuM=ljX_RP;if(!this[ibnE$euuM(0x251)][ibnE$euuM(0x223)](BPeeVL_aHJ_PFLnfI))this[ibnE$euuM(0x251)][ibnE$euuM(0x23e)](BPeeVL_aHJ_PFLnfI,new Map());const lCuXUyLQhZedsOBMHqaNc=this[ibnE$euuM(0x251)][ibnE$euuM(0x252)](BPeeVL_aHJ_PFLnfI);for(const EmxLa_hdeu of lCuXUyLQhZedsOBMHqaNc[ibnE$euuM(0x248)]()){if(EmxLa_hdeu[ibnE$euuM(0x261)][ibnE$euuM(0x23b)](wQcdBTecv)||EmxLa_hdeu[ibnE$euuM(0x261)][ibnE$euuM(0x23b)](We_FscFKHQjZaqWATVw))return{'success':![],'message':tttPlayerAlreadyInGame};}const QgTSrtFNciJYHloCi=wQcdBTecv+':'+We_FscFKHQjZaqWATVw,TCsAZQzBICSPYyrfFU={'players':[wQcdBTecv,We_FscFKHQjZaqWATVw],'board':Array(parseFloat(parseInt(0x9b1))*parseInt(parseInt(0x2))+Number(0x20cc)+-0x3425)[ibnE$euuM(0x1bf)](null),'currentPlayer':wQcdBTecv,'symbols':{[wQcdBTecv]:'❌',[We_FscFKHQjZaqWATVw]:'⭕'},'lastMove':Date[ibnE$euuM(0x245)]()};return lCuXUyLQhZedsOBMHqaNc[ibnE$euuM(0x23e)](QgTSrtFNciJYHloCi,TCsAZQzBICSPYyrfFU),this[ibnE$euuM(0x25e)](BPeeVL_aHJ_PFLnfI,QgTSrtFNciJYHloCi),{'success':!![],'gameId':QgTSrtFNciJYHloCi,'state':TCsAZQzBICSPYyrfFU};}[ljX_RP(0x1d7)](jkewHqEWRYgBTTsGe,eV$tLrXATx_AMUeF){const AYilOFUK$rLhyqH$Sxcio=ljX_RP;if(!this[AYilOFUK$rLhyqH$Sxcio(0x251)][AYilOFUK$rLhyqH$Sxcio(0x223)](jkewHqEWRYgBTTsGe))return null;for(const [fUqHVqbp,YVSahc_I_p]of this[AYilOFUK$rLhyqH$Sxcio(0x251)][AYilOFUK$rLhyqH$Sxcio(0x252)](jkewHqEWRYgBTTsGe)){if(YVSahc_I_p[AYilOFUK$rLhyqH$Sxcio(0x261)][AYilOFUK$rLhyqH$Sxcio(0x23b)](eV$tLrXATx_AMUeF))return{'id':fUqHVqbp,'game':YVSahc_I_p};}return null;}[ljX_RP(0x1d1)](dFFybdSCwTIwezTSHuvEBu,WE_$qpgwwWi,tUzEPyQdJpgrJHjppCd){const q_ykGgZlANr=ljX_RP,ZkrSPo=this[q_ykGgZlANr(0x1d7)](dFFybdSCwTIwezTSHuvEBu,WE_$qpgwwWi);if(!ZkrSPo)return{'success':![],'message':tttNoGame};const {id:HCiTPEPzBYWDqrYuA$o,game:hWfP_CH$Sr}=ZkrSPo;if(hWfP_CH$Sr[q_ykGgZlANr(0x1e2)]!==WE_$qpgwwWi)return{'success':![],'message':tttNotYourTurn};if(hWfP_CH$Sr[q_ykGgZlANr(0x1f6)][tUzEPyQdJpgrJHjppCd]!==null)return{'success':![],'message':tttPositionUsed};hWfP_CH$Sr[q_ykGgZlANr(0x1f6)][tUzEPyQdJpgrJHjppCd]=hWfP_CH$Sr[q_ykGgZlANr(0x1cf)][WE_$qpgwwWi],hWfP_CH$Sr[q_ykGgZlANr(0x213)]=Date[q_ykGgZlANr(0x245)](),this[q_ykGgZlANr(0x25e)](dFFybdSCwTIwezTSHuvEBu,HCiTPEPzBYWDqrYuA$o);const f$PqaGiJ=this[q_ykGgZlANr(0x273)](hWfP_CH$Sr[q_ykGgZlANr(0x1f6)]);if(f$PqaGiJ)return this[q_ykGgZlANr(0x1f4)](dFFybdSCwTIwezTSHuvEBu,HCiTPEPzBYWDqrYuA$o),{'success':!![],'board':hWfP_CH$Sr[q_ykGgZlANr(0x1f6)],'win':WE_$qpgwwWi};if(!hWfP_CH$Sr[q_ykGgZlANr(0x1f6)][q_ykGgZlANr(0x23b)](null))return this[q_ykGgZlANr(0x1f4)](dFFybdSCwTIwezTSHuvEBu,HCiTPEPzBYWDqrYuA$o),{'success':!![],'board':hWfP_CH$Sr[q_ykGgZlANr(0x1f6)],'draw':!![]};return hWfP_CH$Sr[q_ykGgZlANr(0x1e2)]=hWfP_CH$Sr[q_ykGgZlANr(0x261)][q_ykGgZlANr(0x22c)](WQRvanuvXGiXqJIrdiYUiI=>WQRvanuvXGiXqJIrdiYUiI!==WE_$qpgwwWi),{'success':!![],'board':hWfP_CH$Sr[q_ykGgZlANr(0x1f6)],'next':hWfP_CH$Sr[q_ykGgZlANr(0x1e2)]};}[ljX_RP(0x214)](eRfi$MgyBFjg,OgTSQpAuph_TbYGXhHTZo_jrxW){const BAvUzIbhQGQpvmvRno$psRXGR=ljX_RP,ZxJfMWALKyCtuiGhpjxxupzYe=this[BAvUzIbhQGQpvmvRno$psRXGR(0x1d7)](eRfi$MgyBFjg,OgTSQpAuph_TbYGXhHTZo_jrxW);if(!ZxJfMWALKyCtuiGhpjxxupzYe)return{'success':![],'message':tttNoGame};const PYmxmnpqFHSGACGs=ZxJfMWALKyCtuiGhpjxxupzYe[BAvUzIbhQGQpvmvRno$psRXGR(0x26a)][BAvUzIbhQGQpvmvRno$psRXGR(0x261)][BAvUzIbhQGQpvmvRno$psRXGR(0x22c)](n_FzPTgLUo_ZrzeLYG=>n_FzPTgLUo_ZrzeLYG!==OgTSQpAuph_TbYGXhHTZo_jrxW);return this[BAvUzIbhQGQpvmvRno$psRXGR(0x1f4)](eRfi$MgyBFjg,ZxJfMWALKyCtuiGhpjxxupzYe['id']),{'success':!![],'text':formatString(tttGameEnded,{'opponent':PYmxmnpqFHSGACGs[BAvUzIbhQGQpvmvRno$psRXGR(0x212)]('@')[Math.max(-0x14a8,-0x14a8)*-parseInt(0x1)+0xa8*-0x1c+Math.max(parseInt(0x2),0x2)*-0x124]}),'opponent':PYmxmnpqFHSGACGs};}[ljX_RP(0x1f4)](kDifIsuRcftheDxxL,kwhHgz_$LdNH){const qtYxBRYNIcDT=ljX_RP;if(this[qtYxBRYNIcDT(0x251)][qtYxBRYNIcDT(0x223)](kDifIsuRcftheDxxL)){this[qtYxBRYNIcDT(0x251)][qtYxBRYNIcDT(0x252)](kDifIsuRcftheDxxL)[qtYxBRYNIcDT(0x1c9)](kwhHgz_$LdNH);if(this[qtYxBRYNIcDT(0x251)][qtYxBRYNIcDT(0x252)](kDifIsuRcftheDxxL)[qtYxBRYNIcDT(0x205)]===Number(0x709)*-parseInt(0x3)+Number(-0x19)*0x14d+0x35a0)this[qtYxBRYNIcDT(0x251)][qtYxBRYNIcDT(0x1c9)](kDifIsuRcftheDxxL);}this[qtYxBRYNIcDT(0x209)](kDifIsuRcftheDxxL,kwhHgz_$LdNH);}[ljX_RP(0x273)](aKC_hzkPno){const Yt_LziKIn_I=[[parseInt(0x361)+-parseInt(0x21b4)+Math.max(parseInt(0x1e53),parseInt(0x1e53)),0x2471+parseInt(-0x207)+parseInt(-parseInt(0x2269)),parseInt(0x416)+Math.max(parseInt(0x4f),0x4f)*0x1+Number(-parseInt(0x1))*parseInt(parseInt(0x463))],[-0x6*Math.floor(-0x567)+parseFloat(-0x2)*parseInt(0x1358)+0x649,parseInt(0x1ab)*parseInt(-0x2)+Math.floor(parseInt(0x1aec))+-parseInt(0x1)*0x1792,parseInt(0x7d8)*0x1+-0x8b+Math.max(-0x748,-0x748)],[parseInt(parseInt(0x2))*-parseInt(0xe05)+-0x2062+Math.ceil(0x3c72),Math.trunc(-parseInt(0x1e7))*parseInt(0x1)+parseFloat(-parseInt(0xb))*-parseInt(0xd1)+Math.max(-0x70d,-0x70d),-parseInt(0x1e2)*Number(-parseInt(0x12))+parseInt(0xc9e)+parseFloat(-0x2e7a)],[Math.ceil(-0x1d)*0x50+Number(-0xbf2)+0xa81*0x2,0xc75+-parseInt(0x2)*parseInt(0x495)+Math.trunc(-0xa)*Math.max(0x54,parseInt(0x54)),-parseInt(0x200)+0x1f8d+parseInt(0x1d87)*Number(-parseInt(0x1))],[Number(-parseInt(0x164f))+Math.trunc(parseInt(0x17e5))*parseInt(0x1)+Math.max(-0x2d,-parseInt(0x2d))*0x9,-parseInt(0x1)*Math.ceil(parseInt(0x24a7))+Math.max(-0x19c3,-0x19c3)+Math.max(-parseInt(0x1f37),-0x1f37)*Math.trunc(-parseInt(0x2)),parseInt(-0x20b5)+0x13*parseInt(0x9)+parseInt(0x1)*0x2011],[parseInt(parseInt(0x256d))+parseInt(0x70d)+parseInt(0x163c)*Math.ceil(-0x2),Math.floor(0x1031)+Math.ceil(-parseInt(0x6))*0x3b2+Math.ceil(-parseInt(0xc))*-parseInt(0x80),Math.trunc(0xb)*0x70+Math.floor(0x1)*parseInt(0x18f5)+-0x1dbd],[parseInt(0xc09)*-0x3+Math.ceil(parseInt(0x4a))+Math.ceil(0x23d1),parseInt(0x1ec8)*-0x1+Math.trunc(parseInt(0x15f))*0x19+parseInt(0x3)*Number(-0x129),-0x26b2+parseInt(0x1f59)+0x1*0x761],[-0x8ef+0x20f2+-0x1801,0x2*Math.floor(-parseInt(0x21e))+0x1206+Math.ceil(parseInt(0x56))*Number(-0x29),-0x251e+Math.trunc(-0x26d1)+Number(-parseInt(0x4bf5))*-0x1]];for(const [WWuiTDrKqTaDTImoQSvXEJJQ,wbYlUBYLHNHZ$Fvu,SPQOO$DqQIkbIFEJwNvWNV_kkUx]of Yt_LziKIn_I){if(aKC_hzkPno[WWuiTDrKqTaDTImoQSvXEJJQ]&&aKC_hzkPno[WWuiTDrKqTaDTImoQSvXEJJQ]===aKC_hzkPno[wbYlUBYLHNHZ$Fvu]&&aKC_hzkPno[WWuiTDrKqTaDTImoQSvXEJJQ]===aKC_hzkPno[SPQOO$DqQIkbIFEJwNvWNV_kkUx])return!![];}return![];}[ljX_RP(0x1e6)](nuLtl_yQqzivN$cFDUsYZtDhzGA){const l$_wQjbn=ljX_RP,urtErHTq$Mfa=[l$_wQjbn(0x22f),l$_wQjbn(0x25b),l$_wQjbn(0x1d2),l$_wQjbn(0x210),l$_wQjbn(0x217),l$_wQjbn(0x1e8),l$_wQjbn(0x233),l$_wQjbn(0x25f),l$_wQjbn(0x208)];let xFPmmixOqnt=l$_wQjbn(0x222);for(let juwylLXfVzAguiWWMIoUAN=parseInt(-0xcd)*-0x1+parseInt(0xb)*Math.max(-0x2c5,-parseInt(0x2c5))+Math.max(0x1daa,parseInt(0x1daa));juwylLXfVzAguiWWMIoUAN<0x1*parseInt(0x5bd)+parseInt(0x4b7)*parseInt(0x2)+-0xa*parseInt(0x184);juwylLXfVzAguiWWMIoUAN++){xFPmmixOqnt+='┃\x20';for(let IeBHE$tibcawnwSQVloJfPWTs=Math.max(-0x5f6,-0x5f6)+parseInt(0xb)*Math.ceil(-0x341)+0x29c1;IeBHE$tibcawnwSQVloJfPWTs<0x2417+0x1287+Number(-parseInt(0x369b));IeBHE$tibcawnwSQVloJfPWTs++){const cr_$zncNvmG=juwylLXfVzAguiWWMIoUAN*(parseInt(0xfaf)+-parseInt(0x3)*0x4fb+Number(-parseInt(0xbb)))+IeBHE$tibcawnwSQVloJfPWTs;xFPmmixOqnt+=(nuLtl_yQqzivN$cFDUsYZtDhzGA[cr_$zncNvmG]||urtErHTq$Mfa[cr_$zncNvmG])+l$_wQjbn(0x24c);}xFPmmixOqnt+='\x0a';if(juwylLXfVzAguiWWMIoUAN<parseFloat(0x1632)+parseFloat(parseInt(0x41))*0x45+0x27b5*-0x1)xFPmmixOqnt+=l$_wQjbn(0x222);}return xFPmmixOqnt+l$_wQjbn(0x256);}[ljX_RP(0x25e)](TkFIpp$girWJmFfy,otjuQge$GcZeepjx){const mVyyV$KaSLGftFAieykpWDC=ljX_RP;this[mVyyV$KaSLGftFAieykpWDC(0x209)](TkFIpp$girWJmFfy,otjuQge$GcZeepjx);const C$KkRgJrKEpa$gYHEQfUwRl=setTimeout(()=>this[mVyyV$KaSLGftFAieykpWDC(0x1f4)](TkFIpp$girWJmFfy,otjuQge$GcZeepjx),this[mVyyV$KaSLGftFAieykpWDC(0x21a)]);this[mVyyV$KaSLGftFAieykpWDC(0x1fb)][mVyyV$KaSLGftFAieykpWDC(0x23e)](TkFIpp$girWJmFfy+':'+otjuQge$GcZeepjx,C$KkRgJrKEpa$gYHEQfUwRl);}[ljX_RP(0x209)](lYghybKkwfAnblOZB,K$PjztlmGo_Q){const z$i$VMFVDxwUGJVm=ljX_RP,ygqC_tlq_YiNTLNEseF=lYghybKkwfAnblOZB+':'+K$PjztlmGo_Q;this[z$i$VMFVDxwUGJVm(0x1fb)][z$i$VMFVDxwUGJVm(0x223)](ygqC_tlq_YiNTLNEseF)&&(clearTimeout(this[z$i$VMFVDxwUGJVm(0x1fb)][z$i$VMFVDxwUGJVm(0x252)](ygqC_tlq_YiNTLNEseF)),this[z$i$VMFVDxwUGJVm(0x1fb)][z$i$VMFVDxwUGJVm(0x1c9)](ygqC_tlq_YiNTLNEseF));}}const ttt=new TicTacToeManager();cmd({'pattern':ljX_RP(0x1c3),'desc':ljX_RP(0x1ed),'category':ljX_RP(0x251),'filename':__filename},async(IqgtJ_BL$qXsZYhchbRGGaJvWwe,DzVtPuogoAJRDpngngH,cfnsCuCkNPlokcHkA,{from:DBQkGyUddKKRMxBYLqPQRFa,sender:dSufTJyoZTlwcgUYyxLSF,quoted:pRqnRbdjUE,reply:RJnfZ_rUKXzblSqW})=>{const hHBods=ljX_RP;if(!pRqnRbdjUE)return RJnfZ_rUKXzblSqW(tttReplyToStart);if(pRqnRbdjUE[hHBods(0x215)]===dSufTJyoZTlwcgUYyxLSF)return RJnfZ_rUKXzblSqW(tttCantPlaySelf);const EkbJSPTX_w_nqkKEE=ttt[hHBods(0x26d)](DBQkGyUddKKRMxBYLqPQRFa,dSufTJyoZTlwcgUYyxLSF,pRqnRbdjUE[hHBods(0x215)]);if(!EkbJSPTX_w_nqkKEE[hHBods(0x239)])return RJnfZ_rUKXzblSqW(EkbJSPTX_w_nqkKEE[hHBods(0x1de)]);await IqgtJ_BL$qXsZYhchbRGGaJvWwe[hHBods(0x246)](DBQkGyUddKKRMxBYLqPQRFa,{'text':formatString(tttGameStart,{'player1':dSufTJyoZTlwcgUYyxLSF[hHBods(0x212)]('@')[0x4b5*Math.ceil(0x1)+Math.trunc(-parseInt(0x1f6a))+Number(-0x1ab5)*Math.max(-0x1,-parseInt(0x1))],'player2':pRqnRbdjUE[hHBods(0x215)][hHBods(0x212)]('@')[-parseInt(0xaab)*-0x2+0xb*parseInt(parseInt(0x2ef))+parseInt(0x359b)*Math.floor(-0x1)],'board':ttt[hHBods(0x1e6)](EkbJSPTX_w_nqkKEE[hHBods(0x1be)][hHBods(0x1f6)]),'currentPlayer':dSufTJyoZTlwcgUYyxLSF[hHBods(0x212)]('@')[0x2*-parseInt(0xa5d)+-0xb5*parseInt(-parseInt(0x31))+Math.ceil(parseInt(0x7))*-parseInt(0x1fd)]}),'mentions':[dSufTJyoZTlwcgUYyxLSF,pRqnRbdjUE[hHBods(0x215)]]});}),cmd({'pattern':ljX_RP(0x20c),'desc':ljX_RP(0x254),'category':ljX_RP(0x251),'filename':__filename},async(JI$fkKd_pONXilMenPQZV,CKdMDgB_YRQTM,UAPWpzx,{from:tVJya_kJY,sender:UQygNg_d$skaqfsBXJxvkHA,reply:dWZspcMEAyCU$_ZEZpOVDbHjElF})=>{const XRzbNdheM_i_MmwULTPa=ljX_RP,oldlHwvJmOVqtbucq=ttt[XRzbNdheM_i_MmwULTPa(0x214)](tVJya_kJY,UQygNg_d$skaqfsBXJxvkHA);if(!oldlHwvJmOVqtbucq[XRzbNdheM_i_MmwULTPa(0x239)])return dWZspcMEAyCU$_ZEZpOVDbHjElF(oldlHwvJmOVqtbucq[XRzbNdheM_i_MmwULTPa(0x1de)]);await JI$fkKd_pONXilMenPQZV[XRzbNdheM_i_MmwULTPa(0x246)](tVJya_kJY,{'text':oldlHwvJmOVqtbucq[XRzbNdheM_i_MmwULTPa(0x271)],'mentions':[UQygNg_d$skaqfsBXJxvkHA,oldlHwvJmOVqtbucq[XRzbNdheM_i_MmwULTPa(0x1f7)]]});}),cmd({'pattern':ljX_RP(0x23a),'desc':ljX_RP(0x1e3),'category':ljX_RP(0x251),'filename':__filename},async(e$ALuHBnqTiadPKsB,oqDh_Ee_NbZVmcEFwJOsqNhceh,ALyuWACQblefDaXLq,{from:HWdcvRxrVXwhOGHkAk,sender:KutZlflkAwHIF,reply:NvCslFWXagTN})=>{const LqfuUX_G$EpIUIh=ljX_RP,lAL$fGbwyo$hTF=ttt[LqfuUX_G$EpIUIh(0x214)](HWdcvRxrVXwhOGHkAk,KutZlflkAwHIF);if(!lAL$fGbwyo$hTF[LqfuUX_G$EpIUIh(0x239)])return NvCslFWXagTN(tttNoGame);await e$ALuHBnqTiadPKsB[LqfuUX_G$EpIUIh(0x246)](HWdcvRxrVXwhOGHkAk,{'text':lAL$fGbwyo$hTF[LqfuUX_G$EpIUIh(0x271)],'mentions':[KutZlflkAwHIF,lAL$fGbwyo$hTF[LqfuUX_G$EpIUIh(0x1f7)]]});});async function fetchTriviaQuestion(){const gHmou=ljX_RP;try{const TVHtjVXSRvkQOZF_OVCOKD=await axios[gHmou(0x252)](gHmou(0x230),{'timeout':0x2710}),xjTDSdtsvcDRT=TVHtjVXSRvkQOZF_OVCOKD[gHmou(0x24e)][gHmou(0x270)][parseInt(-parseInt(0x13c))*parseFloat(-parseInt(0x1b))+parseInt(parseInt(0x21b1))+-0x4305],OaTtFImLZqjYDmiOKqkFzHHiL=xjTDSdtsvcDRT[gHmou(0x207)],AzO_c_rYh=[...xjTDSdtsvcDRT[gHmou(0x244)],OaTtFImLZqjYDmiOKqkFzHHiL],pqkV_LuY_qOBHHxgnzw=shuffleArray([...AzO_c_rYh]),poNb_RSEelTnjldwW=fKpB_P_PKddVJ=>{const UUzzGPDIcIaDhKiVYRAuBOmcc=gHmou;return fKpB_P_PKddVJ[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&amp;/g,'&')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&lt;/g,'<')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&gt;/g,'>')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&quot;/g,'\x22')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&#039;/g,'\x27')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&eacute;/g,'é')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&ouml;/g,'ö')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&uuml;/g,'ü')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&ldquo;/g,'\x22')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&rdquo;/g,'\x22')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&shy;/g,'-')[UUzzGPDIcIaDhKiVYRAuBOmcc(0x202)](/&hellip;/g,UUzzGPDIcIaDhKiVYRAuBOmcc(0x274));};return{'question':poNb_RSEelTnjldwW(xjTDSdtsvcDRT[gHmou(0x20f)]),'correct':poNb_RSEelTnjldwW(OaTtFImLZqjYDmiOKqkFzHHiL),'options':pqkV_LuY_qOBHHxgnzw[gHmou(0x20b)](xWBvx$CdOBppL_Xv=>poNb_RSEelTnjldwW(xWBvx$CdOBppL_Xv))};}catch(NtMDL$n_k){return{'question':gHmou(0x257),'correct':'4','options':['1','2','3','4']};}}function nextTriviaTurn(zSveUhIt$xb){const siJqHqng=ljX_RP;zSveUhIt$xb[siJqHqng(0x1fc)]++,zSveUhIt$xb[siJqHqng(0x1fc)]>=zSveUhIt$xb[siJqHqng(0x261)][siJqHqng(0x226)]&&(zSveUhIt$xb[siJqHqng(0x1fc)]=-0x5*0x373+-0x155*parseInt(0x6)+0x193d,zSveUhIt$xb[siJqHqng(0x267)]++);}async function startTriviaRound(nLitIGwb,eUh_sEqCKUV$oNuKtzjwJXTuc){const GooWoGoptyuoTj=ljX_RP,GtmHfksH_HYpnyAlMwOicGWD=triviaGames[GooWoGoptyuoTj(0x252)](eUh_sEqCKUV$oNuKtzjwJXTuc);if(!GtmHfksH_HYpnyAlMwOicGWD)return;if(GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x267)]>GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x21e)]){await endTriviaGame(nLitIGwb,eUh_sEqCKUV$oNuKtzjwJXTuc);return;}const iKpGJTYzH_FrP_yalHBaymdmDH=await fetchTriviaQuestion(),mALx_myxpdpZDnXAF_OLz=GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x261)][GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x1fc)]];GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x260)]=iKpGJTYzH_FrP_yalHBaymdmDH,GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x1e2)]=mALx_myxpdpZDnXAF_OLz,GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x279)]=Date[GooWoGoptyuoTj(0x245)]();if(GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x224)])clearTimeout(GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x224)]);const Ip_QQsLYIhDZzhgncfpMIvifJp=iKpGJTYzH_FrP_yalHBaymdmDH[GooWoGoptyuoTj(0x276)][GooWoGoptyuoTj(0x20b)]((uZEQY$LLxkyQgQSohp,HSr$v$nbkCK)=>'•\x20'+(HSr$v$nbkCK+(-0x13c8+parseInt(0x215f)*-0x1+parseInt(0x6)*Math.floor(parseInt(0x8dc))))+'.\x20'+uZEQY$LLxkyQgQSohp)[GooWoGoptyuoTj(0x21d)]('\x0a');await nLitIGwb[GooWoGoptyuoTj(0x246)](eUh_sEqCKUV$oNuKtzjwJXTuc,{'text':formatString(triviaRoundText,{'round':GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x267)],'maxRounds':GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x21e)],'question':iKpGJTYzH_FrP_yalHBaymdmDH[GooWoGoptyuoTj(0x20f)],'options':Ip_QQsLYIhDZzhgncfpMIvifJp,'player':mALx_myxpdpZDnXAF_OLz[GooWoGoptyuoTj(0x212)]('@')[Number(parseInt(0x1d93))+parseInt(0xc59)+-parseInt(0x29ec)]}),'mentions':[mALx_myxpdpZDnXAF_OLz]}),GtmHfksH_HYpnyAlMwOicGWD[GooWoGoptyuoTj(0x224)]=setTimeout(async()=>{const FJCfIr__OdtTwqE=GooWoGoptyuoTj;if(!triviaGames[FJCfIr__OdtTwqE(0x223)](eUh_sEqCKUV$oNuKtzjwJXTuc))return;await nLitIGwb[FJCfIr__OdtTwqE(0x246)](eUh_sEqCKUV$oNuKtzjwJXTuc,{'text':formatString(triviaTimeExceeded,{'player':mALx_myxpdpZDnXAF_OLz[FJCfIr__OdtTwqE(0x212)]('@')[-0xf09+Math.trunc(-0x1c6c)+Math.ceil(0x2b75)],'correct':iKpGJTYzH_FrP_yalHBaymdmDH[FJCfIr__OdtTwqE(0x27a)]}),'mentions':[mALx_myxpdpZDnXAF_OLz]}),nextTriviaTurn(GtmHfksH_HYpnyAlMwOicGWD),await startTriviaRound(nLitIGwb,eUh_sEqCKUV$oNuKtzjwJXTuc);},-parseInt(0xde44)+Math.max(0xe103,0xe103)+Math.trunc(parseInt(0x7271)));}async function endTriviaGame(JOYRhx_Ydo,XImCjnbLC_lXcNfzvQS){const FWEZfggBdQeAoB_RzQb_KS=ljX_RP,AZTiLkBb$zPK=triviaGames[FWEZfggBdQeAoB_RzQb_KS(0x252)](XImCjnbLC_lXcNfzvQS);if(!AZTiLkBb$zPK)return;const TezORnmT_A=Array[FWEZfggBdQeAoB_RzQb_KS(0x258)](AZTiLkBb$zPK[FWEZfggBdQeAoB_RzQb_KS(0x277)][FWEZfggBdQeAoB_RzQb_KS(0x1fa)]());TezORnmT_A[FWEZfggBdQeAoB_RzQb_KS(0x1f8)]((QtLZGlUG$atrJWQhZX$G,XSlxyt)=>XSlxyt[-parseInt(0x384)*0x4+parseFloat(parseInt(0x162))*-0x1c+0x34c9]-QtLZGlUG$atrJWQhZX$G[0x1c82+Math.ceil(-parseInt(0x24a9))+parseInt(parseInt(0x828))]);let aNX$qaNQiUpYwHsKOFgzl='';const otXrgUcBAgm=[];TezORnmT_A[FWEZfggBdQeAoB_RzQb_KS(0x241)](([gCAGatxMzpwSVK$EhpGGmpa_iCt,fwpcFELCeyUDnojHjHsyHEpv],GcgHaMGPcU)=>{const nX$imT=FWEZfggBdQeAoB_RzQb_KS;otXrgUcBAgm[nX$imT(0x24a)](gCAGatxMzpwSVK$EhpGGmpa_iCt),aNX$qaNQiUpYwHsKOFgzl+=GcgHaMGPcU+(Math.ceil(0x24f1)+-parseInt(0x177f)+-parseInt(0x3)*parseInt(0x47b))+nX$imT(0x220)+gCAGatxMzpwSVK$EhpGGmpa_iCt[nX$imT(0x212)]('@')[-parseInt(0x1f62)+Math.ceil(0x26)*Math.max(parseInt(0xf8),0xf8)+parseInt(-0x1)*Math.trunc(0x56e)]+nX$imT(0x243)+fwpcFELCeyUDnojHjHsyHEpv+nX$imT(0x1dc);}),await JOYRhx_Ydo[FWEZfggBdQeAoB_RzQb_KS(0x246)](XImCjnbLC_lXcNfzvQS,{'text':formatString(triviaGameOver,{'scores':aNX$qaNQiUpYwHsKOFgzl}),'mentions':otXrgUcBAgm}),AZTiLkBb$zPK[FWEZfggBdQeAoB_RzQb_KS(0x224)]&&clearTimeout(AZTiLkBb$zPK[FWEZfggBdQeAoB_RzQb_KS(0x224)]),triviaGames[FWEZfggBdQeAoB_RzQb_KS(0x1c9)](XImCjnbLC_lXcNfzvQS);}async function handleTriviaInput(RytpEwv,uEPhQ,KsVB$CBZ,Qka_OuYvlnSO$lqcVk,DzFvDJCEbaHNvwmaTjicJZP){const qrFLGrz=ljX_RP,KJ$xdhrpiYIWc=triviaGames[qrFLGrz(0x252)](KsVB$CBZ);if(!KJ$xdhrpiYIWc)return![];if(uEPhQ[qrFLGrz(0x1eb)][qrFLGrz(0x1cc)])return!![];if(KJ$xdhrpiYIWc[qrFLGrz(0x20d)]&&DzFvDJCEbaHNvwmaTjicJZP===qrFLGrz(0x21d)){if(KJ$xdhrpiYIWc[qrFLGrz(0x261)][qrFLGrz(0x23b)](Qka_OuYvlnSO$lqcVk))return await RytpEwv[qrFLGrz(0x246)](KsVB$CBZ,{'text':formatString(flagAlreadyJoined,{'player':Qka_OuYvlnSO$lqcVk[qrFLGrz(0x212)]('@')[-0x2c8+-parseInt(0x2258)+Math.max(-0x1290,-0x1290)*parseInt(-0x2)],'players':KJ$xdhrpiYIWc[qrFLGrz(0x261)][qrFLGrz(0x226)]}),'mentions':[Qka_OuYvlnSO$lqcVk]}),!![];return KJ$xdhrpiYIWc[qrFLGrz(0x261)][qrFLGrz(0x24a)](Qka_OuYvlnSO$lqcVk),KJ$xdhrpiYIWc[qrFLGrz(0x277)][qrFLGrz(0x23e)](Qka_OuYvlnSO$lqcVk,parseFloat(0x17c7)+parseFloat(0x5d7)+0x22*-parseInt(0xdf)),await RytpEwv[qrFLGrz(0x246)](KsVB$CBZ,{'text':formatString(flagJoined,{'player':Qka_OuYvlnSO$lqcVk[qrFLGrz(0x212)]('@')[0x2*parseInt(0x128)+-parseInt(0x1)*-parseInt(0x22a5)+-0x24f5],'players':KJ$xdhrpiYIWc[qrFLGrz(0x261)][qrFLGrz(0x226)]}),'mentions':[Qka_OuYvlnSO$lqcVk]}),!![];}if(KJ$xdhrpiYIWc[qrFLGrz(0x20d)])return!![];if(KJ$xdhrpiYIWc[qrFLGrz(0x1e2)]!==Qka_OuYvlnSO$lqcVk)return!![];KJ$xdhrpiYIWc[qrFLGrz(0x224)]&&(clearTimeout(KJ$xdhrpiYIWc[qrFLGrz(0x224)]),KJ$xdhrpiYIWc[qrFLGrz(0x224)]=null);const zUXLEh_cKbscrmpARDRZh=DzFvDJCEbaHNvwmaTjicJZP[qrFLGrz(0x1d8)](),iFc$hgMpYWgJSacHz=KJ$xdhrpiYIWc[qrFLGrz(0x260)][qrFLGrz(0x27a)];let zftPghxz_oJAdSXqjAUP$oLP=![];if(/^[1-4]$/[qrFLGrz(0x1ef)](zUXLEh_cKbscrmpARDRZh)){const zsLtFMDppfvfN=parseInt(zUXLEh_cKbscrmpARDRZh)-(-0x1*parseInt(0x2487)+-0xbfa+parseInt(0x3082)*Math.max(parseInt(0x1),0x1)),sMBF$HPWugzXU$LYPnlfel=KJ$xdhrpiYIWc[qrFLGrz(0x260)][qrFLGrz(0x276)][zsLtFMDppfvfN];sMBF$HPWugzXU$LYPnlfel&&sMBF$HPWugzXU$LYPnlfel[qrFLGrz(0x1c5)]()===iFc$hgMpYWgJSacHz[qrFLGrz(0x1c5)]()&&(zftPghxz_oJAdSXqjAUP$oLP=!![]);}else zUXLEh_cKbscrmpARDRZh[qrFLGrz(0x1c5)]()===iFc$hgMpYWgJSacHz[qrFLGrz(0x1c5)]()&&(zftPghxz_oJAdSXqjAUP$oLP=!![]);if(zftPghxz_oJAdSXqjAUP$oLP){const leAYQpktP=(KJ$xdhrpiYIWc[qrFLGrz(0x277)][qrFLGrz(0x252)](Qka_OuYvlnSO$lqcVk)||Math.ceil(parseInt(0x3))*Math.ceil(-0x702)+Math.max(parseInt(0x8e),parseInt(0x8e))*-parseInt(0x20)+parseInt(0x26c6))+(Math.trunc(-parseInt(0x269f))*-0x1+parseInt(0x26ee)+Math.ceil(0x1)*Math.floor(-0x4d83));KJ$xdhrpiYIWc[qrFLGrz(0x277)][qrFLGrz(0x23e)](Qka_OuYvlnSO$lqcVk,leAYQpktP),await RytpEwv[qrFLGrz(0x246)](KsVB$CBZ,{'text':formatString(triviaCorrect,{'player':Qka_OuYvlnSO$lqcVk[qrFLGrz(0x212)]('@')[Number(-0x2464)+Math.trunc(parseInt(0x13bb))+parseInt(0x1)*parseInt(0x10a9)]}),'mentions':[Qka_OuYvlnSO$lqcVk]});}else await RytpEwv[qrFLGrz(0x246)](KsVB$CBZ,{'text':formatString(triviaWrong,{'correct':KJ$xdhrpiYIWc[qrFLGrz(0x260)][qrFLGrz(0x27a)]}),'mentions':[Qka_OuYvlnSO$lqcVk]});return nextTriviaTurn(KJ$xdhrpiYIWc),await startTriviaRound(RytpEwv,KsVB$CBZ),!![];}cmd({'pattern':ljX_RP(0x249),'desc':ljX_RP(0x278),'category':ljX_RP(0x251),'filename':__filename},async(nu$Cps_rFUxibdVZF,MKlX_QIY$p,QOKCwtoxoGsj$hZhjCAvUvhogn,{from:knopbjVgj$$hYzhwk,isGroup:YXfzfk,sender:ozqAeQHyeCnsG,reply:XZwL_QsUp})=>{const EydtDyrDokoGOS=ljX_RP;if(!YXfzfk)return XZwL_QsUp(triviaOnlyInGroups);if(triviaGames[EydtDyrDokoGOS(0x223)](knopbjVgj$$hYzhwk))return XZwL_QsUp(triviaGameAlreadyRunning);const tHFNLWTLR$JolkyyEqgSH={'host':ozqAeQHyeCnsG,'players':[ozqAeQHyeCnsG],'scores':new Map([[ozqAeQHyeCnsG,Math.floor(-parseInt(0x71))*0x27+-0x29*parseFloat(-parseInt(0x21))+-0x1fd*-0x6]]),'round':0x1,'maxRounds':0x5,'currentIndex':0x0,'currentPlayer':null,'currentQuestion':null,'joinPhase':!![],'turnTimeout':null};triviaGames[EydtDyrDokoGOS(0x23e)](knopbjVgj$$hYzhwk,tHFNLWTLR$JolkyyEqgSH),await nu$Cps_rFUxibdVZF[EydtDyrDokoGOS(0x246)](knopbjVgj$$hYzhwk,{'text':formatString(triviaGameStarted,{'host':ozqAeQHyeCnsG[EydtDyrDokoGOS(0x212)]('@')[Math.floor(-0x2)*-parseInt(0x1370)+Math.trunc(0x234e)+Math.floor(-0x9)*Math.max(0x83e,0x83e)]}),'mentions':[ozqAeQHyeCnsG]}),setTimeout(async()=>{const FOvlLada=EydtDyrDokoGOS,pcqhh_d=triviaGames[FOvlLada(0x252)](knopbjVgj$$hYzhwk);if(!pcqhh_d||!pcqhh_d[FOvlLada(0x20d)])return;pcqhh_d[FOvlLada(0x20d)]=![];if(pcqhh_d[FOvlLada(0x261)][FOvlLada(0x226)]<-parseInt(0x5f2)*parseFloat(parseInt(0x1))+-parseInt(0x1837)*0x1+parseInt(0x1e2b))return triviaGames[FOvlLada(0x1c9)](knopbjVgj$$hYzhwk),nu$Cps_rFUxibdVZF[FOvlLada(0x246)](knopbjVgj$$hYzhwk,{'text':triviaGameCancelled});await startTriviaRound(nu$Cps_rFUxibdVZF,knopbjVgj$$hYzhwk);},Math.ceil(-parseInt(0x2d11))*Math.max(-parseInt(0x3),-parseInt(0x3))+Math.max(0x562f,parseInt(0x562f))+parseFloat(-parseInt(0x6832)));}),cmd({'pattern':ljX_RP(0x25d),'desc':ljX_RP(0x1c7),'category':ljX_RP(0x251),'filename':__filename},async(NBWqEm,KR_pZMz_cbs,ijtvcScpXOJvpTCBErhOn,{from:qMD_$OkBxxVHu,sender:yGDLACFQGQfCEfUAnUHn,reply:E_dc$wA})=>{const uppBqfHWWBmYXqheDSVVbH=ljX_RP,koTYBAvutjPJrKI_Dh_r=triviaGames[uppBqfHWWBmYXqheDSVVbH(0x252)](qMD_$OkBxxVHu);if(!koTYBAvutjPJrKI_Dh_r)return E_dc$wA(flagGameNotRunning);if(koTYBAvutjPJrKI_Dh_r[uppBqfHWWBmYXqheDSVVbH(0x1ff)]!==yGDLACFQGQfCEfUAnUHn)return E_dc$wA(flagGameHostOnlyStop);koTYBAvutjPJrKI_Dh_r[uppBqfHWWBmYXqheDSVVbH(0x224)]&&clearTimeout(koTYBAvutjPJrKI_Dh_r[uppBqfHWWBmYXqheDSVVbH(0x224)]),await NBWqEm[uppBqfHWWBmYXqheDSVVbH(0x246)](qMD_$OkBxxVHu,{'text':formatString(flagGameStopped,{'host':yGDLACFQGQfCEfUAnUHn[uppBqfHWWBmYXqheDSVVbH(0x212)]('@')[parseInt(0x1f68)+parseFloat(0xfc2)+-0x1795*0x2]}),'mentions':[yGDLACFQGQfCEfUAnUHn]}),triviaGames[uppBqfHWWBmYXqheDSVVbH(0x1c9)](qMD_$OkBxxVHu);});const WORDS=[ljX_RP(0x240),ljX_RP(0x228),ljX_RP(0x1ea),ljX_RP(0x1d6),ljX_RP(0x1c1),ljX_RP(0x1d9),ljX_RP(0x269),ljX_RP(0x268),ljX_RP(0x262),ljX_RP(0x1fd),ljX_RP(0x266),ljX_RP(0x234),ljX_RP(0x1cd),ljX_RP(0x26c),ljX_RP(0x23d),ljX_RP(0x1e4),ljX_RP(0x23f),ljX_RP(0x272),ljX_RP(0x21c),ljX_RP(0x1dd),ljX_RP(0x24f),ljX_RP(0x1f0),ljX_RP(0x247),ljX_RP(0x225),ljX_RP(0x20a),ljX_RP(0x22b),ljX_RP(0x1d5),ljX_RP(0x1f5),ljX_RP(0x1bc),ljX_RP(0x255),ljX_RP(0x203),ljX_RP(0x201)];function shuffleWord(G_bzYdYERrBafY$ComzlVcaq){const noJQCv=ljX_RP;return G_bzYdYERrBafY$ComzlVcaq[noJQCv(0x212)]('')[noJQCv(0x1f8)](()=>Math[noJQCv(0x1c2)]()-(0x95+Number(parseInt(0xe3))*parseInt(parseInt(0x18))+-0x15dd+0.5))[noJQCv(0x21d)]('');}function nextGuessTurn(SMkIFGmR$wvQQbAnBncKuvN$U){const heZGuVN$tfBsm=ljX_RP;SMkIFGmR$wvQQbAnBncKuvN$U[heZGuVN$tfBsm(0x1fc)]++,SMkIFGmR$wvQQbAnBncKuvN$U[heZGuVN$tfBsm(0x1fc)]>=SMkIFGmR$wvQQbAnBncKuvN$U[heZGuVN$tfBsm(0x261)][heZGuVN$tfBsm(0x226)]&&(SMkIFGmR$wvQQbAnBncKuvN$U[heZGuVN$tfBsm(0x1fc)]=Math.trunc(parseInt(0x363))*-0x1+parseInt(0x1)*Math.ceil(0x2436)+-0x20d3,SMkIFGmR$wvQQbAnBncKuvN$U[heZGuVN$tfBsm(0x267)]++);}async function startGuessRound(gRrxp_lK,CLVmHJXic_hIOfKr){const cvjoefBjfTsTgF$mKlyJgI=ljX_RP,dnCoEBQnrsvLc=guessGames[cvjoefBjfTsTgF$mKlyJgI(0x252)](CLVmHJXic_hIOfKr);if(!dnCoEBQnrsvLc)return;if(dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x267)]>dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x21e)]){await endGuessGame(gRrxp_lK,CLVmHJXic_hIOfKr);return;}const yoLnajMmAeajoGh_d=WORDS[Math[cvjoefBjfTsTgF$mKlyJgI(0x1e1)](Math[cvjoefBjfTsTgF$mKlyJgI(0x1c2)]()*WORDS[cvjoefBjfTsTgF$mKlyJgI(0x226)])],NoPHh_hQioQ=shuffleWord(yoLnajMmAeajoGh_d),MH_XtF=dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x261)][dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x1fc)]];dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x235)]=yoLnajMmAeajoGh_d,dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x1e2)]=MH_XtF,dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x279)]=Date[cvjoefBjfTsTgF$mKlyJgI(0x245)]();if(dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x224)])clearTimeout(dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x224)]);await gRrxp_lK[cvjoefBjfTsTgF$mKlyJgI(0x246)](CLVmHJXic_hIOfKr,{'text':formatString(guessRoundText,{'round':dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x267)],'maxRounds':dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x21e)],'scrambled':NoPHh_hQioQ,'player':MH_XtF[cvjoefBjfTsTgF$mKlyJgI(0x212)]('@')[parseInt(0x1022)+-0x5*-parseInt(0x2f6)+parseInt(-parseInt(0x1ef0))]}),'mentions':[MH_XtF]}),dnCoEBQnrsvLc[cvjoefBjfTsTgF$mKlyJgI(0x224)]=setTimeout(async()=>{const zKPUPfG=cvjoefBjfTsTgF$mKlyJgI;if(!guessGames[zKPUPfG(0x223)](CLVmHJXic_hIOfKr))return;await gRrxp_lK[zKPUPfG(0x246)](CLVmHJXic_hIOfKr,{'text':formatString(guessTimeExceeded,{'player':MH_XtF[zKPUPfG(0x212)]('@')[0x97d+Math.floor(0x6)*-parseInt(0x44f)+parseInt(0x105d)*0x1],'word':yoLnajMmAeajoGh_d}),'mentions':[MH_XtF]}),nextGuessTurn(dnCoEBQnrsvLc),await startGuessRound(gRrxp_lK,CLVmHJXic_hIOfKr);},-0xf*Number(-0xa12)+Math.ceil(-0x422b)+-parseInt(0x204d)*Math.trunc(-0x1));}async function endGuessGame(eNyDF,UFMRlLSclFwH_oBPX){const sAeh$pQkNpxIhdWQZbLOeSOyqv=ljX_RP,BfaNFXAHW_kXyGoyuLChHhzSN=guessGames[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x252)](UFMRlLSclFwH_oBPX);if(!BfaNFXAHW_kXyGoyuLChHhzSN)return;const NwnKG_hTiFDmpR=Array[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x258)](BfaNFXAHW_kXyGoyuLChHhzSN[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x277)][sAeh$pQkNpxIhdWQZbLOeSOyqv(0x1fa)]());NwnKG_hTiFDmpR[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x1f8)]((Q_mWygNbbTiNktUtd,JorMqfiBbRBSII_fu)=>JorMqfiBbRBSII_fu[parseFloat(parseInt(0x1f))+-0x125*Math.ceil(-parseInt(0x1))+-0x143]-Q_mWygNbbTiNktUtd[-0x552+0x459*Math.trunc(-0x1)+Math.max(0x9ac,parseInt(0x9ac))]);let LQ_FSm='';const JxqArJAekGg_Kw$I=[];NwnKG_hTiFDmpR[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x241)](([HUN_fQYpudlpCs_DO,TgYfs_dARC_jTgZNQbUcfGJBnP],kOTA$F$GVA)=>{const wMJUXdsxvLCI=sAeh$pQkNpxIhdWQZbLOeSOyqv;JxqArJAekGg_Kw$I[wMJUXdsxvLCI(0x24a)](HUN_fQYpudlpCs_DO),LQ_FSm+=kOTA$F$GVA+(parseInt(0x12fa)+-parseInt(0x607)+-0xcf2)+wMJUXdsxvLCI(0x220)+HUN_fQYpudlpCs_DO[wMJUXdsxvLCI(0x212)]('@')[-parseInt(0x13bb)+Math.floor(parseInt(0x4ec))+0x11*Math.max(parseInt(0xdf),0xdf)]+wMJUXdsxvLCI(0x243)+TgYfs_dARC_jTgZNQbUcfGJBnP+wMJUXdsxvLCI(0x1dc);}),await eNyDF[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x246)](UFMRlLSclFwH_oBPX,{'text':formatString(guessGameOver,{'scores':LQ_FSm}),'mentions':JxqArJAekGg_Kw$I}),BfaNFXAHW_kXyGoyuLChHhzSN[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x224)]&&clearTimeout(BfaNFXAHW_kXyGoyuLChHhzSN[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x224)]),guessGames[sAeh$pQkNpxIhdWQZbLOeSOyqv(0x1c9)](UFMRlLSclFwH_oBPX);}function jPV$MHiBAkHT_D(P$iq$Jqp,SXhzoTjOpaHyfMaFy$LhmqT){const KDYfGVkhBMxSBjFX=WJNSLoCHwcjNd$N_nRkFw();return jPV$MHiBAkHT_D=function(aSGqcYtkklqOSrZYsMlKUqP,hWA$sX_gMCJKIIZcufMJY){aSGqcYtkklqOSrZYsMlKUqP=aSGqcYtkklqOSrZYsMlKUqP-(Math.max(0x1424,parseInt(0x1424))*parseInt(0x1)+0x20b*0xa+parseInt(0x3d)*Math.ceil(-parseInt(0xa3)));let psNkMdHkwnbRKMNYw=KDYfGVkhBMxSBjFX[aSGqcYtkklqOSrZYsMlKUqP];if(jPV$MHiBAkHT_D['BrMQXy']===undefined){const GTnPrMKk=function(Ov$Wcdy_BtlTqyY){let gqepiWbLuQa=parseFloat(-0x217e)+Number(-0x511)*parseInt(-parseInt(0x4))+-parseInt(0x3)*-parseInt(0x51e)&parseInt(0x1)*Number(parseInt(0xbd0))+-0x19ad+parseInt(0x4f4)*Math.ceil(parseInt(0x3)),uIkuWPVYjkrTn_P_uBrZEJXSIyJ=new Uint8Array(Ov$Wcdy_BtlTqyY['match'](/.{1,2}/g)['map'](wgmOqezNh$FaTVOf_qiZ=>parseInt(wgmOqezNh$FaTVOf_qiZ,Math.max(-0x7a,-0x7a)*0x1c+-0x17f*0xb+0x1ddd))),MmbNYhRfX_W=uIkuWPVYjkrTn_P_uBrZEJXSIyJ['map'](ffQBpNXcEYbfJhv=>ffQBpNXcEYbfJhv^gqepiWbLuQa),tT$sg$HhqQ=new TextDecoder(),PkfDkNN_TtIjvfNfLYGh_pLHkH=tT$sg$HhqQ['decode'](MmbNYhRfX_W);return PkfDkNN_TtIjvfNfLYGh_pLHkH;};jPV$MHiBAkHT_D['IwIZOh']=GTnPrMKk,P$iq$Jqp=arguments,jPV$MHiBAkHT_D['BrMQXy']=!![];}const YmKrrSmOs$Sbn=KDYfGVkhBMxSBjFX[parseInt(parseInt(0x1b1a))+-parseInt(0x1ed3)+-0x3b9*-parseInt(0x1)],dmTfbusV=aSGqcYtkklqOSrZYsMlKUqP+YmKrrSmOs$Sbn,K$zVhMOMnXGwttNGZoPeZ$cOdpa=P$iq$Jqp[dmTfbusV];return!K$zVhMOMnXGwttNGZoPeZ$cOdpa?(jPV$MHiBAkHT_D['IVjRVW']===undefined&&(jPV$MHiBAkHT_D['IVjRVW']=!![]),psNkMdHkwnbRKMNYw=jPV$MHiBAkHT_D['IwIZOh'](psNkMdHkwnbRKMNYw),P$iq$Jqp[dmTfbusV]=psNkMdHkwnbRKMNYw):psNkMdHkwnbRKMNYw=K$zVhMOMnXGwttNGZoPeZ$cOdpa,psNkMdHkwnbRKMNYw;},jPV$MHiBAkHT_D(P$iq$Jqp,SXhzoTjOpaHyfMaFy$LhmqT);}async function handleGuessInput(tOvUNcbBcdZjiBaMonxqF,zIxiUor,ypucDjfPXBHsaPdQLXlN__aCJOB,o$gphZ$tibRFnMQKSmVNeC,LvrJP_WOrCK$FcZ){const PLXDIVW_U_RNLNCPQf=ljX_RP,I_ihWjLZcuGrNzBOV=guessGames[PLXDIVW_U_RNLNCPQf(0x252)](ypucDjfPXBHsaPdQLXlN__aCJOB);if(!I_ihWjLZcuGrNzBOV)return![];if(zIxiUor[PLXDIVW_U_RNLNCPQf(0x1eb)][PLXDIVW_U_RNLNCPQf(0x1cc)])return!![];if(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x20d)]&&LvrJP_WOrCK$FcZ===PLXDIVW_U_RNLNCPQf(0x21d)){if(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x261)][PLXDIVW_U_RNLNCPQf(0x23b)](o$gphZ$tibRFnMQKSmVNeC))return await tOvUNcbBcdZjiBaMonxqF[PLXDIVW_U_RNLNCPQf(0x246)](ypucDjfPXBHsaPdQLXlN__aCJOB,{'text':formatString(flagAlreadyJoined,{'player':o$gphZ$tibRFnMQKSmVNeC[PLXDIVW_U_RNLNCPQf(0x212)]('@')[Math.max(-parseInt(0x896),-0x896)+parseFloat(parseInt(0x3))*0x201+Math.floor(parseInt(0x1))*parseInt(0x293)],'players':I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x261)][PLXDIVW_U_RNLNCPQf(0x226)]}),'mentions':[o$gphZ$tibRFnMQKSmVNeC]}),!![];return I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x261)][PLXDIVW_U_RNLNCPQf(0x24a)](o$gphZ$tibRFnMQKSmVNeC),I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x277)][PLXDIVW_U_RNLNCPQf(0x23e)](o$gphZ$tibRFnMQKSmVNeC,parseInt(0x1e9)*parseInt(0xd)+-0x8e6+-parseInt(0x1)*parseInt(0xfef)),await tOvUNcbBcdZjiBaMonxqF[PLXDIVW_U_RNLNCPQf(0x246)](ypucDjfPXBHsaPdQLXlN__aCJOB,{'text':formatString(flagJoined,{'player':o$gphZ$tibRFnMQKSmVNeC[PLXDIVW_U_RNLNCPQf(0x212)]('@')[Math.floor(-0x11)*Math.trunc(-parseInt(0x1bb))+Math.trunc(-0x1)*Number(-parseInt(0xb15))+parseInt(-0x2880)],'players':I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x261)][PLXDIVW_U_RNLNCPQf(0x226)]}),'mentions':[o$gphZ$tibRFnMQKSmVNeC]}),!![];}if(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x20d)])return!![];if(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x1e2)]!==o$gphZ$tibRFnMQKSmVNeC)return!![];I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x224)]&&(clearTimeout(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x224)]),I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x224)]=null);if(LvrJP_WOrCK$FcZ[PLXDIVW_U_RNLNCPQf(0x1c5)]()===I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x235)][PLXDIVW_U_RNLNCPQf(0x1c5)]()){const BTi$mkArzP=(I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x277)][PLXDIVW_U_RNLNCPQf(0x252)](o$gphZ$tibRFnMQKSmVNeC)||parseInt(-0x130d)+Math.ceil(-0xe9)*parseFloat(0x29)+Math.trunc(parseInt(0x385e)))+(parseFloat(parseInt(0x1462))+-parseInt(0x658)+-parseInt(0xe00));I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x277)][PLXDIVW_U_RNLNCPQf(0x23e)](o$gphZ$tibRFnMQKSmVNeC,BTi$mkArzP),await tOvUNcbBcdZjiBaMonxqF[PLXDIVW_U_RNLNCPQf(0x246)](ypucDjfPXBHsaPdQLXlN__aCJOB,{'text':formatString(guessCorrect,{'player':o$gphZ$tibRFnMQKSmVNeC[PLXDIVW_U_RNLNCPQf(0x212)]('@')[0x1e43*Math.max(-0x1,-parseInt(0x1))+parseInt(0x2570)+0xa7*Math.trunc(-0xb)]}),'mentions':[o$gphZ$tibRFnMQKSmVNeC]});}else await tOvUNcbBcdZjiBaMonxqF[PLXDIVW_U_RNLNCPQf(0x246)](ypucDjfPXBHsaPdQLXlN__aCJOB,{'text':formatString(guessWrong,{'word':I_ihWjLZcuGrNzBOV[PLXDIVW_U_RNLNCPQf(0x235)]}),'mentions':[o$gphZ$tibRFnMQKSmVNeC]});return nextGuessTurn(I_ihWjLZcuGrNzBOV),await startGuessRound(tOvUNcbBcdZjiBaMonxqF,ypucDjfPXBHsaPdQLXlN__aCJOB),!![];}cmd({'pattern':ljX_RP(0x242),'desc':ljX_RP(0x206),'category':ljX_RP(0x251),'filename':__filename},async(tZYjpgiMnWOQ$_VD,pfcHQzti$OUhqFvkyKY,ENIPiVEnS,{from:JE_FWVNvjsAgu,isGroup:bDkUR_cvjPXLHo,sender:oipSWky$acp_D,reply:NCFtScMSKv})=>{const jUyk$oXk=ljX_RP;if(!bDkUR_cvjPXLHo)return NCFtScMSKv(guessOnlyInGroups);if(guessGames[jUyk$oXk(0x223)](JE_FWVNvjsAgu))return NCFtScMSKv(guessGameAlreadyRunning);const gUHfwD={'host':oipSWky$acp_D,'players':[oipSWky$acp_D],'scores':new Map([[oipSWky$acp_D,parseInt(0x4b)*0xb+Math.floor(parseInt(0x3b3))*parseInt(0x5)+-parseInt(0x15b8)]]),'round':0x1,'maxRounds':0x5,'currentIndex':0x0,'currentPlayer':null,'currentWord':null,'joinPhase':!![],'turnTimeout':null};guessGames[jUyk$oXk(0x23e)](JE_FWVNvjsAgu,gUHfwD),await tZYjpgiMnWOQ$_VD[jUyk$oXk(0x246)](JE_FWVNvjsAgu,{'text':formatString(guessGameStarted,{'host':oipSWky$acp_D[jUyk$oXk(0x212)]('@')[parseInt(0x352)+-0x13c*Number(parseInt(0x14))+0x1*parseInt(0x155e)]}),'mentions':[oipSWky$acp_D]}),setTimeout(async()=>{const oYoaYGg=jUyk$oXk,XgOHPCjNKW=guessGames[oYoaYGg(0x252)](JE_FWVNvjsAgu);if(!XgOHPCjNKW||!XgOHPCjNKW[oYoaYGg(0x20d)])return;XgOHPCjNKW[oYoaYGg(0x20d)]=![];if(XgOHPCjNKW[oYoaYGg(0x261)][oYoaYGg(0x226)]<Math.floor(-0xa)*parseInt(0x13d)+parseInt(0x25a)+parseFloat(parseInt(0xa0a)))return guessGames[oYoaYGg(0x1c9)](JE_FWVNvjsAgu),tZYjpgiMnWOQ$_VD[oYoaYGg(0x246)](JE_FWVNvjsAgu,{'text':guessGameCancelled});await startGuessRound(tZYjpgiMnWOQ$_VD,JE_FWVNvjsAgu);},parseFloat(-parseInt(0xc1ed))+Number(parseInt(0x8))*-0x13d5+-0x1*parseInt(-0x1d5c5));}),cmd({'pattern':ljX_RP(0x263),'desc':ljX_RP(0x1cb),'category':ljX_RP(0x251),'filename':__filename},async(aaTzdZigYEhJ$RPpOYVE,SXfqoAqGYsMRYlchMDAiI,fbonlCE$gDkzz,{from:aEugAZHlyuNFBQSuLOQlPPYv,sender:zzWHxiCAiLUYXiHJyXUy,reply:PKEUGgNszlHf_kGTQdcRwLbd})=>{const NMGvVo$IhoyofXelEfteVdKP=ljX_RP,RSDV$Hrtkwoi_JefqeBaJvl=guessGames[NMGvVo$IhoyofXelEfteVdKP(0x252)](aEugAZHlyuNFBQSuLOQlPPYv);if(!RSDV$Hrtkwoi_JefqeBaJvl)return PKEUGgNszlHf_kGTQdcRwLbd(flagGameNotRunning);if(RSDV$Hrtkwoi_JefqeBaJvl[NMGvVo$IhoyofXelEfteVdKP(0x1ff)]!==zzWHxiCAiLUYXiHJyXUy)return PKEUGgNszlHf_kGTQdcRwLbd(flagGameHostOnlyStop);RSDV$Hrtkwoi_JefqeBaJvl[NMGvVo$IhoyofXelEfteVdKP(0x224)]&&clearTimeout(RSDV$Hrtkwoi_JefqeBaJvl[NMGvVo$IhoyofXelEfteVdKP(0x224)]),await aaTzdZigYEhJ$RPpOYVE[NMGvVo$IhoyofXelEfteVdKP(0x246)](aEugAZHlyuNFBQSuLOQlPPYv,{'text':formatString(flagGameStopped,{'host':zzWHxiCAiLUYXiHJyXUy[NMGvVo$IhoyofXelEfteVdKP(0x212)]('@')[Math.max(-0x11,-0x11)*Math.max(0x23d,parseInt(0x23d))+parseFloat(-parseInt(0x361))+-0x1*-parseInt(0x296e)]}),'mentions':[zzWHxiCAiLUYXiHJyXUy]}),guessGames[NMGvVo$IhoyofXelEfteVdKP(0x1c9)](aEugAZHlyuNFBQSuLOQlPPYv);}),cmd({'on':ljX_RP(0x211)},async(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,qzRgyQH_MYgCXTsQak,{from:R$mKPtIdYQbGe$p,sender:kZbyeUpJQULUYuzgt$NO,body:ZwePoUPncBh$NrbXWoshlpa})=>{const BqFi$OXwLnc=ljX_RP;try{if(!R$mKPtIdYQbGe$p||!kZbyeUpJQULUYuzgt$NO)return;const zyOQmOPpGEw_G=(ZwePoUPncBh$NrbXWoshlpa||'')[BqFi$OXwLnc(0x1d8)](),uaU_tjDWrrGXdAdg$CCp=zyOQmOPpGEw_G[BqFi$OXwLnc(0x1c5)]();if(uaU_tjDWrrGXdAdg$CCp===BqFi$OXwLnc(0x21d)){if(flagGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){await handleFlagInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}if(triviaGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){await handleTriviaInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}if(guessGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){await handleGuessInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}}if(flagGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){(/^[1-4]$/[BqFi$OXwLnc(0x1ef)](zyOQmOPpGEw_G)||/^[a-zA-Z\s]+$/[BqFi$OXwLnc(0x1ef)](zyOQmOPpGEw_G))&&await handleFlagInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}if(triviaGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){(/^[1-4]$/[BqFi$OXwLnc(0x1ef)](zyOQmOPpGEw_G)||/^[a-zA-Z0-9\s\?\.,!]+$/[BqFi$OXwLnc(0x1ef)](zyOQmOPpGEw_G))&&await handleTriviaInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}if(guessGames[BqFi$OXwLnc(0x223)](R$mKPtIdYQbGe$p)){await handleGuessInput(OF$vDKKnUwPcWZOYB,Hi$wbdxC_bD,R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,uaU_tjDWrrGXdAdg$CCp);return;}if(/^[1-9]$/[BqFi$OXwLnc(0x1ef)](zyOQmOPpGEw_G)){const gYGhpYogfk$Sfbe=ttt[BqFi$OXwLnc(0x1d1)](R$mKPtIdYQbGe$p,kZbyeUpJQULUYuzgt$NO,Number(zyOQmOPpGEw_G)-(-parseInt(0x571)+Math.ceil(-parseInt(0x250f))+0x193*Math.trunc(parseInt(0x1b))));if(!gYGhpYogfk$Sfbe?.[BqFi$OXwLnc(0x239)])return;const oUUfcYusxlNoWkfcAmlDX$N=ttt[BqFi$OXwLnc(0x1e6)](gYGhpYogfk$Sfbe[BqFi$OXwLnc(0x1f6)]);if(gYGhpYogfk$Sfbe[BqFi$OXwLnc(0x253)])return OF$vDKKnUwPcWZOYB[BqFi$OXwLnc(0x246)](R$mKPtIdYQbGe$p,{'text':formatString(tttWinner,{'board':oUUfcYusxlNoWkfcAmlDX$N,'player':kZbyeUpJQULUYuzgt$NO[BqFi$OXwLnc(0x212)]('@')[-parseInt(0x3ef)*parseInt(0x5)+-parseInt(0x1239)*-parseInt(0x1)+-parseInt(0xb9)*-parseInt(0x2)]}),'mentions':[kZbyeUpJQULUYuzgt$NO]});if(gYGhpYogfk$Sfbe[BqFi$OXwLnc(0x1f9)])return OF$vDKKnUwPcWZOYB[BqFi$OXwLnc(0x246)](R$mKPtIdYQbGe$p,{'text':formatString(tttDraw,{'board':oUUfcYusxlNoWkfcAmlDX$N})});return OF$vDKKnUwPcWZOYB[BqFi$OXwLnc(0x246)](R$mKPtIdYQbGe$p,{'text':formatString(tttGameStart,{'player1':BqFi$OXwLnc(0x24d),'player2':BqFi$OXwLnc(0x1bd),'board':oUUfcYusxlNoWkfcAmlDX$N,'currentPlayer':gYGhpYogfk$Sfbe[BqFi$OXwLnc(0x1ec)][BqFi$OXwLnc(0x212)]('@')[0x15c5+parseInt(0x8ec)+parseInt(-0x1eb1)]}),'mentions':[gYGhpYogfk$Sfbe[BqFi$OXwLnc(0x1ec)]]});}}catch(igrtBKxTa_NIQwWnOVFji){console[BqFi$OXwLnc(0x221)](BqFi$OXwLnc(0x22a),igrtBKxTa_NIQwWnOVFji[BqFi$OXwLnc(0x1de)]);}}),module[ljX_RP(0x1ca)]={'triviaGames':triviaGames,'handleTriviaInput':handleTriviaInput,'flagGames':flagGames,'handleFlagInput':handleFlagInput,'guessGames':guessGames,'handleGuessInput':handleGuessInput};
+// ================= GAME STATE =================
+const flagGames = new Map();
+const triviaGames = new Map();
+const guessGames = new Map();
+
+// ================= FLAG CACHE =================
+const FLAG_DATA_URL =
+  "https://raw.githubusercontent.com/Mayelprince/games/refs/heads/main/flaggame/flags.json";
+
+let flagCache = null;
+let lastFetch = 0;
+const CACHE_TIME = 5 * 60 * 1000;
+
+// ================= FETCH FLAGS =================
+async function fetchFlags() {
+  const now = Date.now();
+  if (flagCache && now - lastFetch < CACHE_TIME) return flagCache;
+
+  try {
+    const res = await axios.get(FLAG_DATA_URL, { timeout: 10000 });
+    if (Array.isArray(res.data)) {
+      flagCache = res.data;
+      lastFetch = now;
+      return flagCache;
+    }
+  } catch (e) {
+    console.log("Failed to fetch flags:", e.message);
+  }
+
+  return [
+    {
+      flag: "🇺🇸",
+      country: "United States",
+      capital: "Washington D.C.",
+      continent: "North America",
+      options: ["United States", "Canada", "Mexico", "Brazil"]
+    },
+    {
+      flag: "🇬🇧",
+      country: "United Kingdom",
+      capital: "London",
+      continent: "Europe",
+      options: ["United Kingdom", "France", "Germany", "Spain"]
+    },
+    {
+      flag: "🇯🇵",
+      country: "Japan",
+      capital: "Tokyo",
+      continent: "Asia",
+      options: ["Japan", "China", "South Korea", "Thailand"]
+    }
+  ];
+}
+
+// ================= FLAG GAME FUNCTIONS =================
+function nextFlagTurn(game) {
+  game.currentIndex++;
+  if (game.currentIndex >= game.players.length) {
+    game.currentIndex = 0;
+    game.round++;
+  }
+}
+
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+async function startFlagRound(conn, from) {
+  const game = flagGames.get(from);
+  if (!game) return;
+
+  if (game.round > game.maxRounds) {
+    await endFlagGame(conn, from);
+    return;
+  }
+
+  const flags = await fetchFlags();
+  const unused = flags.filter(f => !game.used.includes(f.country));
+
+  const flag =
+    unused.length > 0
+      ? unused[Math.floor(Math.random() * unused.length)]
+      : flags[Math.floor(Math.random() * flags.length)];
+
+  // Shuffle options and store with their original indices
+  const shuffledOptions = shuffleArray([...flag.options]);
+  const correctIndex = shuffledOptions.findIndex(opt => opt === flag.country);
+  
+  game.used.push(flag.country);
+  game.currentFlag = {
+    ...flag,
+    shuffledOptions,
+    correctNumber: correctIndex + 1 // Store as 1-based index for user
+  };
+
+  const player = game.players[game.currentIndex];
+  const optionsText = shuffledOptions.map((o, i) => `• ${i + 1}. ${o}`).join("\n");
+
+  await conn.sendMessage(from, {
+    text: formatString(flagRoundText, {
+      round: game.round,
+      maxRounds: game.maxRounds,
+      flag: flag.flag,
+      options: optionsText,
+      player: player.id.split("@")[0]
+    }),
+    mentions: [player.id]
+  });
+
+  // === PLAYER TIMER ===
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+
+  game.turnTimeout = setTimeout(async () => {
+    if (!flagGames.has(from)) return;
+    
+    await conn.sendMessage(from, {
+      text: formatString(flagTimeExceeded, {
+        player: player.id.split("@")[0],
+        country: flag.country
+      }),
+      mentions: [player.id]
+    });
+    
+    nextFlagTurn(game);
+    await startFlagRound(conn, from);
+  }, 30000);
+}
+
+async function endFlagGame(conn, from) {
+  const game = flagGames.get(from);
+  if (!game) return;
+
+  const scoresArray = Array.from(game.scores.entries());
+  scoresArray.sort((a, b) => b[1] - a[1]);
+  
+  let scoresText = "";
+  const mentions = [];
+  
+  scoresArray.forEach(([id, score], i) => {
+    mentions.push(id);
+    scoresText += `${i + 1}. @${id.split("@")[0]} → ${score} pts\n`;
+  });
+
+  await conn.sendMessage(from, {
+    text: formatString(flagGameOver, { scores: scoresText }),
+    mentions
+  });
+  
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  flagGames.delete(from);
+}
+
+// ================= FLAG GAME INPUT HANDLER =================
+async function handleFlagInput(conn, m, from, sender, text) {
+  const game = flagGames.get(from);
+  if (!game) return false;
+
+  // Allow bot owner to play (don't skip fromMe)
+
+  // ================= JOIN PHASE =================
+  if (game.joinPhase && text === "join") {
+    const alreadyJoined = game.players.find(p => p.id === sender);
+    if (alreadyJoined) {
+      await conn.sendMessage(from, {
+        text: formatString(flagAlreadyJoined, {
+          player: sender.split("@")[0],
+          players: game.players.length
+        }),
+        mentions: [sender]
+      });
+      return true;
+    }
+
+    game.players.push({ id: sender });
+    game.scores.set(sender, 0);
+
+    await conn.sendMessage(from, {
+      text: formatString(flagJoined, {
+        player: sender.split("@")[0],
+        players: game.players.length
+      }),
+      mentions: [sender]
+    });
+    return true;
+  }
+
+  if (game.joinPhase || !game.currentFlag) return true;
+
+  // Clear turn timer on input
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+
+  const currentPlayer = game.players[game.currentIndex];
+  if (!currentPlayer || currentPlayer.id !== sender) return true;
+
+  const guess = text.trim();
+  const correctAnswer = game.currentFlag.country;
+  let isCorrect = false;
+
+  // ================= CHECK NUMBER INPUT (1-4) =================
+  if (/^[1-4]$/.test(guess)) {
+    const selectedIndex = parseInt(guess) - 1;
+    const selectedOption = game.currentFlag.shuffledOptions[selectedIndex];
+    
+    if (selectedOption && selectedOption === correctAnswer) {
+      isCorrect = true;
+    }
+  } 
+  // ================= CHECK COUNTRY NAME INPUT =================
+  else {
+    // Check if guess matches the correct country (case-insensitive)
+    if (guess.toLowerCase() === correctAnswer.toLowerCase()) {
+      isCorrect = true;
+    }
+  }
+
+  // ================= CORRECT ANSWER =================
+  if (isCorrect) {
+    const score = (game.scores.get(sender) || 0) + 10;
+    game.scores.set(sender, score);
+
+    await conn.sendMessage(from, {
+      text: formatString(flagCorrectAnswer, {
+        country: game.currentFlag.country,
+        player: sender.split("@")[0]
+      }),
+      mentions: [sender]
+    });
+
+    nextFlagTurn(game);
+    await startFlagRound(conn, from);
+  } 
+  // ================= WRONG ANSWER =================
+  else {
+    await conn.sendMessage(from, {
+      text: formatString(flagWrongAnswer, { country: game.currentFlag.country })
+    });
+
+    nextFlagTurn(game);
+    await startFlagRound(conn, from);
+  }
+  return true;
+}
+
+// ================= FLAG GAME COMMANDS =================
+cmd({
+  pattern: "flaggame",
+  desc: "Start flag guessing game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, isGroup, sender, reply }) => {
+  if (!isGroup) return reply(gameOnlyInGroups);
+  if (flagGames.has(from)) return reply(flagGameAlreadyRunning);
+
+  const game = {
+    host: sender,
+    players: [{ id: sender }],
+    scores: new Map([[sender, 0]]),
+    round: 1,
+    maxRounds: 5,
+    currentIndex: 0,
+    currentFlag: null,
+    joinPhase: true,
+    used: [],
+    turnTimeout: null
+  };
+
+  flagGames.set(from, game);
+
+  await conn.sendMessage(from, {
+    text: formatString(flagGameStarted, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  }, { quoted: mek });
+
+  setTimeout(async () => {
+    const g = flagGames.get(from);
+    if (!g || !g.joinPhase) return;
+
+    g.joinPhase = false;
+
+    if (g.players.length < 2) {
+      flagGames.delete(from);
+      return conn.sendMessage(from, {
+        text: flagGameCancelled
+      });
+    }
+
+    await startFlagRound(conn, from);
+  }, 30000);
+});
+
+cmd({
+  pattern: "stopflag",
+  desc: "Stop flag game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = flagGames.get(from);
+  if (!game) return reply(flagGameNotRunning);
+
+  if (game.host !== sender) {
+    return reply(flagGameHostOnlyStop);
+  }
+
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  
+  await conn.sendMessage(from, {
+    text: formatString(flagGameStopped, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  });
+  
+  flagGames.delete(from);
+});
+
+// ================= TIC-TAC-TOE MANAGER ==================
+class TicTacToeManager {
+  constructor() {
+    this.games = new Map();
+    this.turnTimeouts = new Map();
+    this.gameTimeout = 5 * 60 * 1000;
+    this.turnTimeout = 60 * 1000; // 60 seconds per turn
+    this.conn = null; // Will be set when game starts
+  }
+
+  // Normalize ID to base number for comparison
+  normalizeId(id) {
+    if (!id) return null;
+    // Extract the number part before @
+    return id.split("@")[0];
+  }
+
+  // Check if two IDs match (handles LID vs JID)
+  idsMatch(id1, id2) {
+    if (!id1 || !id2) return false;
+    if (id1 === id2) return true;
+    return this.normalizeId(id1) === this.normalizeId(id2);
+  }
+
+  // Find player in game by any ID format
+  findPlayerInGame(game, playerId) {
+    for (const p of game.players) {
+      if (this.idsMatch(p, playerId)) {
+        return p; // Return the stored player ID
+      }
+    }
+    return null;
+  }
+
+  createGame(chatId, p1, p2, conn) {
+    if (!this.games.has(chatId)) this.games.set(chatId, new Map());
+    const games = this.games.get(chatId);
+    this.conn = conn;
+
+    // Check if either player is already in a game
+    for (const game of games.values()) {
+      if (this.findPlayerInGame(game, p1) || this.findPlayerInGame(game, p2)) {
+        return { success: false, message: tttPlayerAlreadyInGame };
+      }
+    }
+
+    const gameId = `${this.normalizeId(p1)}:${this.normalizeId(p2)}`;
+    const state = {
+      players: [p1, p2],
+      board: Array(9).fill(null),
+      currentPlayer: p1,
+      symbols: { [p1]: "❌", [p2]: "⭕" },
+      lastMove: Date.now(),
+      chatId: chatId
+    };
+
+    games.set(gameId, state);
+    this.setTurnTimeout(chatId, gameId, state);
+
+    return { success: true, gameId, state };
+  }
+
+  getGame(chatId, player) {
+    if (!this.games.has(chatId)) return null;
+    for (const [id, game] of this.games.get(chatId)) {
+      const foundPlayer = this.findPlayerInGame(game, player);
+      if (foundPlayer) {
+        return { id, game, matchedPlayer: foundPlayer };
+      }
+    }
+    return null;
+  }
+
+  makeMove(chatId, player, pos) {
+    const data = this.getGame(chatId, player);
+    if (!data) return { success: false, message: tttNoGame };
+
+    const { id, game, matchedPlayer } = data;
+
+    // Check if it's this player's turn (using matched ID)
+    if (!this.idsMatch(game.currentPlayer, player)) {
+      return { success: false, message: tttNotYourTurn };
+    }
+
+    if (game.board[pos] !== null)
+      return { success: false, message: tttPositionUsed };
+
+    // Use the stored player ID for the symbol
+    game.board[pos] = game.symbols[matchedPlayer];
+    game.lastMove = Date.now();
+
+    const winner = this.checkWinner(game.board);
+
+    if (winner) {
+      this.clearTurnTimeout(chatId, id);
+      this.endInternal(chatId, id);
+      return { success: true, board: game.board, win: matchedPlayer, players: game.players };
+    }
+
+    if (!game.board.includes(null)) {
+      this.clearTurnTimeout(chatId, id);
+      this.endInternal(chatId, id);
+      return { success: true, board: game.board, draw: true, players: game.players };
+    }
+
+    // Switch to next player
+    game.currentPlayer = game.players.find(p => !this.idsMatch(p, matchedPlayer));
+    
+    // Reset turn timeout for next player
+    this.setTurnTimeout(chatId, id, game);
+    
+    return { success: true, board: game.board, next: game.currentPlayer, players: game.players };
+  }
+
+  end(chatId, player) {
+    const data = this.getGame(chatId, player);
+    if (!data) return { success: false, message: tttNoGame };
+
+    const { matchedPlayer } = data;
+    const opponent = data.game.players.find(p => !this.idsMatch(p, matchedPlayer));
+    this.clearTurnTimeout(chatId, data.id);
+    this.endInternal(chatId, data.id);
+
+    return {
+      success: true,
+      text: formatString(tttGameEnded, { opponent: opponent.split("@")[0] }),
+      opponent
+    };
+  }
+
+  endInternal(chatId, gameId) {
+    if (this.games.has(chatId)) {
+      this.games.get(chatId).delete(gameId);
+      if (this.games.get(chatId).size === 0) this.games.delete(chatId);
+    }
+    this.clearTurnTimeout(chatId, gameId);
+  }
+
+  checkWinner(b) {
+    const w = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (const [a, b1, c] of w) {
+      if (b[a] && b[a] === b[b1] && b[a] === b[c]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  formatBoard(board) {
+    const nums = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"];
+    let out = "┄┄┄┄┄┄┄┄┄┄\n";
+    for (let i = 0; i < 3; i++) {
+      out += "┃ ";
+      for (let j = 0; j < 3; j++) {
+        const p = i * 3 + j;
+        out += (board[p] || nums[p]) + " ┃ ";
+      }
+      out += "\n";
+      if (i < 2) out += "┄┄┄┄┄┄┄┄┄┄\n";
+    }
+    return out + "┄┄┄┄┄┄┄┄┄┄";
+  }
+
+  setTurnTimeout(chatId, gameId, game) {
+    this.clearTurnTimeout(chatId, gameId);
+    
+    const timeoutId = setTimeout(async () => {
+      // Check if game still exists
+      if (!this.games.has(chatId)) return;
+      const games = this.games.get(chatId);
+      if (!games.has(gameId)) return;
+      
+      const currentGame = games.get(gameId);
+      const timedOutPlayer = currentGame.currentPlayer;
+      const winner = currentGame.players.find(p => !this.idsMatch(p, timedOutPlayer));
+      
+      // Send timeout message
+      if (this.conn) {
+        try {
+          await this.conn.sendMessage(chatId, {
+            text: `⏰ *Time's up!*\n\n@${timedOutPlayer.split("@")[0]} took too long to play.\n\n🏆 @${winner.split("@")[0]} wins by timeout!`,
+            mentions: [timedOutPlayer, winner]
+          });
+        } catch (e) {
+          console.log("TTT timeout message error:", e.message);
+        }
+      }
+      
+      // End the game
+      this.endInternal(chatId, gameId);
+      
+    }, this.turnTimeout);
+    
+    this.turnTimeouts.set(`${chatId}:${gameId}`, timeoutId);
+  }
+
+  clearTurnTimeout(chatId, gameId) {
+    const key = `${chatId}:${gameId}`;
+    if (this.turnTimeouts.has(key)) {
+      clearTimeout(this.turnTimeouts.get(key));
+      this.turnTimeouts.delete(key);
+    }
+  }
+}
+
+const ttt = new TicTacToeManager();
+
+// ================== TIC-TAC-TOE COMMANDS ==================
+cmd({
+  pattern: "ttt",
+  alias: ["tictactoe"],
+  desc: "Start TicTacToe (reply to someone)",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, quoted, reply }) => {
+  if (!quoted) return reply(tttReplyToStart);
+  
+  // Check if trying to play with self (normalize IDs)
+  const senderNum = sender.split("@")[0];
+  const quotedNum = quoted.sender.split("@")[0];
+  if (senderNum === quotedNum) return reply(tttCantPlaySelf);
+
+  const res = ttt.createGame(from, sender, quoted.sender, conn);
+  if (!res.success) return reply(res.message);
+
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE* ❌⭕
+├━━━━━━━━━━━━━━━┤
+│ ❌ @${senderNum}
+│ ⭕ @${quotedNum}
+├━━━━━━━━━━━━━━━┤
+${ttt.formatBoard(res.state.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🎮 @${senderNum}'s turn
+│ ⏱️ 60 seconds per move
+╰━━━━━━━━━━━━━━━╯
+
+_Reply with a number (1-9) to play!_`,
+    mentions: [sender, quoted.sender]
+  });
+});
+
+cmd({
+  pattern: "ttend",
+  desc: "End TicTacToe",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const res = ttt.end(from, sender);
+  if (!res.success) return reply(res.message);
+
+  await conn.sendMessage(from, {
+    text: res.text,
+    mentions: [sender, res.opponent]
+  });
+});
+
+cmd({
+  pattern: "stopttt",
+  desc: "Stop TicTacToe game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const res = ttt.end(from, sender);
+  if (!res.success) return reply(tttNoGame);
+
+  await conn.sendMessage(from, {
+    text: res.text,
+    mentions: [sender, res.opponent]
+  });
+});
+
+// ================= TTT AI GAME =================
+const tttAiGames = new Map();
+
+function tttAiGetBestMove(board) {
+  const winning = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  
+  for (const [a, b, c] of winning) {
+    if (board[a] === "⭕" && board[b] === "⭕" && board[c] === null) return c;
+    if (board[a] === "⭕" && board[c] === "⭕" && board[b] === null) return b;
+    if (board[b] === "⭕" && board[c] === "⭕" && board[a] === null) return a;
+  }
+  
+  for (const [a, b, c] of winning) {
+    if (board[a] === "❌" && board[b] === "❌" && board[c] === null) return c;
+    if (board[a] === "❌" && board[c] === "❌" && board[b] === null) return b;
+    if (board[b] === "❌" && board[c] === "❌" && board[a] === null) return a;
+  }
+  
+  if (board[4] === null) return 4;
+  const corners = [0, 2, 6, 8].filter(i => board[i] === null);
+  if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
+  const available = board.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function tttAiCheckWinner(board) {
+  const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for (const [a, b, c] of w) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+  }
+  return null;
+}
+
+function tttAiFormatBoard(board) {
+  const nums = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"];
+  let out = "┄┄┄┄┄┄┄┄┄┄\n";
+  for (let i = 0; i < 3; i++) {
+    out += "┃ ";
+    for (let j = 0; j < 3; j++) {
+      const p = i * 3 + j;
+      out += (board[p] || nums[p]) + " ┃ ";
+    }
+    out += "\n";
+    if (i < 2) out += "┄┄┄┄┄┄┄┄┄┄\n";
+  }
+  return out + "┄┄┄┄┄┄┄┄┄┄";
+}
+
+cmd({
+  pattern: "tttai",
+  alias: ["tictactoeai", "tttvs"],
+  desc: "Play TicTacToe against AI",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  if (tttAiGames.has(from + sender)) return reply("⚠️ You already have a game! Finish it or use .stoptttai");
+  
+  const game = {
+    board: Array(9).fill(null),
+    player: sender,
+    playerSymbol: "❌",
+    aiSymbol: "⭕",
+    turn: "player"
+  };
+  
+  tttAiGames.set(from + sender, game);
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+│ ❌ You (@${sender.split("@")[0]})
+│ ⭕ AI (Bot)
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🎮 Your turn!
+│ ⏱️ Reply with 1-9 to play
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  }, { quoted: mek });
+});
+
+cmd({
+  pattern: "stoptttai",
+  alias: ["endtttai"],
+  desc: "Stop TicTacToe AI game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  if (!tttAiGames.has(from + sender)) return reply("❌ You don't have an active AI game.");
+  tttAiGames.delete(from + sender);
+  await reply("🛑 TicTacToe AI game ended.");
+});
+
+// ================= WORD CHAIN AI GAME =================
+const wordChainAiGames = new Map();
+
+const wordChainAiWordList = {
+  a: ["apple", "amazing", "anchor", "animal", "arrow", "autumn", "artist"],
+  b: ["banana", "bridge", "bright", "butter", "button", "bubble", "basket"],
+  c: ["castle", "candle", "carpet", "cheese", "cherry", "coffee", "cotton"],
+  d: ["diamond", "dragon", "dinner", "doctor", "donkey", "dancer", "desert"],
+  e: ["elephant", "engine", "evening", "energy", "escape", "empire", "eagle"],
+  f: ["flower", "forest", "frozen", "falcon", "family", "finger", "fountain"],
+  g: ["garden", "guitar", "golden", "galaxy", "ginger", "glitter", "glacier"],
+  h: ["hammer", "heaven", "hollow", "hunter", "honey", "harbor", "history"],
+  i: ["island", "iceberg", "insect", "imagine", "inspire", "instant", "ivory"],
+  j: ["jungle", "jacket", "jasmine", "journey", "justice", "joyful", "juggle"],
+  k: ["kitchen", "kingdom", "kitten", "kernel", "kindred", "keeper", "knight"],
+  l: ["lemon", "letter", "library", "lighter", "lizard", "lobster", "lantern"],
+  m: ["monkey", "mirror", "mountain", "mystery", "magnet", "marble", "meadow"],
+  n: ["nature", "needle", "napkin", "nectar", "network", "normal", "nuclear"],
+  o: ["orange", "ocean", "option", "oxygen", "oyster", "oracle", "outline"],
+  p: ["pepper", "planet", "purple", "palace", "parrot", "pumpkin", "puzzle"],
+  q: ["queen", "quartz", "quality", "quantum", "quarter", "quilted", "quiver"],
+  r: ["rabbit", "rainbow", "rocket", "river", "random", "ribbon", "reptile"],
+  s: ["silver", "sunset", "spider", "shadow", "singer", "summer", "system"],
+  t: ["tiger", "thunder", "trophy", "tunnel", "temple", "timber", "tornado"],
+  u: ["umbrella", "unicorn", "uniform", "unique", "useful", "update", "urgent"],
+  v: ["violet", "village", "victory", "velvet", "volcano", "voyage", "vintage"],
+  w: ["window", "winter", "wonder", "wizard", "whisper", "warrior", "weather"],
+  x: ["xylophone", "xenon"],
+  y: ["yellow", "yogurt", "yonder", "yearly"],
+  z: ["zebra", "zipper", "zenith", "zombie", "zodiac", "zephyr"]
+};
+
+function getAiWord(startLetter, usedWords) {
+  const letter = startLetter.toLowerCase();
+  const words = wordChainAiWordList[letter] || [];
+  const available = words.filter(w => !usedWords.has(w));
+  if (available.length === 0) return null;
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+cmd({
+  pattern: "wordchainai",
+  alias: ["wchainai", "chainwordai"],
+  desc: "Play Word Chain against AI",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  if (wordChainAiGames.has(from + sender)) return reply("⚠️ You already have a game! Use .stopchainai to end it.");
+  
+  const game = {
+    player: sender,
+    usedWords: new Set(),
+    lastWord: null,
+    playerScore: 0,
+    aiScore: 0,
+    chainLength: 0,
+    turn: "player",
+    turnTimeout: null
+  };
+  
+  wordChainAiGames.set(from + sender, game);
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN vs AI*
+├━━━━━━━━━━━━━━━┤
+│ 👤 You: @${sender.split("@")[0]}
+│ 🤖 AI: Bot
+│
+│ 📜 *RULES:*
+│ • Say a word starting with
+│   the last letter of the
+│   previous word
+│ • No repeated words
+│ • Must be real English words
+│ • 45 seconds per turn
+│ • Score = word length
+│
+│ 🎮 *Your turn - start with ANY word!*
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  }, { quoted: mek });
+  
+  startWordChainAiTimer(conn, from, sender);
+});
+
+cmd({
+  pattern: "stopchainai",
+  alias: ["endchainai", "stopwordchainai"],
+  desc: "Stop Word Chain AI game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const key = from + sender;
+  if (!wordChainAiGames.has(key)) return reply("❌ You don't have an active AI game.");
+  
+  const game = wordChainAiGames.get(key);
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  wordChainAiGames.delete(key);
+  
+  await reply(`🛑 Word Chain AI game ended.\n\n📊 *Final Score:*\n👤 You: ${game.playerScore} pts\n🤖 AI: ${game.aiScore} pts`);
+});
+
+function startWordChainAiTimer(conn, from, sender) {
+  const key = from + sender;
+  const game = wordChainAiGames.get(key);
+  if (!game) return;
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  game.turnTimeout = setTimeout(async () => {
+    if (!wordChainAiGames.has(key)) return;
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN - GAME OVER*
+├━━━━━━━━━━━━━━━┤
+│ ⏰ Time's up @${sender.split("@")[0]}!
+├━━━━━━━━━━━━━━━┤
+│ 📊 *FINAL SCORES:*
+│ 👤 You: ${game.playerScore} pts
+│ 🤖 AI: ${game.aiScore} pts
+│ 🏆 ${game.aiScore > game.playerScore ? "AI Wins!" : game.playerScore > game.aiScore ? "You Win!" : "Draw!"}
+│ 📝 Chain: ${game.chainLength} words
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    
+    wordChainAiGames.delete(key);
+  }, 45000);
+}
+
+async function handleWordChainAiInput(conn, mek, from, sender, text) {
+  const key = from + sender;
+  const game = wordChainAiGames.get(key);
+  if (!game || game.turn !== "player") return false;
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  const word = text.toLowerCase().trim();
+  
+  if (!/^[a-z]{2,}$/.test(word)) {
+    await conn.sendMessage(from, { text: `❌ Invalid! Words must be letters only (min 2 characters).` });
+    startWordChainAiTimer(conn, from, sender);
+    return true;
+  }
+  
+  if (game.usedWords.has(word)) {
+    await conn.sendMessage(from, { text: `❌ *"${word}"* was already used! Try another word.` });
+    startWordChainAiTimer(conn, from, sender);
+    return true;
+  }
+  
+  if (game.lastWord) {
+    const requiredLetter = game.lastWord.slice(-1);
+    if (word[0] !== requiredLetter) {
+      await conn.sendMessage(from, { text: `❌ Word must start with *"${requiredLetter.toUpperCase()}"*!` });
+      startWordChainAiTimer(conn, from, sender);
+      return true;
+    }
+  }
+  
+  const isValid = await isValidWord(word);
+  if (!isValid) {
+    await conn.sendMessage(from, { text: `❌ *"${word}"* is not a valid English word!` });
+    startWordChainAiTimer(conn, from, sender);
+    return true;
+  }
+  
+  game.usedWords.add(word);
+  game.lastWord = word;
+  game.playerScore += word.length;
+  game.chainLength++;
+  
+  const nextLetter = word.slice(-1);
+  const aiWord = getAiWord(nextLetter, game.usedWords);
+  
+  if (!aiWord) {
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN - YOU WIN!*
+├━━━━━━━━━━━━━━━┤
+│ ✅ You: *${word}* (+${word.length} pts)
+│ 🤖 AI couldn't find a word!
+├━━━━━━━━━━━━━━━┤
+│ 📊 *FINAL SCORES:*
+│ 👤 You: ${game.playerScore} pts
+│ 🤖 AI: ${game.aiScore} pts
+│ 🏆 You Win!
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    wordChainAiGames.delete(key);
+    return true;
+  }
+  
+  game.usedWords.add(aiWord);
+  game.lastWord = aiWord;
+  game.aiScore += aiWord.length;
+  game.chainLength++;
+  
+  const playerNextLetter = aiWord.slice(-1).toUpperCase();
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN vs AI*
+├━━━━━━━━━━━━━━━┤
+│ ✅ You: *${word}* (+${word.length} pts)
+│ 🤖 AI: *${aiWord}* (+${aiWord.length} pts)
+├━━━━━━━━━━━━━━━┤
+│ 📊 You: ${game.playerScore} | AI: ${game.aiScore}
+│ 🔤 Next letter: *${playerNextLetter}*
+│ 🎮 Your turn!
+│ ⏱️ 45 seconds
+│ 📝 Chain: ${game.chainLength} words
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  });
+  
+  startWordChainAiTimer(conn, from, sender);
+  return true;
+}
+
+// ================= TRIVIA GAME FUNCTIONS =================
+async function fetchTriviaQuestion() {
+  try {
+    const res = await axios.get(
+      "https://opentdb.com/api.php?amount=1&type=multiple",
+      { timeout: 10000 }
+    );
+    const q = res.data.results[0];
+    const correct = q.correct_answer;
+    const options = [...q.incorrect_answers, correct];
+    
+    // Shuffle options
+    const shuffledOptions = shuffleArray([...options]);
+
+    // Decode HTML entities for display
+    const decodeHTML = (text) => {
+      return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&eacute;/g, 'é')
+        .replace(/&ouml;/g, 'ö')
+        .replace(/&uuml;/g, 'ü')
+        .replace(/&ldquo;/g, '"')
+        .replace(/&rdquo;/g, '"')
+        .replace(/&shy;/g, '-')
+        .replace(/&hellip;/g, '...');
+    };
+
+    return {
+      question: decodeHTML(q.question),
+      correct: decodeHTML(correct),
+      options: shuffledOptions.map(opt => decodeHTML(opt))
+    };
+  } catch (e) {
+    return {
+      question: "What is 2 + 2?",
+      correct: "4",
+      options: ["1", "2", "3", "4"]
+    };
+  }
+}
+
+function nextTriviaTurn(game) {
+  game.currentIndex++;
+  if (game.currentIndex >= game.players.length) {
+    game.currentIndex = 0;
+    game.round++;
+  }
+}
+
+async function startTriviaRound(conn, from) {
+  const game = triviaGames.get(from);
+  if (!game) return;
+
+  if (game.round > game.maxRounds) {
+    await endTriviaGame(conn, from);
+    return;
+  }
+
+  const q = await fetchTriviaQuestion();
+  const player = game.players[game.currentIndex];
+
+  game.currentQuestion = q;
+  game.currentPlayer = player;
+  game.turnStarted = Date.now();
+
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+
+  const optionsText = q.options.map((o, i) => `• ${i + 1}. ${o}`).join("\n");
+
+  await conn.sendMessage(from, {
+    text: formatString(triviaRoundText, {
+      round: game.round,
+      maxRounds: game.maxRounds,
+      question: q.question,
+      options: optionsText,
+      player: player.split("@")[0]
+    }),
+    mentions: [player]
+  });
+
+  // TURN TIMER (30s)
+  game.turnTimeout = setTimeout(async () => {
+    if (!triviaGames.has(from)) return;
+    
+    await conn.sendMessage(from, {
+      text: formatString(triviaTimeExceeded, {
+        player: player.split("@")[0],
+        correct: q.correct
+      }),
+      mentions: [player]
+    });
+
+    nextTriviaTurn(game);
+    await startTriviaRound(conn, from);
+  }, 30000);
+}
+
+async function endTriviaGame(conn, from) {
+  const game = triviaGames.get(from);
+  if (!game) return;
+
+  const scoresArray = Array.from(game.scores.entries());
+  scoresArray.sort((a, b) => b[1] - a[1]);
+  
+  let scoresText = "";
+  const mentions = [];
+  
+  scoresArray.forEach(([id, score], i) => {
+    mentions.push(id);
+    scoresText += `${i + 1}. @${id.split("@")[0]} → ${score} pts\n`;
+  });
+
+  await conn.sendMessage(from, {
+    text: formatString(triviaGameOver, { scores: scoresText }),
+    mentions
+  });
+  
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  triviaGames.delete(from);
+}
+
+// ================= TRIVIA INPUT HANDLER =================
+async function handleTriviaInput(conn, m, from, sender, text) {
+  const game = triviaGames.get(from);
+  if (!game) return false;
+
+  // Allow bot owner to play (don't skip fromMe)
+
+  // ================= JOIN PHASE =================
+  if (game.joinPhase && text === "join") {
+    if (game.players.includes(sender)) {
+      await conn.sendMessage(from, {
+        text: formatString(flagAlreadyJoined, {
+          player: sender.split("@")[0],
+          players: game.players.length
+        }),
+        mentions: [sender]
+      });
+      return true;
+    }
+
+    game.players.push(sender);
+    game.scores.set(sender, 0);
+
+    await conn.sendMessage(from, {
+      text: formatString(flagJoined, {
+        player: sender.split("@")[0],
+        players: game.players.length
+      }),
+      mentions: [sender]
+    });
+    return true;
+  }
+
+  if (game.joinPhase) return true;
+
+  // ================= TURN CHECK =================
+  if (game.currentPlayer !== sender) return true;
+
+  // Clear timer
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+
+  const answer = text.trim();
+  const correctAnswer = game.currentQuestion.correct;
+  let isCorrect = false;
+
+  // ================= CHECK NUMBER INPUT (1-4) =================
+  if (/^[1-4]$/.test(answer)) {
+    const selectedIndex = parseInt(answer) - 1;
+    const selectedOption = game.currentQuestion.options[selectedIndex];
+    
+    if (selectedOption && selectedOption.toLowerCase() === correctAnswer.toLowerCase()) {
+      isCorrect = true;
+    }
+  } 
+  // ================= CHECK TEXT INPUT =================
+  else {
+    // Direct match with correct answer (case-insensitive)
+    if (answer.toLowerCase() === correctAnswer.toLowerCase()) {
+      isCorrect = true;
+    }
+  }
+
+  if (isCorrect) {
+    const score = (game.scores.get(sender) || 0) + 10;
+    game.scores.set(sender, score);
+
+    await conn.sendMessage(from, {
+      text: formatString(triviaCorrect, { player: sender.split("@")[0] }),
+      mentions: [sender]
+    });
+  } else {
+    await conn.sendMessage(from, {
+      text: formatString(triviaWrong, { correct: game.currentQuestion.correct }),
+      mentions: [sender]
+    });
+  }
+
+  nextTriviaTurn(game);
+  await startTriviaRound(conn, from);
+  return true;
+}
+
+// ================= TRIVIA COMMANDS =================
+cmd({
+  pattern: "triviagame",
+  desc: "Start multiplayer trivia game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, isGroup, sender, reply }) => {
+  if (!isGroup) return reply(triviaOnlyInGroups);
+  if (triviaGames.has(from)) return reply(triviaGameAlreadyRunning);
+
+  const game = {
+    host: sender,
+    players: [sender],
+    scores: new Map([[sender, 0]]),
+    round: 1,
+    maxRounds: 5,
+    currentIndex: 0,
+    currentPlayer: null,
+    currentQuestion: null,
+    joinPhase: true,
+    turnTimeout: null
+  };
+
+  triviaGames.set(from, game);
+
+  await conn.sendMessage(from, {
+    text: formatString(triviaGameStarted, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  });
+
+  // JOIN PHASE TIMER
+  setTimeout(async () => {
+    const g = triviaGames.get(from);
+    if (!g || !g.joinPhase) return;
+
+    g.joinPhase = false;
+
+    if (g.players.length < 2) {
+      triviaGames.delete(from);
+      return conn.sendMessage(from, {
+        text: triviaGameCancelled
+      });
+    }
+
+    await startTriviaRound(conn, from);
+  }, 30000);
+});
+
+cmd({
+  pattern: "stoptrivia",
+  desc: "Stop trivia game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = triviaGames.get(from);
+  if (!game) return reply(flagGameNotRunning);
+
+  if (game.host !== sender) {
+    return reply(flagGameHostOnlyStop);
+  }
+
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  
+  await conn.sendMessage(from, {
+    text: formatString(flagGameStopped, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  });
+  
+  triviaGames.delete(from);
+});
+
+// ================= WORD LIST =================
+const WORDS = [
+  "banana", "elephant", "computer", "pineapple",
+  "whatsapp", "robotics", "telegram", "internet",
+  "javascript", "developer", "keyboard", "monitor",
+  "headphone", "microphone", "network", "database",
+  "algorithm", "function", "variable", "programming",
+  "android", "technology", "software", "hardware",
+  "laptop", "printer", "scanner", "security",
+  "encryption", "firewall", "terminal", "server"
+];
+
+// ================= GUESS WORD FUNCTIONS =================
+function shuffleWord(word) {
+  return word.split("").sort(() => Math.random() - 0.5).join("");
+}
+
+function nextGuessTurn(game) {
+  game.currentIndex++;
+  if (game.currentIndex >= game.players.length) {
+    game.currentIndex = 0;
+    game.round++;
+  }
+}
+
+async function startGuessRound(conn, from) {
+  const game = guessGames.get(from);
+  if (!game) return;
+
+  if (game.round > game.maxRounds) {
+    await endGuessGame(conn, from);
+    return;
+  }
+
+  const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+  const scrambled = shuffleWord(word);
+  const player = game.players[game.currentIndex];
+
+  game.currentWord = word;
+  game.currentPlayer = player;
+  game.turnStarted = Date.now();
+
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+
+  await conn.sendMessage(from, {
+    text: formatString(guessRoundText, {
+      round: game.round,
+      maxRounds: game.maxRounds,
+      scrambled: scrambled,
+      player: player.split("@")[0]
+    }),
+    mentions: [player]
+  });
+
+  // TURN TIMER (30s)
+  game.turnTimeout = setTimeout(async () => {
+    if (!guessGames.has(from)) return;
+    
+    await conn.sendMessage(from, {
+      text: formatString(guessTimeExceeded, {
+        player: player.split("@")[0],
+        word: word
+      }),
+      mentions: [player]
+    });
+
+    nextGuessTurn(game);
+    await startGuessRound(conn, from);
+  }, 30000);
+}
+
+async function endGuessGame(conn, from) {
+  const game = guessGames.get(from);
+  if (!game) return;
+
+  const scoresArray = Array.from(game.scores.entries());
+  scoresArray.sort((a, b) => b[1] - a[1]);
+  
+  let scoresText = "";
+  const mentions = [];
+  
+  scoresArray.forEach(([id, score], i) => {
+    mentions.push(id);
+    scoresText += `${i + 1}. @${id.split("@")[0]} → ${score} pts\n`;
+  });
+
+  await conn.sendMessage(from, {
+    text: formatString(guessGameOver, { scores: scoresText }),
+    mentions
+  });
+  
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  guessGames.delete(from);
+}
+
+// ================= GUESS WORD INPUT HANDLER =================
+async function handleGuessInput(conn, m, from, sender, text) {
+  const game = guessGames.get(from);
+  if (!game) return false;
+
+  // Allow bot owner to play (don't skip fromMe)
+
+  // ================= JOIN PHASE =================
+  if (game.joinPhase && text === "join") {
+    if (game.players.includes(sender)) {
+      await conn.sendMessage(from, {
+        text: formatString(flagAlreadyJoined, {
+          player: sender.split("@")[0],
+          players: game.players.length
+        }),
+        mentions: [sender]
+      });
+      return true;
+    }
+
+    game.players.push(sender);
+    game.scores.set(sender, 0);
+
+    await conn.sendMessage(from, {
+      text: formatString(flagJoined, {
+        player: sender.split("@")[0],
+        players: game.players.length
+      }),
+      mentions: [sender]
+    });
+    return true;
+  }
+
+  if (game.joinPhase) return true;
+
+  // ================= TURN CHECK =================
+  if (game.currentPlayer !== sender) return true;
+
+  // Clear timer
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+
+  // ================= ANSWER CHECK =================
+  if (text.toLowerCase() === game.currentWord.toLowerCase()) {
+    const score = (game.scores.get(sender) || 0) + 10;
+    game.scores.set(sender, score);
+
+    await conn.sendMessage(from, {
+      text: formatString(guessCorrect, { player: sender.split("@")[0] }),
+      mentions: [sender]
+    });
+  } else {
+    await conn.sendMessage(from, {
+      text: formatString(guessWrong, { word: game.currentWord }),
+      mentions: [sender]
+    });
+  }
+
+  nextGuessTurn(game);
+  await startGuessRound(conn, from);
+  return true;
+}
+
+// ================= GUESS WORD COMMANDS =================
+cmd({
+  pattern: "guessword",
+  desc: "Start multiplayer Guess Word game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, isGroup, sender, reply }) => {
+  if (!isGroup) return reply(guessOnlyInGroups);
+  if (guessGames.has(from)) return reply(guessGameAlreadyRunning);
+
+  const game = {
+    host: sender,
+    players: [sender],
+    scores: new Map([[sender, 0]]),
+    round: 1,
+    maxRounds: 5,
+    currentIndex: 0,
+    currentPlayer: null,
+    currentWord: null,
+    joinPhase: true,
+    turnTimeout: null
+  };
+
+  guessGames.set(from, game);
+
+  await conn.sendMessage(from, {
+    text: formatString(guessGameStarted, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  });
+
+  // JOIN PHASE TIMER
+  setTimeout(async () => {
+    const g = guessGames.get(from);
+    if (!g || !g.joinPhase) return;
+
+    g.joinPhase = false;
+
+    if (g.players.length < 2) {
+      guessGames.delete(from);
+      return conn.sendMessage(from, {
+        text: guessGameCancelled
+      });
+    }
+
+    await startGuessRound(conn, from);
+  }, 30000);
+});
+
+cmd({
+  pattern: "stopguess",
+  desc: "Stop GuessWord game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = guessGames.get(from);
+  if (!game) return reply(flagGameNotRunning);
+
+  if (game.host !== sender) {
+    return reply(flagGameHostOnlyStop);
+  }
+
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+  }
+  
+  await conn.sendMessage(from, {
+    text: formatString(flagGameStopped, { host: sender.split("@")[0] }),
+    mentions: [sender]
+  });
+  
+  guessGames.delete(from);
+});
+
+// ================= UNIVERSAL BODY HANDLER =================
+cmd({
+  on: "body"
+}, async (conn, mek, m, { from, sender, body }) => {
+  try {
+    if (!from || !sender) return;
+    
+    const text = (body || "").trim();
+    const textLower = text.toLowerCase();
+    
+    // Skip bot's own formatted response messages (contain box characters or are multi-line)
+    if (text.includes("╭") || text.includes("│") || text.includes("╰") || 
+        text.includes("┃") || text.includes("├") || text.includes("┄") ||
+        text.startsWith("❌") || text.startsWith("✅") || text.startsWith("⏰") ||
+        text.split("\n").length > 2) {
+      return;
+    }
+    
+    // First check for join command
+    if (textLower === "join") {
+      // Check which game is active
+      if (flagGames.has(from)) {
+        await handleFlagInput(conn, mek, from, sender, textLower);
+        return;
+      }
+      if (triviaGames.has(from)) {
+        await handleTriviaInput(conn, mek, from, sender, textLower);
+        return;
+      }
+      if (guessGames.has(from)) {
+        await handleGuessInput(conn, mek, from, sender, textLower);
+        return;
+      }
+      if (diceGames.has(from)) {
+        await handleDiceJoin(conn, from, sender);
+        return;
+      }
+    }
+    
+    // Check for dice game throw command
+    if ((textLower === "throw" || textLower === "roll") && diceGames.has(from)) {
+      await handleDiceRoll(conn, from, sender);
+      return;
+    }
+    
+    // Check for active games BEFORE Tic-Tac-Toe
+    if (flagGames.has(from)) {
+      // For flag game, check if input is number 1-4 or text
+      if (/^[1-4]$/.test(text) || /^[a-zA-Z\s]+$/.test(text)) {
+        await handleFlagInput(conn, mek, from, sender, textLower);
+      }
+      return;
+    }
+    
+    if (triviaGames.has(from)) {
+      // For trivia game, check if input is number 1-4 or text
+      if (/^[1-4]$/.test(text) || /^[a-zA-Z0-9\s\?\.,!]+$/.test(text)) {
+        await handleTriviaInput(conn, mek, from, sender, textLower);
+      }
+      return;
+    }
+    
+    if (guessGames.has(from)) {
+      await handleGuessInput(conn, mek, from, sender, textLower);
+      return;
+    }
+    
+    // Handle Math Quiz answers (number answers)
+    if (mathGames.has(from)) {
+      const game = mathGames.get(from);
+      // Convert answer to string for comparison
+      if (text === String(game.answer)) {
+        const timeTaken = ((Date.now() - game.startTime) / 1000).toFixed(1);
+        mathGames.delete(from);
+        await conn.sendMessage(from, {
+          text: `✅ *Correct!* @${sender.split("@")[0]}\n\n⏱️ Time: ${timeTaken}s\n🎯 Answer: ${game.answer}`,
+          mentions: [sender]
+        });
+      } else if (/^-?\d+$/.test(text)) {
+        await conn.sendMessage(from, {
+          text: `❌ Wrong! Try again...`
+        });
+      }
+      return;
+    }
+    
+    // Handle Emoji Guess answers
+    if (emojiGames.has(from)) {
+      const game = emojiGames.get(from);
+      
+      if (textLower === "hint" || textLower === ".hint") {
+        if (!game.hintUsed) {
+          game.hintUsed = true;
+          await conn.sendMessage(from, { text: `💡 *Hint:* ${game.hint}` });
+        } else {
+          await conn.sendMessage(from, { text: `💡 Hint already used: ${game.hint}` });
+        }
+        return;
+      }
+      
+      if (textLower === game.answer || textLower.includes(game.answer)) {
+        const timeTaken = ((Date.now() - game.startTime) / 1000).toFixed(1);
+        emojiGames.delete(from);
+        await conn.sendMessage(from, {
+          text: `🎉 *Correct!* @${sender.split("@")[0]}\n\n🎬 Movie: *${game.answer.toUpperCase()}*\n⏱️ Time: ${timeTaken}s`,
+          mentions: [sender]
+        });
+      }
+      return;
+    }
+    
+    // Handle Would You Rather responses (A/B or 1/2)
+    if (wyrGames.has(from)) {
+      const game = wyrGames.get(from);
+      const choice = textLower;
+      let selectedOption = null;
+      
+      if (choice === "a" || choice === "1") {
+        selectedOption = "a";
+      } else if (choice === "b" || choice === "2") {
+        selectedOption = "b";
+      }
+      
+      if (selectedOption) {
+        const alreadyVoted = game.votes.a.includes(sender) || game.votes.b.includes(sender);
+        if (alreadyVoted) {
+          await conn.sendMessage(from, { text: `⚠️ @${sender.split("@")[0]}, you already voted!`, mentions: [sender] });
+          return;
+        }
+        
+        game.votes[selectedOption].push(sender);
+        const optionText = selectedOption === "a" ? game.question.a : game.question.b;
+        const emoji = selectedOption === "a" ? "🅰️" : "🅱️";
+        
+        await conn.sendMessage(from, {
+          text: `${emoji} @${sender.split("@")[0]} chose: *${optionText}*\n\n📊 Votes: 🅰️ ${game.votes.a.length} | 🅱️ ${game.votes.b.length}`,
+          mentions: [sender]
+        });
+      }
+      return;
+    }
+    
+    // Only check Tic-Tac-Toe if no other game is active
+    if (/^[1-9]$/.test(text)) {
+      // Update connection reference for timeout messages
+      ttt.conn = conn;
+      
+      const res = ttt.makeMove(from, sender, Number(text) - 1);
+      if (!res?.success) return;
+
+      const board = ttt.formatBoard(res.board);
+
+      const getDisplayNumber = (id) => {
+        if (!id) return "Unknown";
+        return id.split("@")[0];
+      };
+
+      const player1 = res.players?.[0] || sender;
+      const player2 = res.players?.[1] || sender;
+      const p1Num = getDisplayNumber(player1);
+      const p2Num = getDisplayNumber(player2);
+
+      if (res.win) {
+        return conn.sendMessage(from, {
+          text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${board}
+├━━━━━━━━━━━━━━━┤
+│ 🏆 @${getDisplayNumber(res.win)} *WINS!*
+╰━━━━━━━━━━━━━━━╯`,
+          mentions: [player1, player2]
+        });
+      }
+
+      if (res.draw) {
+        return conn.sendMessage(from, {
+          text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${board}
+├━━━━━━━━━━━━━━━┤
+│ 🤝 *It's a DRAW!*
+╰━━━━━━━━━━━━━━━╯`,
+          mentions: [player1, player2]
+        });
+      }
+
+      return conn.sendMessage(from, {
+        text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE* ❌⭕
+├━━━━━━━━━━━━━━━┤
+│ ❌ @${p1Num}
+│ ⭕ @${p2Num}
+├━━━━━━━━━━━━━━━┤
+${board}
+├━━━━━━━━━━━━━━━┤
+│ 🎮 @${getDisplayNumber(res.next)}'s turn
+│ ⏱️ 60 seconds to move
+╰━━━━━━━━━━━━━━━╯`,
+        mentions: [player1, player2]
+      });
+    }
+    
+  } catch (e) {
+    console.log("❌ Game handler error:", e.message);
+  }
+});
+
+// ================= ROCK PAPER SCISSORS =================
+const rpsGames = new Map();
+const RPS_CHOICES = ['rock', 'paper', 'scissors'];
+const RPS_EMOJIS = { rock: '🪨', paper: '📄', scissors: '✂️' };
+
+cmd({
+  pattern: "rps",
+  alias: ["rockpaperscissors"],
+  desc: "Play Rock Paper Scissors",
+  category: "games",
+  use: ".rps [rock/paper/scissors]",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, args, reply, isGroup }) => {
+  try {
+    const choice = args[0]?.toLowerCase();
+    
+    if (!choice || !RPS_CHOICES.includes(choice)) {
+      return reply(`🎮 *Rock Paper Scissors*\n\nUsage: .rps [rock/paper/scissors]\n\nExample:\n• .rps rock\n• .rps paper\n• .rps scissors`);
+    }
+    
+    const botChoice = RPS_CHOICES[Math.floor(Math.random() * 3)];
+    const playerEmoji = RPS_EMOJIS[choice];
+    const botEmoji = RPS_EMOJIS[botChoice];
+    
+    let result, emoji;
+    
+    if (choice === botChoice) {
+      result = "It's a TIE! 🤝";
+      emoji = "🤝";
+    } else if (
+      (choice === 'rock' && botChoice === 'scissors') ||
+      (choice === 'paper' && botChoice === 'rock') ||
+      (choice === 'scissors' && botChoice === 'paper')
+    ) {
+      result = "You WIN! 🎉";
+      emoji = "🏆";
+    } else {
+      result = "You LOSE! 😢";
+      emoji = "💔";
+    }
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🎮 *ROCK PAPER SCISSORS*
+├━━━━━━━━━━━━━━━┤
+│ You: ${playerEmoji} ${choice.toUpperCase()}
+│ Bot: ${botEmoji} ${botChoice.toUpperCase()}
+├━━━━━━━━━━━━━━━┤
+│ ${emoji} *${result}*
+╰━━━━━━━━━━━━━━━╯`
+    }, { quoted: mek });
+    
+  } catch (e) {
+    console.error("RPS error:", e);
+    reply("❌ An error occurred.");
+  }
+});
+
+// ================= MATH QUIZ =================
+const mathGames = new Map();
+
+function generateMathQuestion(difficulty = 'easy') {
+  let num1, num2, operator, answer;
+  
+  if (difficulty === 'easy') {
+    num1 = Math.floor(Math.random() * 20) + 1;
+    num2 = Math.floor(Math.random() * 20) + 1;
+    operator = ['+', '-'][Math.floor(Math.random() * 2)];
+  } else if (difficulty === 'medium') {
+    num1 = Math.floor(Math.random() * 50) + 10;
+    num2 = Math.floor(Math.random() * 20) + 1;
+    operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+  } else {
+    num1 = Math.floor(Math.random() * 100) + 20;
+    num2 = Math.floor(Math.random() * 50) + 5;
+    operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+  }
+  
+  switch (operator) {
+    case '+': answer = num1 + num2; break;
+    case '-': answer = num1 - num2; break;
+    case '*': answer = num1 * num2; break;
+  }
+  
+  return { question: `${num1} ${operator} ${num2}`, answer: answer.toString() };
+}
+
+cmd({
+  pattern: "mathquiz",
+  alias: ["math", "quickmath"],
+  desc: "Start a quick math quiz",
+  category: "games",
+  use: ".mathquiz [easy/medium/hard]",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, args, reply }) => {
+  try {
+    if (mathGames.has(from)) {
+      return reply("⚠️ A math quiz is already running! Answer the current question first.");
+    }
+    
+    const difficulty = ['easy', 'medium', 'hard'].includes(args[0]?.toLowerCase()) 
+      ? args[0].toLowerCase() 
+      : 'easy';
+    
+    const { question, answer } = generateMathQuestion(difficulty);
+    
+    mathGames.set(from, {
+      answer,
+      difficulty,
+      startTime: Date.now(),
+      sender
+    });
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🧮 *MATH QUIZ*
+├━━━━━━━━━━━━━━━┤
+│ Difficulty: ${difficulty.toUpperCase()}
+│ 
+│ ❓ What is: *${question} = ?*
+│ 
+│ ⏱️ You have 30 seconds!
+╰━━━━━━━━━━━━━━━╯
+
+_Reply with the answer..._`
+    }, { quoted: mek });
+    
+    // Auto-timeout after 30 seconds
+    setTimeout(async () => {
+      if (mathGames.has(from) && mathGames.get(from).answer === answer) {
+        mathGames.delete(from);
+        await conn.sendMessage(from, {
+          text: `⏰ *Time's up!*\n\nThe correct answer was: *${answer}*`
+        });
+      }
+    }, 30000);
+    
+  } catch (e) {
+    console.error("Math quiz error:", e);
+    reply("❌ An error occurred.");
+  }
+});
+
+// ================= EMOJI GUESS =================
+const emojiGames = new Map();
+const EMOJI_MOVIES = [
+  { emoji: "🦁👑", answer: "lion king", hint: "Disney animated classic" },
+  { emoji: "🕷️🦸‍♂️", answer: "spiderman", hint: "Marvel superhero" },
+  { emoji: "❄️👸", answer: "frozen", hint: "Let it go!" },
+  { emoji: "🧙‍♂️💍", answer: "lord of the rings", hint: "One ring to rule them all" },
+  { emoji: "🦈", answer: "jaws", hint: "Classic shark movie" },
+  { emoji: "👻👻👻", answer: "ghostbusters", hint: "Who you gonna call?" },
+  { emoji: "🏠👦😱", answer: "home alone", hint: "Kevin!" },
+  { emoji: "🚢❄️💔", answer: "titanic", hint: "Jack and Rose" },
+  { emoji: "🧔🔫", answer: "john wick", hint: "Don't touch his dog" },
+  { emoji: "🦇🃏", answer: "batman", hint: "Dark Knight" },
+  { emoji: "🐀👨‍🍳", answer: "ratatouille", hint: "Rat chef in Paris" },
+  { emoji: "🐟🔍", answer: "finding nemo", hint: "Keep swimming" },
+  { emoji: "👽☎️🏠", answer: "et", hint: "Phone home" },
+  { emoji: "🤖❤️🌱", answer: "wall-e", hint: "Lonely robot" },
+  { emoji: "🧞‍♂️🏺", answer: "aladdin", hint: "A whole new world" },
+  { emoji: "🐘✈️", answer: "dumbo", hint: "Flying elephant" },
+  { emoji: "🦖🏝️", answer: "jurassic park", hint: "Life finds a way" },
+  { emoji: "⚡🧙‍♂️👓", answer: "harry potter", hint: "The boy who lived" },
+  { emoji: "🏎️💨", answer: "fast and furious", hint: "Family!" },
+  { emoji: "🦍🏙️", answer: "king kong", hint: "Giant ape in New York" }
+];
+
+cmd({
+  pattern: "emojiguess",
+  alias: ["guessemoji", "movieemoji"],
+  desc: "Guess the movie from emojis",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  try {
+    if (emojiGames.has(from)) {
+      return reply("⚠️ An emoji guess game is already running! Answer or use .stopemoji");
+    }
+    
+    const movie = EMOJI_MOVIES[Math.floor(Math.random() * EMOJI_MOVIES.length)];
+    
+    emojiGames.set(from, {
+      answer: movie.answer,
+      hint: movie.hint,
+      startTime: Date.now(),
+      hintUsed: false
+    });
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🎬 *EMOJI MOVIE GUESS*
+├━━━━━━━━━━━━━━━┤
+│ 
+│ ${movie.emoji}
+│ 
+│ 🎯 Guess the movie!
+│ 💡 Hint: ${movie.hint}
+│ ⏱️ 60 seconds to answer
+╰━━━━━━━━━━━━━━━╯
+
+_Reply with the movie name..._`
+    }, { quoted: mek });
+    
+    // Auto-timeout
+    setTimeout(async () => {
+      if (emojiGames.has(from)) {
+        const game = emojiGames.get(from);
+        if (game.answer === movie.answer) {
+          emojiGames.delete(from);
+          await conn.sendMessage(from, {
+            text: `⏰ *Time's up!*\n\nThe movie was: *${movie.answer.toUpperCase()}*`
+          });
+        }
+      }
+    }, 60000);
+    
+  } catch (e) {
+    console.error("Emoji guess error:", e);
+    reply("❌ An error occurred.");
+  }
+});
+
+cmd({
+  pattern: "stopemoji",
+  desc: "Stop emoji guess game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+  if (!emojiGames.has(from)) {
+    return reply("❌ No emoji game is running.");
+  }
+  const game = emojiGames.get(from);
+  emojiGames.delete(from);
+  reply(`🛑 Game stopped! The answer was: *${game.answer.toUpperCase()}*`);
+});
+
+// ================= WOULD YOU RATHER =================
+const WYR_QUESTIONS = [
+  { a: "Be able to fly", b: "Be invisible" },
+  { a: "Have unlimited money", b: "Have unlimited time" },
+  { a: "Live in the past", b: "Live in the future" },
+  { a: "Be famous", b: "Be powerful" },
+  { a: "Never use social media again", b: "Never watch TV/movies again" },
+  { a: "Always be hot", b: "Always be cold" },
+  { a: "Speak all languages", b: "Play all instruments" },
+  { a: "Be a genius", b: "Be extremely attractive" },
+  { a: "Live in the city", b: "Live in the countryside" },
+  { a: "Have super strength", b: "Have super speed" },
+  { a: "Travel the world free", b: "Have a dream house" },
+  { a: "Read minds", b: "See the future" },
+  { a: "Be able to teleport", b: "Be able to time travel" },
+  { a: "Have no phone", b: "Have no car" },
+  { a: "Be immortal", b: "Live 3 perfect lives" }
+];
+
+const wyrGames = new Map();
+
+cmd({
+  pattern: "wyr",
+  alias: ["wouldyourather", "rather"],
+  desc: "Would You Rather game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+  try {
+    const q = WYR_QUESTIONS[Math.floor(Math.random() * WYR_QUESTIONS.length)];
+    
+    // Store the question for tracking responses
+    wyrGames.set(from, {
+      question: q,
+      votes: { a: [], b: [] },
+      startTime: Date.now()
+    });
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🤔 *WOULD YOU RATHER*
+├━━━━━━━━━━━━━━━┤
+│
+│ 🅰️ ${q.a}
+│
+│       *OR*
+│
+│ 🅱️ ${q.b}
+│
+╰━━━━━━━━━━━━━━━╯
+
+_Reply with A, B, 1, or 2!_`
+    }, { quoted: mek });
+    
+    // Auto-expire after 2 minutes
+    setTimeout(() => {
+      if (wyrGames.has(from)) {
+        wyrGames.delete(from);
+      }
+    }, 120000);
+    
+  } catch (e) {
+    console.error("WYR error:", e);
+    reply("❌ An error occurred.");
+  }
+});
+
+// ================= TRUTH OR DARE =================
+const TRUTHS = [
+  "What's your biggest fear?",
+  "What's the most embarrassing thing you've done?",
+  "What's a secret you've never told anyone?",
+  "Who was your first crush?",
+  "What's the weirdest dream you've had?",
+  "Have you ever lied to get out of trouble?",
+  "What's your guilty pleasure?",
+  "What's the last lie you told?",
+  "What's the most childish thing you still do?",
+  "What's the worst gift you've received?",
+  "Have you ever cheated on a test?",
+  "What's your most embarrassing nickname?",
+  "What's the longest you've gone without showering?",
+  "What's the silliest thing you're afraid of?",
+  "Who do you secretly envy?"
+];
+
+const DARES = [
+  "Send a voice note singing your favorite song",
+  "Change your profile picture to something funny for 1 hour",
+  "Send a selfie with a funny face",
+  "Text your crush and say hi",
+  "Post an embarrassing status",
+  "Don't reply to anyone for 10 minutes",
+  "Send a message in ONLY emojis for the next 5 messages",
+  "Tell a joke and make everyone laugh",
+  "Describe yourself in 3 emojis",
+  "Send a voice note in a funny accent",
+  "Compliment everyone in the group",
+  "Share your screen time report",
+  "Send the oldest photo in your gallery",
+  "Type with your eyes closed for the next message",
+  "Share the last YouTube video you watched"
+];
+
+cmd({
+  pattern: "truth",
+  desc: "Get a truth question",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender }) => {
+  const truth = TRUTHS[Math.floor(Math.random() * TRUTHS.length)];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎭 *TRUTH*
+├━━━━━━━━━━━━━━━┤
+│
+│ @${sender.split("@")[0]}
+│
+│ ❓ ${truth}
+│
+╰━━━━━━━━━━━━━━━╯
+
+_Answer honestly!_`,
+    mentions: [sender]
+  }, { quoted: mek });
+});
+
+cmd({
+  pattern: "dare",
+  desc: "Get a dare challenge",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender }) => {
+  const dare = DARES[Math.floor(Math.random() * DARES.length)];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎭 *DARE*
+├━━━━━━━━━━━━━━━┤
+│
+│ @${sender.split("@")[0]}
+│
+│ 🔥 ${dare}
+│
+╰━━━━━━━━━━━━━━━╯
+
+_Complete the dare!_`,
+    mentions: [sender]
+  }, { quoted: mek });
+});
+
+cmd({
+  pattern: "tod",
+  alias: ["truthordare"],
+  desc: "Random Truth or Dare",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender }) => {
+  const isTruth = Math.random() > 0.5;
+  const content = isTruth 
+    ? TRUTHS[Math.floor(Math.random() * TRUTHS.length)]
+    : DARES[Math.floor(Math.random() * DARES.length)];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎭 *${isTruth ? 'TRUTH' : 'DARE'}*
+├━━━━━━━━━━━━━━━┤
+│
+│ @${sender.split("@")[0]}
+│
+│ ${isTruth ? '❓' : '🔥'} ${content}
+│
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  }, { quoted: mek });
+});
+
+// ================= COIN FLIP =================
+cmd({
+  pattern: "coinflip",
+  alias: ["flip", "coin"],
+  desc: "Flip a coin",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from }) => {
+  const result = Math.random() > 0.5 ? "HEADS" : "TAILS";
+  const emoji = result === "HEADS" ? "🪙" : "💿";
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🪙 *COIN FLIP*
+├━━━━━━━━━━━━━━━┤
+│
+│ ${emoji} *${result}!*
+│
+╰━━━━━━━━━━━━━━━╯`
+  }, { quoted: mek });
+});
+
+// ================= DICE ROLL (Simple) =================
+cmd({
+  pattern: "roll",
+  alias: ["rolldice"],
+  desc: "Roll a dice",
+  category: "games",
+  use: ".roll [number of dice]",
+  filename: __filename
+}, async (conn, mek, m, { from, args }) => {
+  const numDice = Math.min(parseInt(args[0]) || 1, 6);
+  const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  
+  let results = [];
+  let total = 0;
+  
+  for (let i = 0; i < numDice; i++) {
+    const roll = Math.floor(Math.random() * 6) + 1;
+    results.push({ value: roll, emoji: diceEmojis[roll - 1] });
+    total += roll;
+  }
+  
+  const diceDisplay = results.map(r => `${r.emoji} (${r.value})`).join('  ');
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎲 *DICE ROLL*
+├━━━━━━━━━━━━━━━┤
+│
+│ ${diceDisplay}
+│
+│ Total: *${total}*
+╰━━━━━━━━━━━━━━━╯`
+  }, { quoted: mek });
+});
+
+// ================= MULTIPLAYER DICE GAME =================
+const diceGames = new Map();
+
+cmd({
+  pattern: "dice",
+  alias: ["dicegame", "dicewar"],
+  desc: "Start multiplayer dice game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, isGroup, sender, reply }) => {
+  if (!isGroup) return reply("❌ Dice game can only be played in groups!");
+  if (diceGames.has(from)) return reply("⚠️ A dice game is already running! Use .stopdice to end it.");
+  
+  const game = {
+    host: sender,
+    players: [{ id: sender, score: 0, rolls: [] }],
+    currentIndex: 0,
+    round: 1,
+    maxRounds: 3,
+    joinPhase: true,
+    turnTimeout: null
+  };
+  
+  diceGames.set(from, game);
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎲 *DICE GAME*
+├━━━━━━━━━━━━━━━┤
+│ @${sender.split("@")[0]} started a game!
+│
+│ 📜 *RULES:*
+│ • Each player rolls 2 dice
+│ • 3 rounds per game
+│ • Highest total score wins!
+│ • 30 seconds per turn
+│
+│ ⏱️ 30 seconds to join
+│ 👥 Type *join* to play!
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  }, { quoted: mek });
+  
+  setTimeout(async () => {
+    const g = diceGames.get(from);
+    if (!g || !g.joinPhase) return;
+    
+    g.joinPhase = false;
+    
+    if (g.players.length < 2) {
+      diceGames.delete(from);
+      return conn.sendMessage(from, {
+        text: "❌ Dice game cancelled - need at least 2 players!"
+      });
+    }
+    
+    for (let i = g.players.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [g.players[i], g.players[j]] = [g.players[j], g.players[i]];
+    }
+    
+    await startDiceRound(conn, from);
+  }, 30000);
+});
+
+async function handleDiceJoin(conn, from, sender) {
+  const game = diceGames.get(from);
+  if (!game || !game.joinPhase) return;
+  
+  if (game.players.some(p => p.id === sender)) {
+    await conn.sendMessage(from, {
+      text: `⚠️ @${sender.split("@")[0]}, you already joined! (${game.players.length} players)`,
+      mentions: [sender]
+    });
+    return;
+  }
+  
+  game.players.push({ id: sender, score: 0, rolls: [] });
+  await conn.sendMessage(from, {
+    text: `✅ @${sender.split("@")[0]} joined the Dice Game! (${game.players.length} players)\n\n_Type "join" to join..._`,
+    mentions: [sender]
+  });
+}
+
+async function startDiceRound(conn, from) {
+  const game = diceGames.get(from);
+  if (!game) return;
+  
+  if (game.round > game.maxRounds) {
+    await endDiceGame(conn, from);
+    return;
+  }
+  
+  const currentPlayer = game.players[game.currentIndex];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎲 *DICE GAME - Round ${game.round}/${game.maxRounds}*
+├━━━━━━━━━━━━━━━┤
+│ 🎮 @${currentPlayer.id.split("@")[0]}'s turn!
+│
+│ 🎯 Type *throw* to roll dice
+│ ⏱️ 30 seconds
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [currentPlayer.id]
+  });
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  game.turnTimeout = setTimeout(async () => {
+    if (!diceGames.has(from)) return;
+    
+    await conn.sendMessage(from, {
+      text: `⏰ @${currentPlayer.id.split("@")[0]} ran out of time! Rolling automatically...`,
+      mentions: [currentPlayer.id]
+    });
+    
+    await handleDiceRoll(conn, from, currentPlayer.id, true);
+  }, 30000);
+}
+
+async function handleDiceRoll(conn, from, sender, auto = false) {
+  const game = diceGames.get(from);
+  if (!game || game.joinPhase) return false;
+  
+  const currentPlayer = game.players[game.currentIndex];
+  if (!currentPlayer || currentPlayer.id !== sender) return false;
+  
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+  
+  const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  const dice1 = Math.floor(Math.random() * 6) + 1;
+  const dice2 = Math.floor(Math.random() * 6) + 1;
+  const total = dice1 + dice2;
+  
+  currentPlayer.score += total;
+  currentPlayer.rolls.push(total);
+  
+  const emoji1 = diceEmojis[dice1 - 1];
+  const emoji2 = diceEmojis[dice2 - 1];
+  
+  let bonusText = "";
+  if (dice1 === dice2) {
+    bonusText = "\n│ 🎉 *DOUBLES!*";
+  }
+  if (total === 12) {
+    bonusText = "\n│ 👑 *PERFECT ROLL!*";
+  }
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎲 @${sender.split("@")[0]} rolled!
+├━━━━━━━━━━━━━━━┤
+│
+│ ${emoji1} + ${emoji2} = *${total}*${bonusText}
+│
+│ 📊 Total Score: *${currentPlayer.score}*
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  });
+  
+  game.currentIndex++;
+  if (game.currentIndex >= game.players.length) {
+    game.currentIndex = 0;
+    game.round++;
+  }
+  
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  await startDiceRound(conn, from);
+  
+  return true;
+}
+
+async function endDiceGame(conn, from) {
+  const game = diceGames.get(from);
+  if (!game) return;
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score);
+  
+  let scoresText = "";
+  const mentions = [];
+  
+  sortedPlayers.forEach((p, i) => {
+    mentions.push(p.id);
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "▪️";
+    const rolls = p.rolls.join(" + ") || "0";
+    scoresText += `│ ${medal} @${p.id.split("@")[0]} → *${p.score}* (${rolls})\n`;
+  });
+  
+  const winner = sortedPlayers[0];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎲 *DICE GAME - OVER!*
+├━━━━━━━━━━━━━━━┤
+│ 🏆 @${winner.id.split("@")[0]} WINS!
+├━━━━━━━━━━━━━━━┤
+│ 📊 *FINAL SCORES:*
+${scoresText}╰━━━━━━━━━━━━━━━╯`,
+    mentions
+  });
+  
+  diceGames.delete(from);
+}
+
+cmd({
+  pattern: "stopdice",
+  alias: ["enddice", "stopdg"],
+  desc: "Stop dice game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = diceGames.get(from);
+  if (!game) return reply("❌ No dice game is running.");
+  
+  if (game.host !== sender) {
+    return reply("❌ Only the host can stop the game!");
+  }
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  await conn.sendMessage(from, {
+    text: `🛑 Dice game stopped by @${sender.split("@")[0]}`,
+    mentions: [sender]
+  });
+  
+  diceGames.delete(from);
+});
+
+// ================= 8 BALL =================
+const EIGHT_BALL_RESPONSES = [
+  "It is certain ✅",
+  "Without a doubt ✅",
+  "Yes definitely ✅",
+  "You may rely on it ✅",
+  "As I see it, yes ✅",
+  "Most likely ✅",
+  "Outlook good ✅",
+  "Yes ✅",
+  "Signs point to yes ✅",
+  "Reply hazy, try again 🔄",
+  "Ask again later 🔄",
+  "Better not tell you now 🔄",
+  "Cannot predict now 🔄",
+  "Concentrate and ask again 🔄",
+  "Don't count on it ❌",
+  "My reply is no ❌",
+  "My sources say no ❌",
+  "Outlook not so good ❌",
+  "Very doubtful ❌"
+];
+
+cmd({
+  pattern: "8ball",
+  alias: ["eightball", "ask"],
+  desc: "Ask the magic 8 ball",
+  category: "games",
+  use: ".8ball [question]",
+  filename: __filename
+}, async (conn, mek, m, { from, args, reply }) => {
+  const question = args.join(" ");
+  if (!question) {
+    return reply("❓ Please ask a question!\n\nExample: .8ball Will I be rich?");
+  }
+  
+  const answer = EIGHT_BALL_RESPONSES[Math.floor(Math.random() * EIGHT_BALL_RESPONSES.length)];
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🎱 *MAGIC 8 BALL*
+├━━━━━━━━━━━━━━━┤
+│
+│ ❓ ${question}
+│
+│ 🎱 ${answer}
+│
+╰━━━━━━━━━━━━━━━╯`
+  }, { quoted: mek });
+});
+
+// ================= GAMES MENU =================
+cmd({
+  pattern: "gamesmenu",
+  alias: ["games", "gamehelp", "gamelist"],
+  desc: "Show all available games",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, prefix }) => {
+  const menuText = `╭━━━━━━━━━━━━━━━╮
+│ 🎮 *GAMES MENU* 🎮
+╰━━━━━━━━━━━━━━━╯
+
+*🏆 MULTIPLAYER GAMES:*
+┃ ${prefix}flaggame - Flag guessing
+┃ ${prefix}triviagame - Trivia quiz
+┃ ${prefix}guessword - Word guessing
+┃ ${prefix}wordchain - Word chain
+┃ ${prefix}dice - Dice game (MP)
+┃ ${prefix}tictactoe - Tic Tac Toe
+
+*🎯 QUICK GAMES:*
+┃ ${prefix}rps - Rock Paper Scissors
+┃ ${prefix}mathquiz - Math challenge
+┃ ${prefix}emojiguess - Guess movie
+┃ ${prefix}coinflip - Flip a coin
+┃ ${prefix}roll - Roll dice
+┃ ${prefix}8ball - Magic 8 ball
+
+*🎭 PARTY GAMES:*
+┃ ${prefix}truth - Truth question
+┃ ${prefix}dare - Dare challenge
+┃ ${prefix}tod - Random Truth or Dare
+┃ ${prefix}wyr - Would You Rather
+
+*📋 GAME CONTROLS:*
+┃ ${prefix}stopflag - Stop flag game
+┃ ${prefix}stoptrivia - Stop trivia
+┃ ${prefix}stopguess - Stop word game
+┃ ${prefix}stopchain - Stop word chain
+┃ ${prefix}stopdice - Stop dice game
+┃ ${prefix}stopemoji - Stop emoji game
+┃ ${prefix}stopttt - End Tic Tac Toe
+
+╰━━━━━━━━━━━━━━━╯`;
+
+  await conn.sendMessage(from, {
+    text: menuText
+  }, { quoted: mek });
+});
+
+// ================= WORD CHAIN GAME =================
+const wordChainGames = new Map();
+
+// Validate word using dictionary API
+async function isValidWord(word) {
+  try {
+    const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`, {
+      timeout: 5000
+    });
+    return response.status === 200 && Array.isArray(response.data) && response.data.length > 0;
+  } catch (e) {
+    // If API fails, use backup validation (basic check)
+    return false;
+  }
+}
+
+// Word Chain input handler
+async function handleWordChainInput(conn, m, from, sender, text) {
+  const game = wordChainGames.get(from);
+  if (!game) return false;
+  
+  // Allow bot owner to play (don't skip fromMe)
+  
+  // JOIN PHASE
+  if (game.joinPhase && text.toLowerCase() === "join") {
+    if (game.players.some(p => p.id === sender)) {
+      await conn.sendMessage(from, {
+        text: `⚠️ @${sender.split("@")[0]}, you already joined! (${game.players.length} players)`,
+        mentions: [sender]
+      });
+      return true;
+    }
+    
+    game.players.push({ id: sender, score: 0 });
+    await conn.sendMessage(from, {
+      text: `✅ @${sender.split("@")[0]} joined the Word Chain! (${game.players.length} players)\n\n_Type "join" to join..._`,
+      mentions: [sender]
+    });
+    return true;
+  }
+  
+  if (game.joinPhase) return true;
+  
+  // GAME PHASE - Check if it's the current player's turn
+  const currentPlayer = game.players[game.currentIndex];
+  if (!currentPlayer || currentPlayer.id !== sender) return true;
+  
+  // Clear turn timer
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+  
+  const word = text.toLowerCase().trim();
+  
+  // Validate word format (letters only, min 2 chars)
+  if (!/^[a-z]{2,}$/.test(word)) {
+    await conn.sendMessage(from, {
+      text: `❌ Invalid! Words must be letters only (min 2 characters).`
+    });
+    startWordChainTimer(conn, from, game);
+    return true;
+  }
+  
+  // Check if word was already used
+  if (game.usedWords.has(word)) {
+    await conn.sendMessage(from, {
+      text: `❌ *"${word}"* was already used! Try another word.\n\n📝 Used: ${game.usedWords.size} words`
+    });
+    startWordChainTimer(conn, from, game);
+    return true;
+  }
+  
+  // Check chain rule (must start with last letter of previous word)
+  if (game.lastWord) {
+    const requiredLetter = game.lastWord.slice(-1);
+    if (word[0] !== requiredLetter) {
+      await conn.sendMessage(from, {
+        text: `❌ Word must start with *"${requiredLetter.toUpperCase()}"*!\n\nLast word: *${game.lastWord}*`
+      });
+      startWordChainTimer(conn, from, game);
+      return true;
+    }
+  }
+  
+  // Validate word using dictionary API
+  const isValid = await isValidWord(word);
+  if (!isValid) {
+    await conn.sendMessage(from, {
+      text: `❌ *"${word}"* is not a valid English word! Try again.`
+    });
+    startWordChainTimer(conn, from, game);
+    return true;
+  }
+  
+  // Word is valid! Add to used words and update game state
+  game.usedWords.add(word);
+  game.lastWord = word;
+  currentPlayer.score += word.length; // Score = word length
+  game.chainLength++;
+  
+  // Move to next player
+  game.currentIndex = (game.currentIndex + 1) % game.players.length;
+  const nextPlayer = game.players[game.currentIndex];
+  const nextLetter = word.slice(-1).toUpperCase();
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN*
+├━━━━━━━━━━━━━━━┤
+│ ✅ @${sender.split("@")[0]}: *${word}*
+│ 📊 +${word.length} pts (Total: ${currentPlayer.score})
+├━━━━━━━━━━━━━━━┤
+│ 🔤 Next letter: *${nextLetter}*
+│ 🎮 @${nextPlayer.id.split("@")[0]}'s turn
+│ ⏱️ 30 seconds
+│ 📝 Chain: ${game.chainLength} words
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender, nextPlayer.id]
+  });
+  
+  // Start timer for next player
+  startWordChainTimer(conn, from, game);
+  
+  return true;
+}
+
+function startWordChainTimer(conn, from, game) {
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  game.turnTimeout = setTimeout(async () => {
+    if (!wordChainGames.has(from)) return;
+    
+    const timedOutPlayer = game.players[game.currentIndex];
+    
+    // End game - player ran out of time
+    await endWordChainGame(conn, from, timedOutPlayer, "timeout");
+  }, 30000);
+}
+
+async function endWordChainGame(conn, from, loser, reason) {
+  const game = wordChainGames.get(from);
+  if (!game) return;
+  
+  if (game.turnTimeout) clearTimeout(game.turnTimeout);
+  
+  // Sort players by score
+  const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score);
+  
+  let scoresText = "";
+  const mentions = [];
+  
+  sortedPlayers.forEach((p, i) => {
+    mentions.push(p.id);
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "▪️";
+    scoresText += `${medal} @${p.id.split("@")[0]} → ${p.score} pts\n`;
+  });
+  
+  let reasonText = "";
+  if (reason === "timeout") {
+    reasonText = `⏰ @${loser.id.split("@")[0]} ran out of time!`;
+    mentions.push(loser.id);
+  } else if (reason === "stopped") {
+    reasonText = `🛑 Game stopped by host`;
+  }
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN - GAME OVER*
+├━━━━━━━━━━━━━━━┤
+│ ${reasonText}
+├━━━━━━━━━━━━━━━┤
+│ 📊 *FINAL SCORES:*
+${scoresText}
+│ 📝 Total chain: ${game.chainLength} words
+│ 🔤 Words used: ${game.usedWords.size}
+╰━━━━━━━━━━━━━━━╯`,
+    mentions
+  });
+  
+  wordChainGames.delete(from);
+}
+
+// Word Chain Commands
+cmd({
+  pattern: "wordchain",
+  alias: ["wchain", "chainword"],
+  desc: "Start Word Chain game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, isGroup, sender, reply }) => {
+  if (!isGroup) return reply("❌ Word Chain can only be played in groups!");
+  if (wordChainGames.has(from)) return reply("⚠️ A Word Chain game is already running! Use .stopchain to end it.");
+  
+  const game = {
+    host: sender,
+    players: [{ id: sender, score: 0 }],
+    usedWords: new Set(),
+    lastWord: null,
+    currentIndex: 0,
+    chainLength: 0,
+    joinPhase: true,
+    turnTimeout: null
+  };
+  
+  wordChainGames.set(from, game);
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN*
+├━━━━━━━━━━━━━━━┤
+│ @${sender.split("@")[0]} started a game!
+│
+│ 📜 *RULES:*
+│ • Say a word starting with
+│   the last letter of the
+│   previous word
+│ • No repeated words
+│ • Must be real English words
+│ • 30 seconds per turn
+│ • Score = word length
+│
+│ ⏱️ 30 seconds to join
+│ 👥 Type *join* to play!
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  }, { quoted: mek });
+  
+  // Join phase timer (30 seconds)
+  setTimeout(async () => {
+    const g = wordChainGames.get(from);
+    if (!g || !g.joinPhase) return;
+    
+    g.joinPhase = false;
+    
+    if (g.players.length < 2) {
+      wordChainGames.delete(from);
+      return conn.sendMessage(from, {
+        text: "❌ Word Chain cancelled - need at least 2 players!"
+      });
+    }
+    
+    // Shuffle players for random order
+    for (let i = g.players.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [g.players[i], g.players[j]] = [g.players[j], g.players[i]];
+    }
+    
+    const firstPlayer = g.players[0];
+    const playerList = g.players.map((p, i) => `${i + 1}. @${p.id.split("@")[0]}`).join("\n");
+    
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ 🔗 *WORD CHAIN STARTS!*
+├━━━━━━━━━━━━━━━┤
+│ 👥 *Players:*
+${playerList}
+├━━━━━━━━━━━━━━━┤
+│ 🎮 @${firstPlayer.id.split("@")[0]} goes first!
+│ 🔤 Start with ANY word
+│ ⏱️ 30 seconds
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: g.players.map(p => p.id)
+    });
+    
+    // Start turn timer
+    startWordChainTimer(conn, from, g);
+  }, 30000);
+});
+
+cmd({
+  pattern: "stopchain",
+  alias: ["endchain", "stopwordchain"],
+  desc: "Stop Word Chain game",
+  category: "games",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = wordChainGames.get(from);
+  if (!game) return reply("❌ No Word Chain game is running.");
+  
+  if (game.host !== sender) {
+    return reply("❌ Only the host can stop the game!");
+  }
+  
+  await endWordChainGame(conn, from, null, "stopped");
+});
+
+// Update the body handler to include Word Chain and AI games
+cmd({
+  on: "body",
+  dontAddCommandList: true
+}, async (conn, mek, m, { from, sender, body }) => {
+  try {
+    if (!from || !sender) return;
+    const text = (body || "").trim();
+    
+    // Skip bot's own formatted response messages
+    if (text.includes("╭") || text.includes("│") || text.includes("╰") || 
+        text.includes("┃") || text.includes("├") || text.includes("┄") ||
+        text.startsWith("❌") || text.startsWith("✅") || text.startsWith("⏰") ||
+        text.split("\n").length > 2) {
+      return;
+    }
+    
+    // Check for Word Chain game
+    if (wordChainGames.has(from)) {
+      await handleWordChainInput(conn, mek, from, sender, text);
+    }
+    
+    // Check for TTT AI game
+    const tttAiKey = from + sender;
+    if (tttAiGames.has(tttAiKey)) {
+      const move = parseInt(text);
+      if (move >= 1 && move <= 9) {
+        await handleTttAiMove(conn, from, sender, move - 1);
+      }
+    }
+    
+    // Check for Word Chain AI game
+    if (wordChainAiGames.has(tttAiKey)) {
+      await handleWordChainAiInput(conn, mek, from, sender, text);
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+});
+
+// Handle TTT AI moves
+async function handleTttAiMove(conn, from, sender, pos) {
+  const key = from + sender;
+  const game = tttAiGames.get(key);
+  if (!game || game.turn !== "player") return;
+  
+  if (game.board[pos] !== null) {
+    await conn.sendMessage(from, { text: "❌ That position is already taken! Choose another (1-9)." });
+    return;
+  }
+  
+  game.board[pos] = game.playerSymbol;
+  
+  let winner = tttAiCheckWinner(game.board);
+  if (winner) {
+    tttAiGames.delete(key);
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🏆 *YOU WIN!* 🎉
+│ Congratulations @${sender.split("@")[0]}!
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    return;
+  }
+  
+  if (!game.board.includes(null)) {
+    tttAiGames.delete(key);
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🤝 *IT'S A DRAW!*
+│ Good game @${sender.split("@")[0]}!
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    return;
+  }
+  
+  const aiMove = tttAiGetBestMove(game.board);
+  game.board[aiMove] = game.aiSymbol;
+  
+  winner = tttAiCheckWinner(game.board);
+  if (winner) {
+    tttAiGames.delete(key);
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🤖 *AI WINS!*
+│ Better luck next time @${sender.split("@")[0]}!
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    return;
+  }
+  
+  if (!game.board.includes(null)) {
+    tttAiGames.delete(key);
+    await conn.sendMessage(from, {
+      text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🤝 *IT'S A DRAW!*
+│ Good game @${sender.split("@")[0]}!
+╰━━━━━━━━━━━━━━━╯`,
+      mentions: [sender]
+    });
+    return;
+  }
+  
+  await conn.sendMessage(from, {
+    text: `╭━━━━━━━━━━━━━━━╮
+│ ⭕❌ *TIC-TAC-TOE vs AI* ❌⭕
+├━━━━━━━━━━━━━━━┤
+${tttAiFormatBoard(game.board)}
+├━━━━━━━━━━━━━━━┤
+│ 🎮 Your turn @${sender.split("@")[0]}!
+│ ⏱️ Reply with 1-9 to play
+╰━━━━━━━━━━━━━━━╯`,
+    mentions: [sender]
+  });
+}
+
+module.exports = {
+  triviaGames,
+  handleTriviaInput,
+  flagGames,
+  handleFlagInput,
+  guessGames,
+  handleGuessInput,
+  mathGames,
+  emojiGames,
+  wordChainGames,
+  handleWordChainInput,
+  tttAiGames,
+  wordChainAiGames,
+  diceGames,
+  handleDiceJoin,
+  handleDiceRoll
+};

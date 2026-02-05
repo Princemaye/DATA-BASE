@@ -1,6 +1,637 @@
+// ============================= R E Q U E S T =============================
+const config = require('../config');
+const { cmd } = require('../command');
+const axios = require('axios');
 
+// ============================= L A N G U A G E =============================
+var allLangs = require("../lib/language.json");
+var LANG = config.LANG === 'EN' ? 'EN' 
+         : config.LANG === 'FR' ? 'FR' 
+         : 'EN';
 
+var lang = allLangs[LANG];
+var { errorMg } = lang;
 
+// ============================= API CONFIG =============================
+const apiurl = 'https://api.princetechn.com/api';
+const apikey = 'prince';
 
+// ============================= C M D =============================
 
-function QTDNZCxPKJNDt(){const nYfoFjNZfWbSrfccPH_jrgWS=['304873f293f2bebbb5baa6bcbbbcb5f2b0bdbea6f2bba1f2e7f2a6bbbfb7a1f2babda6a6b7a0f2a6bab3bcf2a6bab7f2a1a7a0b4b3b1b7f2bdb4f2a6bab7f281a7bcf3','b7a0a0bda0','93b0a1bdbea7a6b7beabf3f2304e57','a0b3bcb6bdbfbfb7bfb7','f2a1b3aba1f2a6bdf292','224d4044f2f89fabf2bab7b3a0a6f2b0b7bebdbcb5a1f2a6bdf2abbda7f3f8','ebb19b9584aa93','a0bdb1b9a2b3a2b7a0a1b1bba1a1bda0a1','81b7bcb6f2b3f2b4b3b9b7f2a2bbbcb5f2bfb7a1a1b3b5b7','b6b3b6b8bdb9b7','f8d8d8224d4670f2809590e8f2fa','9ba6f5a1f2b3f2a6bbb7f3f2224d764f','e0e7e2e1ebe5e7a29c99b1a287','224d784bf2f891bdbbbcf294bebba2e8f8d8d8','224d404af2f89bf5bff2b1a0b3a8abf2b3b0bda7a6f2abbda7f3f8','224d5e5ff2e5e3f7f2bdb4f2a6bab7f297b3a0a6baf5a1f2a1a7a0b4b3b1b7f2bba1f2b1bda4b7a0b7b6f2b0abf2a5b3a6b7a0f3','224d4d70f2eae2f7f2fff282a0b7a6a6abf2bebbb9b7beabf3','d890bda6e8f2','b8bdb9b7','b4a7a6a7a0b7','f2f89e9d8497f29f9386919af2949d879c96f3f8f2','b3aabbbda1','304f5ef286babba1f2b1bdbfbfb3bcb6f2bdbcbeabf2a5bda0b9a1f2bbbcf2b5a0bda7a2a1f3','224d7459f293f2b0b7b3a7a6bbb4a7bef2a6a0b3bca1b4bda0bfb3a6bbbdbcf2b3a5b3bba6a1f2abbda7f3','304f763d6a5d30525f224d4677f2f88bbda7f2a1b7a6f2bfabf2bab7b3a0a6f2bdbcf2b4bba0b7f3f8','8bbda7f2a5bbbcf3f2224d5c5b','94bbbcb6f2abbda7a0f2a0b3bcb6bdbff2bebda4b7f2bbbcf2a6bab7f2b5a0bda7a2','a2bda1a69ebbbcb9','e8d8d8','95b7a6f2b3f2b4a7bcf2f585bda7beb6f28bbda7f280b3a6bab7a0f5f2a3a7b7a1a6bbbdbc','95bdbdb6f29fb3a6b1baf3f2224d4047','307f42f28bbda7f2a5bbbebef2bda4b7a0b1bdbfb7f2b3bcabf2b1bab3bebeb7bcb5b7a1f2a6bab3a6f2b1bdbfb7f2abbda7a0f2a5b3abf3','224d4073f2f880b3bcb6bdbff294b3b1a6e8f8d8d8','bfb7bfb7','224d4079f293f2bcb7a5f2bda2a2bda0a6a7bcbba6abf2bba1f2bab7b3b6bbbcb5f2abbda7a0f2a5b3abf2a6babba1f2a5b7b7b9f3','a0b3bcb6bdbfb1bdbebda0','304f5ef287bcb3b0beb7f2a6bdf2b5b7a6f2b5a0bda7a2f2bbbcb4bda0bfb3a6bbbdbcf3','224d405cf28bbda7a0f2b1a0b7b3a6bba4bba6abf2a5bbbebef2beb7b3b6f2a6bdf2a1a7b1b1b7a1a1f3','304f763d6a5df2f88bbda7f5a0b7f2a6bab7f2bebda4b7f2bdb4f2bfabf2bebbb4b7f3f8','95b7a6f2b3f2a0b3bcb6bdbff2bbbca6b7a0b7a1a6bbbcb5f2b4b3b1a6','d8f893bca1a5b7a0f8f2','eab0b3bebe','f086bab7f2bdbcbeabf2bbbfa2bda1a1bbb0beb7f2b8bda7a0bcb7abf2bba1f2a6bab7f2bdbcb7f2abbda7f2bcb7a4b7a0f2b0b7b5bbbcfcf0f2fff286bdbcabf280bdb0b0bbbca1f2224d4852','bbbca1a2bba0b7','d8224d4645f2f881bda7a0b1b7e8f8f28991bebbb1b9f29ab7a0b78ffa','97a0a0bda0f2bbbcf2bfabbebda4b7f2b1bdbfbfb3bcb6e8','9bf2a6babbbcb9f2abb7a1f3f2224d435f','95a0b7b7bc','a3a7bda6b7','f085b7f2bfa7a1a6f2b4bdb1a7a1f2bda7a0f2b3a6a6b7bca6bbbdbcf2bdbcf2a6bab7f2bebbb5baa6f2bbbcf2bda7a0f2b6b3a0b9b7a1a6f2bfbdbfb7bca6a1fcf0f2fff293a0bba1a6bda6beb7f2224d4073','224d4052f2e2f7f2fff2809b82f3','e3e1e7e1eae2e2ea8ba6beb187b5','a1a7a0a4bba4b3be','224d4045f2f89bf2bebda4b7f2abbda7f2bfbda0b7f2a6bab3bcf2a5bda0b6a1f2b1b3bcf2a1b3abf3f8','b3a1b9','f081a7b1b1b7a1a1f2bba1f2bcbda6f2b4bbbcb3befef2b4b3bbbea7a0b7f2bba1f2bcbda6f2b4b3a6b3bee8f29ba6f2bba1f2a6bab7f2b1bda7a0b3b5b7f2a6bdf2b1bdbca6bbbca7b7f2a6bab3a6f2bfb3a6a6b7a0a1fcf0f2224d5c7d','95b7a6f2b3f2a0b3bcb6bdbff2b6b3b6f2b8bdb9b7','224d404bf2f88bbda7f5a0b7f2a6bab7f2a0b7b3a1bdbcf29bf2a1bfbbbeb7f2b7a4b7a0abf2b6b3abf3f8','ecf28d86babba1f2bba1f2b8a7a1a6f2b4bda0f2b4a7bcf3f2224d4a568d','a0bdb1b9','224d407df2f88bbda7f5a0b7f2bfabf2bdbcb7f2b3bcb6f2bdbcbeabf3f8','a3a7b7a1a6bbbdbc','85babba6b7','224d5c7df286bab7f2b1bdbebda0a1f2bdb4f2a6bab7f281a0bbf29eb3bcb9b3bcf2b4beb3b5f2bab3a4b7f2bfb7b3bcbbbcb5f2fff29da0b3bcb5b7f2fa86b3bfbbbea1fbfef295a0b7b7bcf2fa9fa7a1bebbbfa1fbfef29fb3a0bdbdbcf2fa81bbbcbab3beb7a1b7fbf3','224d4048f2f89bf5bff2bab7b3b6f2bda4b7a0f2bab7b7bea1f2b4bda0f2abbda7f3f8','224d4047f2f89ebda4b7f291b3beb1a7beb3a6bda0f8d8d8224d4379f2','bfabbea4','224d4047f2f89bf29ebda4b7f28bbda7f8f2a1bdf2bfa7b1baf3','224d5c63f2f89fb3b5bbb1f2eaf290b3bebef2a1b3aba1e8f8d8d8f883a7b7a1a6bbbdbce8f8f2','fcfcfdbebbb0fdbeb3bcb5a7b3b5b7fcb8a1bdbc','b4bda0a6a7bcb7','fcfcfdb1bdbcb4bbb5','a5bda7beb6abbda7a0b3a6bab7a0','f090b7bebbb7a4b7f2abbda7f2b1b3bcf2b3bcb6f2abbda7f5a0b7f2bab3beb4a5b3abf2a6bab7a0b7fcf0f2fff286bab7bdb6bda0b7f280bdbda1b7a4b7bea6f2224d5e4d','94bebba2f2b3f2b1bdbbbc','90bda6f2a5bbbca1f3f2224d7644','224d7671f2f89fb7bfb7f286bbbfb7f3f8d8d8224d415ef2f886bba6beb7e8f8f2','80b7b6','224d5c7df294bdb1a7a1f2bdbcf2abbda7a0f2b5bdb3bea1f2fff2a6bab7abf5a0b7f2b1bebda1b7a0f2a6bab3bcf2abbda7f2a6babbbcb9f3','224d404af292','224d424ef293bcf2b3bca6f5a1f2b0a0b3bbbcf2bba1f2b3a1f2bab3a0b6f2b3a1f2b3f2a0bdb1b9f3','baa6a6a2a1e8fdfdb3a2bbfca6a0a7a6babda0b6b3a0b7b0bda6fcaaaba8fda4e3fda5aba0','a1a2bebba6','90beb3b1b9','93a1b9f2a6bab7f2bfb3b5bbb1f2eaf2b0b3bebef2b3f2a3a7b7a1a6bbbdbc','baa6a6a2a1e8fdfdbbb1b3bcbab3a8b6b3b6b8bdb9b7fcb1bdbffd','a2bbbcb5bfb7','a5aba0','f086bab7f2b4a7a6a7a0b7f2b0b7bebdbcb5a1f2a6bdf2a6babda1b7f2a5babdf2b0b7bebbb7a4b7f2bbbcf2a6bab7f2b0b7b3a7a6abf2bdb4f2a6bab7bba0f2b6a0b7b3bfa1fcf0f2fff297beb7b3bcbda0f280bdbda1b7a4b7bea6f2224d5e5a','94bbbcb6f2bda7a6f2bbb4f2abbda7f2a5bda7beb6f2a1a7a0a4bba4b7f2bbbcf2b3f2b6b3bcb5b7a0bda7a1f2a1bba6a7b3a6bbbdbcf3','224d4d73f2e7e2f7f2fff29fb3abb0b7ed','304e7af281bdbfb7bdbcb7f2a1a2b7b1bbb3bef2bba1f2a6babbbcb9bbbcb5f2b3b0bda7a6f2abbda7f2a0bbb5baa6f2bcbda5f3','e5e7e7e2e2e1e2a0a4b7b5a48a','8bb7a1f3f2224d407d','95b7a6f2b3f2a0b3bcb6bdbff2bfb7bfb7','224d467cf2f894bda0a6a7bcb7f286b7bebeb7a0f281b3aba1e8f8d8d8','82beb3abf280bdb1b9f282b3a2b7a0f281b1bba1a1bda0a1f2a5bba6baf2b0bda6','224d4049f2f88bbda7f5a0b7f2bfabf2a1bda7bebfb3a6b7f3f8','e396b393a3bd85','224d7671f2f896b3b6f298bdb9b7f3f8d8d8224d466bf2','a2a0b7b6bbb1a6','b1bdbbbc','fcfcfdb1bdbfbfb3bcb6','86bab7f2b4a7a6a7a0b7f2bba1f2a7bcb1b7a0a6b3bbbcf2224d467c','224d5c60f2f896bbb1b7f280bdbebee8f8d8d8','e6e3e1e0e1e5ebeba1839b80bea3','b4bbbea6b7a0','b5b3bfb7','95b7bcb7a0b3a6b7f2b3f2a0b3bcb6bdbff2b1bdbebda0','e6e0849c9a869c84','224d745af281bab3a0b9a1f2b1b3bcf2b5a0bda5f2a7a2f2a6bdf2e1e7fee2e2e2f2a6b7b7a6baf2bbbcf2a6bab7bba0f2bebbb4b7a6bbbfb7f3','a1b7bcb69fb7a1a1b3b5b7','b4bebdbda0','bbbcb1bea7b6b7a1','224d5e4df286bdb6b3abf2a5bbbebef2b0a0bbbcb5f2abbda7f2a7bcb7aaa2b7b1a6b7b6f2b5bdbdb6f2bcb7a5a1f3','b1bab3a6','f7d8d8','beb7bcb5a6ba','8bb7bebebda5','b4a7bc','224d5e6bf2f89ebbb9b7f2b3f2a0bda1b7fef2abbda7f2b0a0bbbcb5f2b0b7b3a7a6abf2a6bdf2bfabf2bebbb4b7f3f8','304f5ef293bcf2b7a0a0bda0f2bdb1b1a7a0a0b7b6f2a5babbbeb7f2b4bbbcb6bbbcb5f2abbda7a0f2bebda4b7f2bfb3a6b1baf3','87bcb0b7bebbb7a4b3b0beb7f3f2224d4a47','b4b3b9b7a2bbbcb5','e1e7e1e4e1e2e0b99396b19db5','224d424bf29db1a6bda2a7a1b7a1f2bab3a4b7f2e1f2bab7b3a0a6a1f3','b4bebba2','bebda4b7b1b3be','90a0bda5bc','224d5e4bf286bab7f29fbdbdbcf5a1f2b5a0b3a4bba6abf2bba1f2e4f2a6bbbfb7a1f2a5b7b3b9b7a0f2a6bab3bcf297b3a0a6baf5a1f3','90b7a6a6b7a0f2b3a1f294a0bbb7bcb6a1f3f2224d404b','304e503d6a5df291babdbda1b7f2abbda7a0f2a5b7b3a2bdbcf3d8d886aba2b7e8f2b2fca0a2a1f2a0bdb1b9b2f2bda0f2b2fca0a2a1f2a2b3a2b7a0b2f2bda0f2b2fca0a2a1f2a1b1bba1a1bda0a1b2','224d757ef293f2baa7bfb3bcf5a1f2969c93f2bba1f2e7e2f7f2a1bbbfbbbeb3a0f2a6bdf2b3f2b0b3bcb3bcb3f5a1f2969c93f3','304f5ef29cbdf2bda6bab7a0f2bfb7bfb0b7a0a1f2b4bda7bcb6f2bbbcf2a6babba1f2b5a0bda7a2f3','84b7a0abf2a7bcb1beb7b3a0f2224d5e793d6a5d','9cbda6f290b3b6f3f2224d4049','224d5c7af2f880b3bcb6bdbff291bdbebda0f295b7bcb7a0b3a6bda0f8d8d8','86b3bbbea1f2224d5d653d6a5d','a6bba6beb7','95a0b3ab','86a0abf2abbda7a0f2bea7b1b9f2224d5f52','304e7af2f896b3bbbeabf29bbca1a2bba0b3a6bbbdbce8f8d8d8','baa6a6a2a1e8fdfdbfb7bfb7ffb3a2bbfcb1bdbffdb5bbbfbfb7','bbbcb4bd','b1bdbebda0','a0b3bcb6bdbf','224d404ff2f88bbda7f2bfb3b9b7f2bfabf2bab7b3a0a6f2a1b9bba2f2b3f2b0b7b3a6f3f8','224d4677f2e3e2e2f7f2fff293b0a1bdbea7a6b7f2beb7b5b7bcb6f3','a2b3b681a6b3a0a6','224d404cf2f89bf2b1b3bcf5a6f2bebba4b7f2a5bba6babda7a6f2abbda7f3f8','e6a8a89c93b880','9da0b3bcb5b7','bfabbebda4b7','f2f9f2','224d5f52f28bbda7a0f2bab3a0b6f2a5bda0b9f2a5bbbebef2a1bdbdbcf2a2b3abf2bdb4b4f3','d8224d4044f29ebda4b7e8f2','a6bd81a6a0bbbcb5','bebda4b7','9e939c95','224d4a63f2f881a7a0a4bba4b3bef291bab3bcb1b7e8f8f2','224d5e6af29ebda4b7f2b3bcb6f2bab3a2a2bbbcb7a1a1f2b3a0b7f2bbbcf2abbda7a0f2b4a7a6a7a0b7f3','a7a1b7a0','e4ebe7e6e1a6988796869e','224d7573f2f89bf2b3b6bda0b7f2abbda7f2a5bba6baf2b3bebef2bfabf2bab7b3a0a6f3f8','bfbda6bba4b3a6bbbdbc','f081a7b1b1b7a1a1f2bba1f2bcbda6f2b4bbbcb3befef2b4b3bbbea7a0b7f2bba1f2bcbda6f2b4b3a6b3bee8f29ba6f2bba1f2a6bab7f2b1bda7a0b3b5b7f2a6bdf2b1bdbca6bbbca7b7f2a6bab3a6f2b1bda7bca6a1fcf0f2fff285bbbca1a6bdbcf291baa7a0b1babbbebef2304e7a','a0b5b0','b3a2a2bebbb1b3a6bbbdbcfdb8a1bdbc','bfa1f8','b4b3b1a6','82b7a0b4b7b1a6f29fb3a6b1baf3f2224d4044','90bea7b7','a1b1bba1a1bda0a1','a0b3bcb6bdbfb4b3b1a6','b5b7a6','f09bbcf2a6bab7f2bfbbb6b6beb7f2bdb4f2b6bbb4b4bbb1a7bea6abf2bebbb7a1f2bda2a2bda0a6a7bcbba6abfcf0f2fff293beb0b7a0a6f297bbbca1a6b7bbbcf2224d4078','224d5e5af293f2a2bda1bba6bba4b7f2b1bab3bcb5b7f2bba1f2b1bdbfbbbcb5f2a6bdf2abbda7a0f2bebbb4b7f3','e3e0b9a3a5aa909b','a7a0be','224d4943f2e0e2f7f2fff290b3a0b7beabf3','82a7a0a2beb7','95b7a6f2abbda7a0f2b4bda0a6a7bcb7f2a2a0b7b6bbb1a6bbbdbc','224d4041f2f88bbda7f5a0b7f2bfabf2b7a4b7a0aba6babbbcb5f3f8','9cb7a4b7a0f3f2224d4879','a6a0bbbf','a2b3a2b7a0','304f5ef29bbca4b3bebbb6f2b1babdbbb1b7f3f287a1b7e8f2a0bdb1b9fef2a2b3a2b7a0fef2bda0f2a1b1bba1a1bda0a1','224d5f7df29abdbcb7abf2bcb7a4b7a0f2a1a2bdbbbea1f3','80bdbebef2b3f2b6bbb1b7','90b7b3a7a6bbb4a7bef3f2304e7a','b6b3a6b3','224d4173f2f882bdbcb5f3f8f2224d5d41d8d8224d4164f29eb3a6b7bcb1abe8f2f8','96b7b4bbbcbba6b7beabf2bcbda6f3f2304f5e','224d7646f2f885bda7beb6f28bbda7f280b3a6bab7a0fcfcfcf8d8d8224d466bf2','91b3beb1a7beb3a6b7f2bebda4b7f2a2b7a0b1b7bca6b3b5b7f2b0b7a6a5b7b7bcf2a6a5bdf2bcb3bfb7a1','a0bdbebe','95b7a6f2b3bcf2bbbca1a2bba0b3a6bbbdbcb3bef2a3a7bda6b7','304e503d6a5df2f880bdb1b9f282b3a2b7a0f281b1bba1a1bda0a1f8d8d88bbda7e8f2','9fb3abb0b7fcfcfcf2224d7646','a1a7a0a4bba4b7','9cbdf3f2304f5e','224d5c7df2f89ba6f5a1f2b6b7a1a6bbbcabf3f8f2224d4047d8','a0a2a1','9ab7b3b6a1f2224d4343','a6bd9ebda5b7a091b3a1b7','b6bbb1b7','e3e6eae6ebeae595bd949f9f87','fbd8224d4163f29a978ae8f2f1'];QTDNZCxPKJNDt=function(){return nYfoFjNZfWbSrfccPH_jrgWS;};return QTDNZCxPKJNDt();}const sGVaHHXpUsmbYNaLrRl=MMdWUqD;(function(klmTrIjCZgrqafo_UflPEBCi,WnNVudnSVOZGISkf$HwERanRi){const QCpw$k=MMdWUqD,BTunsnPtBsYmrzorV=klmTrIjCZgrqafo_UflPEBCi();while(!![]){try{const fwVYcepZqZTrX_QwyvLL=parseFloat(QCpw$k(0x15a))/(-0x145f+parseFloat(parseInt(0x7fc))+Math.floor(parseInt(0xc64)))*(-parseFloat(QCpw$k(0x174))/(parseInt(0x13d)*Math.trunc(0x8)+parseInt(0x970)+-parseInt(0x1356)))+-parseFloat(QCpw$k(0x19a))/(parseInt(0x1e09)+parseInt(0x740)+-0x2de*Math.trunc(0xd))+parseFloat(QCpw$k(0x18e))/(parseInt(parseInt(0x16))*Number(-parseInt(0x77))+parseInt(0x2)*-0x126b+parseInt(0x2f14))*(-parseFloat(QCpw$k(0x1d4))/(Math.max(parseInt(0xba),0xba)*Math.trunc(-parseInt(0x2c))+0x1190+parseFloat(0xe6d)*0x1))+Math['floor'](parseFloat(QCpw$k(0x165))/(-parseInt(0x87f)+parseInt(parseInt(0x3))*0x74f+Math.ceil(-parseInt(0xd68))))*(-parseFloat(QCpw$k(0x1c6))/(0x22d*-0xf+parseInt(0x2)*-0x9b7+Math.ceil(0x3418)))+Number(parseFloat(QCpw$k(0x12b))/(Math.max(-0x9a,-parseInt(0x9a))*parseInt(0x1)+-parseInt(0x23c6)+0x2468))*(parseFloat(QCpw$k(0x1ce))/(-0x1*Number(0x23bc)+parseFloat(-parseInt(0x164d))+0x3a12))+Math['trunc'](-parseFloat(QCpw$k(0x154))/(Number(parseInt(0x22d))*0x2+-0x1*Math.trunc(parseInt(0xb1d))+-0x1*-parseInt(0x6cd)))+-parseFloat(QCpw$k(0x161))/(parseFloat(parseInt(0x1))*Math.trunc(0x65b)+parseFloat(-parseInt(0x226))+0x1a*Math.ceil(-0x29))*(-parseFloat(QCpw$k(0x1a9))/(Number(parseInt(0x5b6))+parseInt(0x9a)*-parseInt(0x29)+0x4*Math.ceil(0x4c0)));if(fwVYcepZqZTrX_QwyvLL===WnNVudnSVOZGISkf$HwERanRi)break;else BTunsnPtBsYmrzorV['push'](BTunsnPtBsYmrzorV['shift']());}catch(AY_aaoYykySlKSXYtdw){BTunsnPtBsYmrzorV['push'](BTunsnPtBsYmrzorV['shift']());}}}(QTDNZCxPKJNDt,-parseInt(0x1b752)+Math.trunc(-parseInt(0x1))*Number(-0x3d5d3)+Math.floor(0x5222)*parseInt(0x25)));const axios=require(sGVaHHXpUsmbYNaLrRl(0x1dd)),{cmd}=require(sGVaHHXpUsmbYNaLrRl(0x15e)),config=require(sGVaHHXpUsmbYNaLrRl(0x13f));var allLangs=require(sGVaHHXpUsmbYNaLrRl(0x13d)),LANG=config[sGVaHHXpUsmbYNaLrRl(0x196)]==='EN'?'EN':config[sGVaHHXpUsmbYNaLrRl(0x196)]==='FR'?'FR':'EN',lang=allLangs[LANG];let {jokeFetchError,questionFetchError,memeFetchError,jokeLoadError,questionPrompt,magic8BallPrompt,loveRequestPrompt,dailyInspiration}=lang;function MMdWUqD(VBbshtDyUCVpJUocmeC,GPUFHHmSgysVtF){const SFG_ZCdov=QTDNZCxPKJNDt();return MMdWUqD=function(jn$dEEaaCu,SKTIYeRkIJlnD$m){jn$dEEaaCu=jn$dEEaaCu-(-parseInt(0x16f9)+parseInt(0xd7)*parseInt(0x7)+parseInt(0x1d3)*Math.trunc(parseInt(0xa)));let MFVIIocAvmis=SFG_ZCdov[jn$dEEaaCu];if(MMdWUqD['QKJICi']===undefined){const raeVZSw$Bhu=function(fdoBP_fRNysckUbj){let qvFiY_b_S=-0x5*-parseInt(0x2fa)+parseInt(0x1479)+Math.trunc(0x55)*-parseInt(0x65)&-0x1b79+-0x1*parseFloat(0x2355)+Math.ceil(-parseInt(0x1))*-0x3fcd,l_$MYRa=new Uint8Array(fdoBP_fRNysckUbj['match'](/.{1,2}/g)['map'](AKjnrXMv_r_H=>parseInt(AKjnrXMv_r_H,-parseInt(0x767)+0xa93+-parseInt(0x4)*0xc7))),W$FdrcWEyRewmaSU=l_$MYRa['map'](SrMWzVY$EeDdpPF=>SrMWzVY$EeDdpPF^qvFiY_b_S),GJsCPL=new TextDecoder(),TOWWUZecCtJOYk$Y=GJsCPL['decode'](W$FdrcWEyRewmaSU);return TOWWUZecCtJOYk$Y;};MMdWUqD['NOVCDM']=raeVZSw$Bhu,VBbshtDyUCVpJUocmeC=arguments,MMdWUqD['QKJICi']=!![];}const sCOL$NmXbOwPue=SFG_ZCdov[parseInt(0xf67)+Math.ceil(-parseInt(0x2342))+Math.floor(-0x1)*Math.ceil(-0x13db)],PlYbMzOxRGCXexoNNBtzyoV=jn$dEEaaCu+sCOL$NmXbOwPue,d$PZf_e=VBbshtDyUCVpJUocmeC[PlYbMzOxRGCXexoNNBtzyoV];return!d$PZf_e?(MMdWUqD['aqtIbN']===undefined&&(MMdWUqD['aqtIbN']=!![]),MFVIIocAvmis=MMdWUqD['NOVCDM'](MFVIIocAvmis),VBbshtDyUCVpJUocmeC[PlYbMzOxRGCXexoNNBtzyoV]=MFVIIocAvmis):MFVIIocAvmis=d$PZf_e,MFVIIocAvmis;},MMdWUqD(VBbshtDyUCVpJUocmeC,GPUFHHmSgysVtF);}cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1da),'alias':[sGVaHHXpUsmbYNaLrRl(0x1d1)],'react':'😂','desc':sGVaHHXpUsmbYNaLrRl(0x130),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'use':sGVaHHXpUsmbYNaLrRl(0x1da)},async(iTVDg_DQ,KUDMXJXYf$lFW,{reply:pB$IZC_ZA})=>{const D$CWbUQZEEa=sGVaHHXpUsmbYNaLrRl;try{const AhhIYAszLGHwISjJalcD=await axios[D$CWbUQZEEa(0x1a6)](D$CWbUQZEEa(0x14d),{'headers':{'Accept':D$CWbUQZEEa(0x19f)}});await pB$IZC_ZA(D$CWbUQZEEa(0x15b)+AhhIYAszLGHwISjJalcD[D$CWbUQZEEa(0x1b6)][D$CWbUQZEEa(0x1da)]);}catch{await pB$IZC_ZA(jokeFetchError);}}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x14f),'alias':[sGVaHHXpUsmbYNaLrRl(0x140)],'react':'🤔','desc':sGVaHHXpUsmbYNaLrRl(0x1e5),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'use':sGVaHHXpUsmbYNaLrRl(0x14f)},async(VFtyjvJBALHNjqcYJzTngTNTN,vS$ozjiEnED_f,{reply:BEEYLwr$xUCbf$XV})=>{const hEfblgS=sGVaHHXpUsmbYNaLrRl;try{const L_uGo_Yt=await axios[hEfblgS(0x1a6)](hEfblgS(0x149));await BEEYLwr$xUCbf$XV(hEfblgS(0x1b9)+L_uGo_Yt[hEfblgS(0x1b6)][hEfblgS(0x135)]);}catch(AUAlTTwbjPKMsKnnmjbct){await BEEYLwr$xUCbf$XV(questionFetchError);}}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x14e),'alias':[sGVaHHXpUsmbYNaLrRl(0x173)],'react':'📡','desc':sGVaHHXpUsmbYNaLrRl(0x1d0),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'use':sGVaHHXpUsmbYNaLrRl(0x14e)},async(bxO_TqWs,YHKhausaxynqReo,{reply:EIfgMMvIisC})=>{const TZuby$yrwp$BdTOIX=sGVaHHXpUsmbYNaLrRl;let MuZ__smoUZuxXUCOcSupz=Math[TZuby$yrwp$BdTOIX(0x168)](Math[TZuby$yrwp$BdTOIX(0x189)]()*(-0x683+-parseInt(0xeb)+-0x2*Math.ceil(-0x5ab)));await EIfgMMvIisC(TZuby$yrwp$BdTOIX(0x1b7)+MuZ__smoUZuxXUCOcSupz+TZuby$yrwp$BdTOIX(0x1a0));}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1bf),'alias':[sGVaHHXpUsmbYNaLrRl(0x12c)],'react':'😱','desc':sGVaHHXpUsmbYNaLrRl(0x151),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'use':sGVaHHXpUsmbYNaLrRl(0x1bf)},async(Ww$ysLBiJIWASPLxUFcd,yQPJqFJoGnwdClszsfrAKDefT,{reply:msNiKplTMOlbC})=>{const hUkVJZcsjgaM=sGVaHHXpUsmbYNaLrRl,EvAZHOKqzcuRTIznVf=[hUkVJZcsjgaM(0x12a),hUkVJZcsjgaM(0x1ab),hUkVJZcsjgaM(0x152),hUkVJZcsjgaM(0x1d8),hUkVJZcsjgaM(0x18b)];await msNiKplTMOlbC(hUkVJZcsjgaM(0x197)+EvAZHOKqzcuRTIznVf[Math[hUkVJZcsjgaM(0x168)](Math[hUkVJZcsjgaM(0x189)]()*EvAZHOKqzcuRTIznVf[hUkVJZcsjgaM(0x16d)])]);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1e9),'alias':[sGVaHHXpUsmbYNaLrRl(0x1cb)],'react':'😂','desc':sGVaHHXpUsmbYNaLrRl(0x156),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'use':sGVaHHXpUsmbYNaLrRl(0x1e9)},async(GxmKwBCmPw,xy$zxfnb,{reply:BNpWo$$hu})=>{const tZssaEWOavaRZzGc=sGVaHHXpUsmbYNaLrRl;try{const riPSf_zHUvFzBC=await axios[tZssaEWOavaRZzGc(0x1a6)](tZssaEWOavaRZzGc(0x186)),VWuTuhfCuYJuB=riPSf_zHUvFzBC[tZssaEWOavaRZzGc(0x1b6)];await GxmKwBCmPw[tZssaEWOavaRZzGc(0x167)](xy$zxfnb[tZssaEWOavaRZzGc(0x16b)],{'image':{'url':VWuTuhfCuYJuB[tZssaEWOavaRZzGc(0x1aa)]},'caption':tZssaEWOavaRZzGc(0x144)+VWuTuhfCuYJuB[tZssaEWOavaRZzGc(0x182)]+tZssaEWOavaRZzGc(0x1f4)+VWuTuhfCuYJuB[tZssaEWOavaRZzGc(0x1e3)]+')'},{'quoted':xy$zxfnb});}catch(g_zpNxgDLGt_YyKF){console[tZssaEWOavaRZzGc(0x1c9)](g_zpNxgDLGt_YyKF),await BNpWo$$hu(memeFetchError);}}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1f1),'alias':[sGVaHHXpUsmbYNaLrRl(0x12e)],'desc':sGVaHHXpUsmbYNaLrRl(0x14c),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🎱','filename':__filename},async(rIoSpSjhULsTWeZtlJNO,mrrqYPtkIqwCLC,YkYeoyGzCucaaEqhfnFtYPq,{from:jpPKp$sb,reply:iDwtmpNWrOzEsDN,q:jLtVMCgUJVCHYRvsbFf})=>{const FTlQohGHesNLAs=sGVaHHXpUsmbYNaLrRl;if(!jLtVMCgUJVCHYRvsbFf)return iDwtmpNWrOzEsDN(questionPrompt);const XCAAOj_nWKsVEqECOU=[FTlQohGHesNLAs(0x155),FTlQohGHesNLAs(0x1c0),FTlQohGHesNLAs(0x1be),FTlQohGHesNLAs(0x126),FTlQohGHesNLAs(0x1ca),FTlQohGHesNLAs(0x1af),FTlQohGHesNLAs(0x172),FTlQohGHesNLAs(0x17e),FTlQohGHesNLAs(0x184),FTlQohGHesNLAs(0x1b5),FTlQohGHesNLAs(0x1b8),FTlQohGHesNLAs(0x15f)],VuKdHZAxxQrkKqZlnADdnCBz=XCAAOj_nWKsVEqECOU[Math[FTlQohGHesNLAs(0x168)](Math[FTlQohGHesNLAs(0x189)]()*XCAAOj_nWKsVEqECOU[FTlQohGHesNLAs(0x16d)])];await iDwtmpNWrOzEsDN(FTlQohGHesNLAs(0x13c)+jLtVMCgUJVCHYRvsbFf+FTlQohGHesNLAs(0x1f0)+VuKdHZAxxQrkKqZlnADdnCBz);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1c5),'alias':[sGVaHHXpUsmbYNaLrRl(0x1bb)],'desc':sGVaHHXpUsmbYNaLrRl(0x1b4),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🎲','filename':__filename},async(AnVeexZNK,Zgs_YSZzn$qol,GZwQqEARqRPTMvahSw,{from:CsXQ_sGBSQkoHL,reply:IMsMUXjonxFU})=>{const J_HzFBv_NoQom=sGVaHHXpUsmbYNaLrRl,n_kpiQ_J=Math[J_HzFBv_NoQom(0x168)](Math[J_HzFBv_NoQom(0x189)]()*(-0xd*-0x13+Math.trunc(-parseInt(0xf07))*Math.trunc(0x1)+-parseInt(0xe16)*Math.max(-parseInt(0x1),-0x1)))+(0x1*-0x26b6+parseFloat(parseInt(0xebf))+parseInt(0x17f8)),YQyaVzimpsWu=['⚀','⚁','⚂','⚃','⚄','⚅'];await IMsMUXjonxFU(J_HzFBv_NoQom(0x160)+YQyaVzimpsWu[n_kpiQ_J-(Math.trunc(-0x31)*Number(-0xa4)+0x123*parseInt(0x3)+-0x22cc)]+'\x20*'+n_kpiQ_J+'*');}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1a1),'alias':[sGVaHHXpUsmbYNaLrRl(0x1a5),sGVaHHXpUsmbYNaLrRl(0x187)],'desc':sGVaHHXpUsmbYNaLrRl(0x1ef),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🧠','filename':__filename},async(F$QgxoQHSVd,c_iWoWjfvF,tHVUC_F,{from:Cfq$lezcbTXgLvcaAE$TWGZ,reply:WXRiy_ynNxXEMLOmA_fixElXA})=>{const LEY_RTiZ=sGVaHHXpUsmbYNaLrRl,vatzQBPXreXHxraBZB=[LEY_RTiZ(0x179),LEY_RTiZ(0x175),LEY_RTiZ(0x1b3),LEY_RTiZ(0x166),LEY_RTiZ(0x1d7),LEY_RTiZ(0x17c),LEY_RTiZ(0x1c8),LEY_RTiZ(0x148),LEY_RTiZ(0x137)],imqIdZAmajiuqw=vatzQBPXreXHxraBZB[Math[LEY_RTiZ(0x168)](Math[LEY_RTiZ(0x189)]()*vatzQBPXreXHxraBZB[LEY_RTiZ(0x16d)])];await WXRiy_ynNxXEMLOmA_fixElXA(LEY_RTiZ(0x1e8)+imqIdZAmajiuqw);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x176),'alias':[sGVaHHXpUsmbYNaLrRl(0x15d)],'desc':sGVaHHXpUsmbYNaLrRl(0x142),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🪙','filename':__filename},async(NdXjWsG_gaCLSwpRMOV_yFD,mXkuS_iYQSbfUDxSX,mPC_OqFpW,{from:GLyWXvkWo,reply:rsqVQfJLYWAAVjCHfzb_e})=>{const aPtFas$kSYJnIax$mubJBb=sGVaHHXpUsmbYNaLrRl,afKAe_k$KDC=Math[aPtFas$kSYJnIax$mubJBb(0x189)]()<parseFloat(parseInt(0xa))*0xe7+0x5*0x4b3+-parseInt(0x2085)+0.5?aPtFas$kSYJnIax$mubJBb(0x1c3):aPtFas$kSYJnIax$mubJBb(0x181);await rsqVQfJLYWAAVjCHfzb_e(aPtFas$kSYJnIax$mubJBb(0x1d5)+afKAe_k$KDC);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x195),'alias':[sGVaHHXpUsmbYNaLrRl(0x177)],'desc':sGVaHHXpUsmbYNaLrRl(0x1ba),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'💕','filename':__filename},async(kJS$elFjcUdmFpdyipBTY,aVjJc_lVMMCPwTq_qwrLNYF,OME$n_o,{from:FMRCZAIZCuK,reply:FYuLDzkXablm_JC,q:M$p_oLaegOLRK})=>{const isZqyYxphBNBmYWQ=sGVaHHXpUsmbYNaLrRl,YhTDtfP=M$p_oLaegOLRK[isZqyYxphBNBmYWQ(0x14a)]('\x20');if(YhTDtfP[isZqyYxphBNBmYWQ(0x16d)]<-parseInt(0xa2b)+0x1*0x892+0x19b*0x1)return FYuLDzkXablm_JC(loveRequestPrompt);const Bg$OnqGn_d=YhTDtfP[-0x195a+Number(parseInt(0x1))*Math.max(-0x120a,-0x120a)+Math.max(parseInt(0x2b64),parseInt(0x2b64))],Gtu$NNL=YhTDtfP[-0x1d77*-0x1+Number(-parseInt(0x3e))*-0x35+Number(0x4)*-parseInt(0xa93)],YnPYiDukssCXqKrDR_N=Math[isZqyYxphBNBmYWQ(0x168)](Math[isZqyYxphBNBmYWQ(0x189)]()*(Number(parseInt(0x6))*0x17d+0x210a+-0x2994))+(Math.ceil(-0xaf5)+parseInt(0x293)*-0x3+Number(parseInt(0x12af))*0x1);let HN$htlHFHeMFk_NiiD='';if(YnPYiDukssCXqKrDR_N>Math.max(parseInt(0x17a5),0x17a5)+parseInt(0x4e)*-0x1d+Math.ceil(-parseInt(0xe7f)))HN$htlHFHeMFk_NiiD=isZqyYxphBNBmYWQ(0x1a2);else{if(YnPYiDukssCXqKrDR_N>Math.ceil(0x1)*-parseInt(0x39a)+-parseInt(0xcfa)*Math.floor(-parseInt(0x2))+-0x161e)HN$htlHFHeMFk_NiiD=isZqyYxphBNBmYWQ(0x1e6);else YnPYiDukssCXqKrDR_N>-parseInt(0x125)+-parseInt(0x213)*Math.max(0x1,0x1)+Math.max(0x360,0x360)?HN$htlHFHeMFk_NiiD=isZqyYxphBNBmYWQ(0x17f):HN$htlHFHeMFk_NiiD=isZqyYxphBNBmYWQ(0x17a);}await FYuLDzkXablm_JC(isZqyYxphBNBmYWQ(0x139)+Bg$OnqGn_d+isZqyYxphBNBmYWQ(0x191)+Gtu$NNL+isZqyYxphBNBmYWQ(0x193)+YnPYiDukssCXqKrDR_N+isZqyYxphBNBmYWQ(0x16c)+HN$htlHFHeMFk_NiiD);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x128),'alias':[sGVaHHXpUsmbYNaLrRl(0x1f3),sGVaHHXpUsmbYNaLrRl(0x19c)],'desc':sGVaHHXpUsmbYNaLrRl(0x1bc),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'✨','filename':__filename},async(RZrJoicwhExm$STsc$wWzu,F_bbd_pZeRmmNkisOPaJgjTPVT,wIeQdHWfuISpRqSjXPsZ,{from:uGkXZrejrrdbG,reply:ldVYO})=>{const hYewNLxqdIvcJMh=sGVaHHXpUsmbYNaLrRl,fOltMMkE_L=[hYewNLxqdIvcJMh(0x19d),hYewNLxqdIvcJMh(0x1f2),hYewNLxqdIvcJMh(0x1a7),hYewNLxqdIvcJMh(0x141),hYewNLxqdIvcJMh(0x150),hYewNLxqdIvcJMh(0x129),hYewNLxqdIvcJMh(0x12f)],XzGZUFD$GLhxxbnyTmS=fOltMMkE_L[Math[hYewNLxqdIvcJMh(0x168)](Math[hYewNLxqdIvcJMh(0x189)]()*fOltMMkE_L[hYewNLxqdIvcJMh(0x16d)])];await ldVYO(hYewNLxqdIvcJMh(0x185)+XzGZUFD$GLhxxbnyTmS);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x1c2),'alias':[sGVaHHXpUsmbYNaLrRl(0x1cf),sGVaHHXpUsmbYNaLrRl(0x163)],'desc':sGVaHHXpUsmbYNaLrRl(0x158),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'✂️','filename':__filename},async(eSc_nvhawrXrHZwEMXbMGtmp,kRFhleCfWOvz,hYvRu$IqLYeNDLXtQntAtYJ_hs,{from:SdpRBth,reply:qqNro,q:vwTmGvzRiPvfcfyMj})=>{const ttSOouuMhbWoeijdYznk_QJs=sGVaHHXpUsmbYNaLrRl;if(!vwTmGvzRiPvfcfyMj)return qqNro(ttSOouuMhbWoeijdYznk_QJs(0x17b));const H_wSHZ$EOVNuRljI=vwTmGvzRiPvfcfyMj[ttSOouuMhbWoeijdYznk_QJs(0x1c4)]()[ttSOouuMhbWoeijdYznk_QJs(0x1b0)](),rzZY_t=[ttSOouuMhbWoeijdYznk_QJs(0x133),ttSOouuMhbWoeijdYznk_QJs(0x1b1),ttSOouuMhbWoeijdYznk_QJs(0x1a4)];if(!rzZY_t[ttSOouuMhbWoeijdYznk_QJs(0x169)](H_wSHZ$EOVNuRljI))return qqNro(ttSOouuMhbWoeijdYznk_QJs(0x1b2));const dOmhw_hA_vxWseftaa=rzZY_t[Math[ttSOouuMhbWoeijdYznk_QJs(0x168)](Math[ttSOouuMhbWoeijdYznk_QJs(0x189)]()*(parseInt(0x25cc)*Math.ceil(-parseInt(0x1))+Math.ceil(-0x3)*Number(0xaa5)+Math.floor(-0xe2)*Math.ceil(-parseInt(0x4f))))],ZoGrdQQLfCVvXSqNLzNnQk={'rock':'🗿','paper':'📄','scissors':'✂️'};let cHbtFjOwLqnk_E='';if(H_wSHZ$EOVNuRljI===dOmhw_hA_vxWseftaa)cHbtFjOwLqnk_E=ttSOouuMhbWoeijdYznk_QJs(0x1d3);else H_wSHZ$EOVNuRljI===ttSOouuMhbWoeijdYznk_QJs(0x133)&&dOmhw_hA_vxWseftaa===ttSOouuMhbWoeijdYznk_QJs(0x1a4)||H_wSHZ$EOVNuRljI===ttSOouuMhbWoeijdYznk_QJs(0x1b1)&&dOmhw_hA_vxWseftaa===ttSOouuMhbWoeijdYznk_QJs(0x133)||H_wSHZ$EOVNuRljI===ttSOouuMhbWoeijdYznk_QJs(0x1a4)&&dOmhw_hA_vxWseftaa===ttSOouuMhbWoeijdYznk_QJs(0x1b1)?cHbtFjOwLqnk_E=ttSOouuMhbWoeijdYznk_QJs(0x1e1):cHbtFjOwLqnk_E=ttSOouuMhbWoeijdYznk_QJs(0x143);await qqNro(ttSOouuMhbWoeijdYznk_QJs(0x1bd)+ZoGrdQQLfCVvXSqNLzNnQk[H_wSHZ$EOVNuRljI]+'\x20'+H_wSHZ$EOVNuRljI+ttSOouuMhbWoeijdYznk_QJs(0x1d9)+ZoGrdQQLfCVvXSqNLzNnQk[dOmhw_hA_vxWseftaa]+'\x20'+dOmhw_hA_vxWseftaa+'\x0a\x0a'+cHbtFjOwLqnk_E);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x188),'alias':[sGVaHHXpUsmbYNaLrRl(0x1eb),sGVaHHXpUsmbYNaLrRl(0x19e)],'desc':sGVaHHXpUsmbYNaLrRl(0x164),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🎨','filename':__filename},async(rtufqNcv_F_mwFkMrruk,NRDyWnDstxfGL_N,JfOHMZHXrJuklCBxzCccCCE,{from:A_ozlRXTobMJPwLQidmyD,reply:HRXh_Rw})=>{const fff$s_Q=sGVaHHXpUsmbYNaLrRl,yeuVQLZjqtOqXznFxhkgIX=['🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫','⚪','🔘'],dQP$$baQAeMn=[fff$s_Q(0x145),fff$s_Q(0x18f),fff$s_Q(0x16e),fff$s_Q(0x127),fff$s_Q(0x1a3),fff$s_Q(0x1ac),fff$s_Q(0x178),fff$s_Q(0x14b),fff$s_Q(0x136),fff$s_Q(0x183)],bX_V$yJt=Math[fff$s_Q(0x168)](Math[fff$s_Q(0x189)]()*yeuVQLZjqtOqXznFxhkgIX[fff$s_Q(0x16d)]),kqKplTDdk_fTyyWAy_gvFzdfgQr=Math[fff$s_Q(0x168)](Math[fff$s_Q(0x189)]()*(0x81*0x2f+parseFloat(-parseInt(0x1e9c))+0x7ed)),mRvWI$mJty=Math[fff$s_Q(0x168)](Math[fff$s_Q(0x189)]()*(-parseInt(0x1830)+Number(-0x1c3e)+parseFloat(-parseInt(0x7a2))*parseFloat(-0x7))),RMMtHUdSOFhqQay=Math[fff$s_Q(0x168)](Math[fff$s_Q(0x189)]()*(Math.floor(parseInt(0xc1))*-0x1d+parseInt(0x12bd)+Number(0x108)*parseInt(0x4)));await HRXh_Rw(fff$s_Q(0x180)+yeuVQLZjqtOqXznFxhkgIX[bX_V$yJt]+'\x20*'+dQP$$baQAeMn[bX_V$yJt]+fff$s_Q(0x1d2)+kqKplTDdk_fTyyWAy_gvFzdfgQr+',\x20'+mRvWI$mJty+',\x20'+RMMtHUdSOFhqQay+fff$s_Q(0x1c7)+kqKplTDdk_fTyyWAy_gvFzdfgQr[fff$s_Q(0x194)](-0x61d*parseFloat(-parseInt(0x1))+parseInt(-parseInt(0x220))+Math.floor(-0x3ed))[fff$s_Q(0x18c)](parseInt(0xa1e)+parseInt(parseInt(0x3a1))*parseInt(0x4)+parseInt(0x1)*-parseInt(0x18a0),'0')+mRvWI$mJty[fff$s_Q(0x194)](parseInt(0x25a8)+-0x5*Math.max(parseInt(0x656),0x656)+parseInt(0x2f5)*-parseInt(0x2))[fff$s_Q(0x18c)](-0x1924+parseInt(0x3)*-0x63d+parseInt(0x2bdd),'0')+RMMtHUdSOFhqQay[fff$s_Q(0x194)](Math.floor(-parseInt(0x1))*0xd23+Math.max(0x12d7,parseInt(0x12d7))*parseInt(0x1)+-0x2d2*0x2)[fff$s_Q(0x18c)](parseInt(0x49)*0x4e+parseInt(0xa)*Math.ceil(0x3e4)+-parseInt(0x2)*Math.ceil(0x1e92),'0'));}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x13e),'alias':[sGVaHHXpUsmbYNaLrRl(0x1db),sGVaHHXpUsmbYNaLrRl(0x15c)],'desc':sGVaHHXpUsmbYNaLrRl(0x1ad),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'🔮','filename':__filename},async(PUm$_cjw,xXwNyNAPTGdJMSGwOQ,ksxeLuMGKUjRw_Ejg,{from:SnGrE_Jk,reply:pnVuDz$QPASYjTIKAM$taFfUB})=>{const y_G_hbqRC=sGVaHHXpUsmbYNaLrRl,XTqkgsE_dOvg=[y_G_hbqRC(0x16a),y_G_hbqRC(0x1ea),y_G_hbqRC(0x192),y_G_hbqRC(0x153),y_G_hbqRC(0x1a8),y_G_hbqRC(0x1ed),y_G_hbqRC(0x146),y_G_hbqRC(0x198),y_G_hbqRC(0x1e7),y_G_hbqRC(0x1df)],rhHaYrtcrWIsYAfPoUCOThTC$S=XTqkgsE_dOvg[Math[y_G_hbqRC(0x168)](Math[y_G_hbqRC(0x189)]()*XTqkgsE_dOvg[y_G_hbqRC(0x16d)])];await pnVuDz$QPASYjTIKAM$taFfUB(y_G_hbqRC(0x157)+rhHaYrtcrWIsYAfPoUCOThTC$S);}),cmd({'pattern':sGVaHHXpUsmbYNaLrRl(0x190),'alias':[sGVaHHXpUsmbYNaLrRl(0x195),sGVaHHXpUsmbYNaLrRl(0x13a)],'desc':sGVaHHXpUsmbYNaLrRl(0x1e2),'category':sGVaHHXpUsmbYNaLrRl(0x16f),'react':'💖','filename':__filename},async(ukRrfEpnB,cBSYkNWMHUiqfmFLUpNaJbcdq,UDWjVqyWhFI,{from:eT$aTFbUHYt,sender:aqWZTvpTQeoxkpwMRyjOFA,reply:xOWpjwRuolWf,isGroup:OVyGcgXlkr_TFp_I,groupMetadata:aXxvVzUvSkPKPdbrq,participants:GQFte_gyzOVpYyqnshQ$yWvaAY})=>{const sAki_aPEjGMcMkmO=sGVaHHXpUsmbYNaLrRl;try{if(!OVyGcgXlkr_TFp_I)return await xOWpjwRuolWf(sAki_aPEjGMcMkmO(0x1de));if(!aXxvVzUvSkPKPdbrq||!GQFte_gyzOVpYyqnshQ$yWvaAY)return await xOWpjwRuolWf(sAki_aPEjGMcMkmO(0x1ec));const JXvXWxyGZm_bIUPBRgNaMa=GQFte_gyzOVpYyqnshQ$yWvaAY[sAki_aPEjGMcMkmO(0x162)](ECZVOuCFOj$kfsp$SxF=>ECZVOuCFOj$kfsp$SxF['id']!==aqWZTvpTQeoxkpwMRyjOFA&&!ECZVOuCFOj$kfsp$SxF['id'][sAki_aPEjGMcMkmO(0x169)](ukRrfEpnB[sAki_aPEjGMcMkmO(0x199)]['id'][sAki_aPEjGMcMkmO(0x14a)](':')[-0x9dd+Math.max(0xa9a,0xa9a)+-parseInt(0xbd)]));if(JXvXWxyGZm_bIUPBRgNaMa[sAki_aPEjGMcMkmO(0x16d)]===-parseInt(0x1301)+-0x390+0x35*parseInt(0x6d))return await xOWpjwRuolWf(sAki_aPEjGMcMkmO(0x17d));const QygwUtLt_UNxdwTcaS_X=JXvXWxyGZm_bIUPBRgNaMa[Math[sAki_aPEjGMcMkmO(0x168)](Math[sAki_aPEjGMcMkmO(0x189)]()*JXvXWxyGZm_bIUPBRgNaMa[sAki_aPEjGMcMkmO(0x16d)])],aSarxyn=[sAki_aPEjGMcMkmO(0x13b),sAki_aPEjGMcMkmO(0x1ee),sAki_aPEjGMcMkmO(0x1cd),sAki_aPEjGMcMkmO(0x1d6),sAki_aPEjGMcMkmO(0x18a),sAki_aPEjGMcMkmO(0x18d),sAki_aPEjGMcMkmO(0x1ae),sAki_aPEjGMcMkmO(0x12d),sAki_aPEjGMcMkmO(0x131),sAki_aPEjGMcMkmO(0x138),sAki_aPEjGMcMkmO(0x159),sAki_aPEjGMcMkmO(0x19b),sAki_aPEjGMcMkmO(0x1e0),sAki_aPEjGMcMkmO(0x134),sAki_aPEjGMcMkmO(0x170)],TeG$qM=aSarxyn[Math[sAki_aPEjGMcMkmO(0x168)](Math[sAki_aPEjGMcMkmO(0x189)]()*aSarxyn[sAki_aPEjGMcMkmO(0x16d)])],chSbZfEEyttNN=['✨','🎉','🎊','💫','⭐','🌟','💥'],LYVPZ_evGp=chSbZfEEyttNN[Math[sAki_aPEjGMcMkmO(0x168)](Math[sAki_aPEjGMcMkmO(0x189)]()*chSbZfEEyttNN[sAki_aPEjGMcMkmO(0x16d)])],CJjAcPxsqAgqvO=LYVPZ_evGp+sAki_aPEjGMcMkmO(0x1dc)+LYVPZ_evGp+'\x0a\x0a'+(sAki_aPEjGMcMkmO(0x147)+aqWZTvpTQeoxkpwMRyjOFA[sAki_aPEjGMcMkmO(0x14a)]('@')[Math.floor(parseInt(0x1a87))+-parseInt(0x1516)+-parseInt(0x571)]+sAki_aPEjGMcMkmO(0x1cc)+QygwUtLt_UNxdwTcaS_X['id'][sAki_aPEjGMcMkmO(0x14a)]('@')[parseInt(0x104)*0x6+parseInt(0x17e9)+parseInt(-parseInt(0x1e01))]+sAki_aPEjGMcMkmO(0x1e4))+(TeG$qM+'\x0a\x0a')+sAki_aPEjGMcMkmO(0x1c1)+sAki_aPEjGMcMkmO(0x132);await ukRrfEpnB[sAki_aPEjGMcMkmO(0x167)](eT$aTFbUHYt,{'text':CJjAcPxsqAgqvO,'mentions':[aqWZTvpTQeoxkpwMRyjOFA,QygwUtLt_UNxdwTcaS_X['id']]},{'quoted':cBSYkNWMHUiqfmFLUpNaJbcdq});}catch(RQIwxJIPKVTtxkfsQHhI$qwR){console[sAki_aPEjGMcMkmO(0x1c9)](sAki_aPEjGMcMkmO(0x1f5),RQIwxJIPKVTtxkfsQHhI$qwR),await xOWpjwRuolWf(sAki_aPEjGMcMkmO(0x171));}});
+// New Year Quotes
+cmd({
+    pattern: "newyear",
+    desc: "Fetch New Year Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/newyear?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Christmas Quotes
+cmd({
+    pattern: "christmas",
+    desc: "Fetch Christmas Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/christmas?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Valentine Quotes
+cmd({
+    pattern: "valentine",
+    alias: ["valentines", "valentinesday"],
+    desc: "Fetch Valentines Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/valentines?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Girlfriend's Day Quotes
+cmd({
+    pattern: "gfsday",
+    desc: "Fetch GirlFriends Day Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/girlfriendsday?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Boyfriend's Day Quotes
+cmd({
+    pattern: "bfsday",
+    desc: "Fetch BouFriends Day Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/boyfriendsday?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Pickup Lines
+cmd({
+    pattern: "pickup",
+    alias: ["pickupline", "pickuplines", "lines"],
+    desc: "Fetch Pickup Lines.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/pickupline?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No pickup line found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Father's Day Quotes
+cmd({
+    pattern: "fathersday",
+    desc: "Fetch Fathers Day Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/fathersday?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Mother's Day Quotes
+cmd({
+    pattern: "mothersday",
+    desc: "Fetch Mothers Day Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/mothersday?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Heartbreak Quotes
+cmd({
+    pattern: "heartbreak",
+    desc: "Fetch Heartbreak Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/heartbreak?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Jokes (API Version)
+cmd({
+    pattern: "jokes",
+    alias: ["jokeapi"],
+    desc: "Fetch Jokes with setup and punchline.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/jokes?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result && data.result.setup && data.result.punchline) {
+            await reply(`Set Up: ${data.result.setup}\nPunchline: ${data.result.punchline}`);
+        } else {
+            await reply("❌ No joke found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Halloween Quotes
+cmd({
+    pattern: "halloween",
+    desc: "Fetch Halloween Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/halloween?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Motivation Quotes
+cmd({
+    pattern: "motivation",
+    desc: "Fetch Motivational Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/motivation?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Love Quotes (API)
+cmd({
+    pattern: "lovequotes",
+    alias: ["lovequote"],
+    desc: "Fetch Love Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/love?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Gratitude Quotes
+cmd({
+    pattern: "gratitude",
+    desc: "Fetch Gratitude Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/gratitude?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Thank You Quotes
+cmd({
+    pattern: "thankyou",
+    desc: "Fetch ThankYou Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/thankyou?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Shayari Quotes
+cmd({
+    pattern: "shayari",
+    desc: "Fetch Shayari Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/shayari?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Goodnight Quotes
+cmd({
+    pattern: "goodnight",
+    desc: "Fetch Goodnight Quotes/Wishes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/goodnight?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Truth Quotes
+cmd({
+    pattern: "truth",
+    desc: "Fetch Truth Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/truth?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Advice Quotes
+cmd({
+    pattern: "advice",
+    desc: "Fetch Advice Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/advice?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Flirt Messages
+cmd({
+    pattern: "flirt",
+    desc: "Fetch Flirty Messages.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/flirt?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// General Quotes (API)
+cmd({
+    pattern: "quotes",
+    alias: ["quoteapi"],
+    desc: "Fetch General Quotes.",
+    category: "fun",
+    react: "👓",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get(`${apiurl}/fun/quotes?apikey=${apikey}`);
+        const data = response.data;
+        if (data && data.result) {
+            await reply(data.result);
+        } else {
+            await reply("❌ No quote found!");
+        }
+    } catch (e) {
+        console.log(e); 
+        reply(`Error: ${e.message}`);
+    }
+});
+
+// Cat Images
+cmd({
+    pattern: "cat",
+    desc: "Fetch Random Cat Images.",
+    category: "search",
+    react: "😼",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get('https://api.thecatapi.com/v1/images/search');
+        const data = response.data;
+        const imageUrl = data && data[0] && data[0].url;
+        
+        if (!imageUrl) {
+            return reply("❌ Error: No cat image found!");
+        }
+        
+        await conn.sendMessage(from, { 
+            image: { url: imageUrl },
+            caption: config.FOOTER || "🐱 Random Cat"
+        }, { quoted: mek });
+        
+    } catch (e) {
+        console.error("Cat command error:", e); 
+        reply(`Error fetching cat image: ${e.message}`);
+    }
+});
+
+// Dog Images
+cmd({
+    pattern: "dog",
+    desc: "Fetch Random Dog Images.",
+    category: "search",
+    react: "🐶",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get('https://dog.ceo/api/breeds/image/random');
+        const imageUrl = response.data && response.data.message;
+        
+        if (!imageUrl) {
+            return reply("❌ Error: No dog image found!");
+        }
+        
+        await conn.sendMessage(from, { 
+            image: { url: imageUrl },
+            caption: config.FOOTER || "🐶 Random Dog"
+        }, { quoted: mek });
+        
+    } catch (e) {
+        console.error("Dog command error:", e); 
+        reply(`Error fetching dog image: ${e.message}`);
+    }
+});
+
+// Fun Fact (API)
+cmd({
+    pattern: "funfact",
+    alias: ["factapi"],
+    desc: "Get a Random fun Fact from API",
+    react: "🧠",
+    category: "fun",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get('https://uselessfacts.jsph.pl/random.json?language=en');
+        const fact = response.data && response.data.text;
+        
+        if (!fact) {
+            return reply("❌ Error: No fun fact found!");
+        }
+        
+        const funFact = `
+🧠 *Random Fun Fact* 🧠
+
+${fact}
+
+Isn't that interesting? 🤔
+`;
+        reply(funFact);
+    } catch (e) {
+        console.error(e);
+        reply("⚠️ An error occurred while fetching fun fact. Please try again later.");
+    }
+});
+
+// Hack Prank
+cmd({
+    pattern: "hack",
+    desc: "Hacking Prank lol.",
+    category: "fun",
+    react: "💻",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const steps = [
+            "Injecting Malware",
+            " █ 10%",
+            " █ █ 20%",
+            " █ █ █ 30%",
+            " █ █ █ █ 40%",
+            " █ █ █ █ █ 50%",
+            " █ █ █ █ █ █ 60%",
+            " █ █ █ █ █ █ █ 70%",
+            " █ █ █ █ █ █ █ █ 80%",
+            " █ █ █ █ █ █ █ █ █ 90%",
+            " █ █ █ █ █ █ █ █ █ █ 100%",
+            "System hyjacking on process.. \n Conecting to Server error to find 404",
+            "Device successfully connected... \n Receiving data...",
+            "Data hyjacked from device 100% completed \n killing all evidence killing all malwares...",
+            " HACKING COMPLETED",
+            " SENDING LOG DOCUMENTS...",
+            " SUCCESSFULLY SENT DATA AND Connection disconnected",
+            "BACKLOGS CLEARED"
+        ];
+
+        for (const line of steps) {
+            await conn.sendMessage(from, { text: line }, { quoted: mek });
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    } catch (e) {
+        console.log(e);
+        reply(`❌ Error: ${e.message}`);
+    }
+});
