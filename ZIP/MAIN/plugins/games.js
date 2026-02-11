@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { cmd } = require("../command");
+const { toBold, toSmallCaps } = require('../lib/fonts');
 
 // ================= CONFIG =================
 const config = require("../config");
@@ -1523,6 +1524,14 @@ cmd({
       return;
     }
     
+    // Check eFootball team selection
+    if (efootballGames.has(from)) {
+      if (/^([1-9]|1[0-6])$/.test(text)) {
+        await handleEfootballInput(conn, mek, from, sender, text);
+        return;
+      }
+    }
+    
     // Check for active games BEFORE Tic-Tac-Toe
     if (flagGames.has(from)) {
       // For flag game, check if input is number 1-4 or text
@@ -2457,6 +2466,7 @@ cmd({
 ╰━━━━━━━━━━━━━━━╯
 
 *🏆 MULTIPLAYER GAMES:*
+┃ ${prefix}efootball - eFootball Tournament
 ┃ ${prefix}flaggame - Flag guessing
 ┃ ${prefix}triviagame - Trivia quiz
 ┃ ${prefix}guessword - Word guessing
@@ -2479,6 +2489,8 @@ cmd({
 ┃ ${prefix}wyr - Would You Rather
 
 *📋 GAME CONTROLS:*
+┃ ${prefix}stopef - Stop eFootball
+┃ ${prefix}startef - Force start tournament
 ┃ ${prefix}stopflag - Stop flag game
 ┃ ${prefix}stoptrivia - Stop trivia
 ┃ ${prefix}stopguess - Stop word game
@@ -2916,6 +2928,378 @@ ${tttAiFormatBoard(game.board)}
   });
 }
 
+// ================= eFOOTBALL TOURNAMENT GAME =================
+const EF_IMAGE = "https://i.ibb.co/gLRMhk9p/N0r-QVLHAY0.jpg";
+const EF_TROPHY_IMAGE = "https://i.ibb.co/8g0cNYwh/images-1.jpg";
+const efootballGames = new Map();
+
+const EF_TEAMS = [
+  { name: "Real Madrid", flag: "🇪🇸", stars: 5, abbr: "RMA" },
+  { name: "Barcelona", flag: "🇪🇸", stars: 5, abbr: "BAR" },
+  { name: "Man City", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 5, abbr: "MCI" },
+  { name: "Liverpool", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 4, abbr: "LIV" },
+  { name: "Bayern Munich", flag: "🇩🇪", stars: 5, abbr: "BAY" },
+  { name: "PSG", flag: "🇫🇷", stars: 5, abbr: "PSG" },
+  { name: "Juventus", flag: "🇮🇹", stars: 4, abbr: "JUV" },
+  { name: "AC Milan", flag: "🇮🇹", stars: 4, abbr: "ACM" },
+  { name: "Chelsea", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 4, abbr: "CHE" },
+  { name: "Arsenal", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 4, abbr: "ARS" },
+  { name: "Inter Milan", flag: "🇮🇹", stars: 4, abbr: "INT" },
+  { name: "Dortmund", flag: "🇩🇪", stars: 4, abbr: "BVB" },
+  { name: "Atletico Madrid", flag: "🇪🇸", stars: 4, abbr: "ATM" },
+  { name: "Man United", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 4, abbr: "MUN" },
+  { name: "Napoli", flag: "🇮🇹", stars: 4, abbr: "NAP" },
+  { name: "Tottenham", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", stars: 3, abbr: "TOT" }
+];
+
+const EF_PLAYERS = {
+  "Real Madrid": ["Vinicius Jr", "Bellingham", "Mbappe", "Rodrygo", "Valverde", "Modric", "Camavinga", "Tchouameni", "Endrick", "Arda Guler"],
+  "Barcelona": ["Lamine Yamal", "Raphinha", "Lewandowski", "Pedri", "Gavi", "Dani Olmo", "De Jong", "Ferran Torres", "Casado", "Cubarsí"],
+  "Man City": ["Haaland", "De Bruyne", "Foden", "Bernardo Silva", "Grealish", "Doku", "Savinho", "Kovacic", "Rodri", "Gvardiol"],
+  "Liverpool": ["Salah", "Nunez", "Diaz", "Szoboszlai", "Gakpo", "Mac Allister", "Gravenberch", "Jota", "Chiesa", "Jones"],
+  "Bayern Munich": ["Musiala", "Sane", "Kane", "Muller", "Gnabry", "Olise", "Kimmich", "Coman", "Goretzka", "Palhinha"],
+  "PSG": ["Dembele", "Barcola", "Asensio", "Vitinha", "Joao Neves", "Kvaratskhelia", "Goncalo Ramos", "Zaïre-Emery", "Hakimi", "Lee Kang-in"],
+  "Juventus": ["Vlahovic", "Conceicao", "Yildiz", "Locatelli", "Koopmeiners", "Douglas Luiz", "Cambiaso", "Weah", "Thuram", "Kolo Muani"],
+  "AC Milan": ["Leao", "Pulisic", "Morata", "Reijnders", "Theo Hernandez", "Abraham", "Fofana", "Chukwueze", "Loftus-Cheek", "Gabbia"],
+  "Chelsea": ["Palmer", "Jackson", "Nkunku", "Enzo", "Madueke", "Pedro Neto", "Sancho", "Caicedo", "Lavia", "Joao Felix"],
+  "Arsenal": ["Saka", "Havertz", "Odegaard", "Rice", "Trossard", "Martinelli", "Saliba", "Calafiori", "Merino", "Jesus"],
+  "Inter Milan": ["Lautaro", "Thuram", "Barella", "Calhanoglu", "Mkhitaryan", "Dimarco", "Bastoni", "Dumfries", "Zielinski", "Taremi"],
+  "Dortmund": ["Guirassy", "Adeyemi", "Brandt", "Sabitzer", "Malen", "Bynoe-Gittens", "Gross", "Beier", "Nmecha", "Ryerson"],
+  "Atletico Madrid": ["Griezmann", "Julian Alvarez", "Sorloth", "Correa", "De Paul", "Llorente", "Gallagher", "Riquelme", "Koke", "Barrios"],
+  "Man United": ["Rashford", "Hojlund", "Bruno Fernandes", "Garnacho", "Amad Diallo", "Mainoo", "Zirkzee", "Ugarte", "De Ligt", "Dalot"],
+  "Napoli": ["Lukaku", "Politano", "Neres", "McTominay", "Anguissa", "Lobotka", "Raspadori", "Di Lorenzo", "Buongiorno", "Simeone"],
+  "Tottenham": ["Son", "Solanke", "Maddison", "Kulusevski", "Richarlison", "Johnson", "Bissouma", "Romero", "Van de Ven", "Porro"]
+};
+
+function efSimulateGoals(team, maxGoals) {
+  const goals = [];
+  const count = Math.floor(Math.random() * (maxGoals + 1));
+  const players = EF_PLAYERS[team.name] || ["Player"];
+  const usedMinutes = new Set();
+  for (let i = 0; i < count; i++) {
+    let min;
+    do { min = Math.floor(Math.random() * 90) + 1; } while (usedMinutes.has(min));
+    usedMinutes.add(min);
+    goals.push({
+      scorer: players[Math.floor(Math.random() * players.length)],
+      minute: min
+    });
+  }
+  goals.sort((a, b) => a.minute - b.minute);
+  return goals;
+}
+
+function efSimulateMatch(team1, team2) {
+  const str1 = team1.stars || 3;
+  const str2 = team2.stars || 3;
+  const diff = str1 - str2;
+  const max1 = Math.min(5, 3 + Math.max(0, diff));
+  const max2 = Math.min(5, 3 + Math.max(0, -diff));
+  const goals1 = efSimulateGoals(team1, max1);
+  const goals2 = efSimulateGoals(team2, max2);
+
+  let winner = null;
+  if (goals1.length > goals2.length) winner = team1;
+  else if (goals2.length > goals1.length) winner = team2;
+  else {
+    const pen1 = Math.floor(Math.random() * 3) + 3;
+    let pen2;
+    do { pen2 = Math.floor(Math.random() * 3) + 3; } while (pen2 === pen1);
+    winner = pen1 > pen2 ? team1 : team2;
+    return { team1, team2, goals1, goals2, penalties: { p1: pen1, p2: pen2 }, winner };
+  }
+  return { team1, team2, goals1, goals2, penalties: null, winner };
+}
+
+function efFormatMatch(match, idx) {
+  const s1 = match.goals1.length;
+  const s2 = match.goals2.length;
+  const g1Txt = match.goals1.map(g => `⚽ ${toBold(g.scorer)} ${g.minute}'`).join("\n┃   ");
+  const g2Txt = match.goals2.map(g => `⚽ ${toBold(g.scorer)} ${g.minute}'`).join("\n┃   ");
+  let txt = `┃ ${toBold("Match " + idx)}: ${match.team1.flag} ${toBold(match.team1.name)} ${s1} - ${s2} ${toBold(match.team2.name)} ${match.team2.flag}\n`;
+  if (g1Txt) txt += `┃   ${g1Txt}\n`;
+  if (g2Txt) txt += `┃   ${g2Txt}\n`;
+  if (match.penalties) {
+    txt += `┃   📌 ${toBold("Penalties")}: ${match.penalties.p1} - ${match.penalties.p2}\n`;
+  }
+  txt += `┃   🏆 ${toBold("Winner")}: ${match.winner.name}\n`;
+  return txt;
+}
+
+function efRunRound(pairs) {
+  return pairs.map(([t1, t2]) => efSimulateMatch(t1, t2));
+}
+
+function efMakePairs(teams) {
+  const pairs = [];
+  for (let i = 0; i < teams.length; i += 2) {
+    pairs.push([teams[i], teams[i + 1]]);
+  }
+  return pairs;
+}
+
+async function efStartTournament(conn, from, game) {
+  const allTeams = [...EF_TEAMS];
+  const playerTeams = [];
+  for (const [, data] of game.players) {
+    playerTeams.push(data.team);
+  }
+  const remainingTeams = allTeams.filter(t => !playerTeams.find(pt => pt.name === t.name));
+  const shuffled = shuffleArray(remainingTeams);
+  const botTeams = shuffled.slice(0, 16 - playerTeams.length);
+  let teams16 = shuffleArray([...playerTeams, ...botTeams]);
+
+  game.phase = "running";
+  game.results = {};
+
+  const rounds = [
+    { name: "ROUND OF 16", emoji: "1️⃣" },
+    { name: "QUARTER FINALS", emoji: "2️⃣" },
+    { name: "SEMI FINALS", emoji: "3️⃣" },
+    { name: "FINAL", emoji: "🏆" }
+  ];
+
+  let currentTeams = teams16;
+
+  for (let r = 0; r < rounds.length; r++) {
+    const round = rounds[r];
+    const pairs = efMakePairs(currentTeams);
+    const results = efRunRound(pairs);
+    game.results[round.name] = results;
+
+    let txt = `╭━━━━━━━━━━━━━━━╮\n`;
+    txt += `│ ${round.emoji} ${toBold(round.name)}\n`;
+    txt += `├━━━━━━━━━━━━━━━┤\n`;
+    results.forEach((match, i) => {
+      txt += efFormatMatch(match, i + 1);
+      txt += `┃\n`;
+    });
+    txt += `╰━━━━━━━━━━━━━━━╯`;
+
+    await conn.sendMessage(from, { text: txt });
+    await new Promise(res => setTimeout(res, 2000));
+
+    currentTeams = results.map(m => m.winner);
+  }
+
+  const champion = currentTeams[0];
+  const isPlayerChamp = game.players.has(champion.name);
+  const playerMentions = [];
+  const playerResults = [];
+
+  for (const [, data] of game.players) {
+    playerMentions.push(data.sender);
+    const won = data.team.name === champion.name;
+    playerResults.push(`@${data.sender.split("@")[0]} → ${data.team.flag} ${data.team.name} ${won ? "🏆 CHAMPION!" : "❌ Eliminated"}`);
+  }
+
+  const scorerMap = {};
+  const teamGoalsMap = {};
+  for (const roundName of Object.keys(game.results)) {
+    for (const match of game.results[roundName]) {
+      const processGoals = (goals, team) => {
+        for (const g of goals) {
+          const key = `${g.scorer}|${team.name}`;
+          if (!scorerMap[key]) scorerMap[key] = { name: g.scorer, team, goals: 0 };
+          scorerMap[key].goals++;
+          if (!teamGoalsMap[team.name]) teamGoalsMap[team.name] = { team, goals: 0, conceded: 0, matches: 0 };
+          teamGoalsMap[team.name].goals++;
+        }
+        if (!teamGoalsMap[match.team1.name]) teamGoalsMap[match.team1.name] = { team: match.team1, goals: 0, conceded: 0, matches: 0 };
+        if (!teamGoalsMap[match.team2.name]) teamGoalsMap[match.team2.name] = { team: match.team2, goals: 0, conceded: 0, matches: 0 };
+      };
+      processGoals(match.goals1, match.team1);
+      processGoals(match.goals2, match.team2);
+      teamGoalsMap[match.team1.name].conceded += match.goals2.length;
+      teamGoalsMap[match.team2.name].conceded += match.goals1.length;
+      teamGoalsMap[match.team1.name].matches++;
+      teamGoalsMap[match.team2.name].matches++;
+    }
+  }
+
+  const topScorers = Object.values(scorerMap).sort((a, b) => b.goals - a.goals);
+  const goldenBoot = topScorers[0];
+
+  const champStats = teamGoalsMap[champion.name];
+  const bestPlayerCandidates = topScorers.filter(s => s.team.name === champion.name);
+  const bestPlayer = bestPlayerCandidates.length > 0 ? bestPlayerCandidates[0] : goldenBoot;
+
+  let finalTxt = `╭━━━━━━━━━━━━━━━╮\n`;
+  finalTxt += `│ 🏆 ${toBold("CHAMPION")} 🏆\n`;
+  finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+  finalTxt += `│ ${champion.flag} ${toBold(champion.name)} ${champion.flag}\n`;
+  finalTxt += `│ ⭐ Rating: ${"⭐".repeat(champion.stars)}\n`;
+  if (champStats) {
+    finalTxt += `│ ⚽ Goals: ${champStats.goals} | Conceded: ${champStats.conceded}\n`;
+  }
+  finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+  finalTxt += `│ 🥇 ${toBold("Golden Boot (Top Scorer)")}\n`;
+  finalTxt += `│ ⚽ ${toBold(goldenBoot.name)} - ${goldenBoot.goals} goal${goldenBoot.goals > 1 ? "s" : ""}\n`;
+  finalTxt += `│ 🏟️ ${goldenBoot.team.flag} ${goldenBoot.team.name}\n`;
+  finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+  finalTxt += `│ 🌟 ${toBold("Best Player")}\n`;
+  finalTxt += `│ 👤 ${toBold(bestPlayer.name)} - ${bestPlayer.goals} goal${bestPlayer.goals > 1 ? "s" : ""}\n`;
+  finalTxt += `│ 🏟️ ${bestPlayer.team.flag} ${bestPlayer.team.name}\n`;
+  if (topScorers.length >= 3) {
+    finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+    finalTxt += `│ 📊 ${toBold("Top Scorers")}\n`;
+    topScorers.slice(0, 5).forEach((s, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "▫️";
+      finalTxt += `│ ${medal} ${toBold(s.name)} (${s.team.flag} ${s.team.name}) - ${s.goals} goal${s.goals > 1 ? "s" : ""}\n`;
+    });
+  }
+  finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+  finalTxt += `│ 👥 ${toBold("Player Results:")}\n`;
+  playerResults.forEach(r => { finalTxt += `│ ${r}\n`; });
+  if (isPlayerChamp) {
+    const winnerData = game.players.get(champion.name);
+    finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+    finalTxt += `│ 🎉 Congratulations @${winnerData.sender.split("@")[0]}!\n`;
+    finalTxt += `│ Your team won the tournament!\n`;
+  }
+  finalTxt += `├━━━━━━━━━━━━━━━┤\n`;
+  finalTxt += `│ ✅ Tournament ended! Use .efootball\n`;
+  finalTxt += `│ to start a new tournament.\n`;
+  finalTxt += `╰━━━━━━━━━━━━━━━╯`;
+
+  await conn.sendMessage(from, { image: { url: EF_TROPHY_IMAGE }, caption: finalTxt, mentions: playerMentions });
+  efootballGames.delete(from);
+}
+
+cmd({
+  pattern: "efootball",
+  alias: ["eftournament", "footballgame", "efgame"],
+  desc: "Start an eFootball tournament",
+  category: "games",
+  react: "⚽",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, isGroup, reply }) => {
+  if (!isGroup) return reply("⚽ eFootball can only be played in groups!");
+  if (efootballGames.has(from)) return reply("⚽ A tournament is already running! Use .stopef to stop it.");
+
+  const game = {
+    host: sender,
+    players: new Map(),
+    phase: "team_select",
+    joinTimeout: null
+  };
+  efootballGames.set(from, game);
+
+  let teamList = `╭━━━━━━━━━━━━━━━╮\n`;
+  teamList += `│ ⚽ ${toBold("eFOOTBALL TOURNAMENT")} ⚽\n`;
+  teamList += `├━━━━━━━━━━━━━━━┤\n`;
+  teamList += `│ 📋 ${toBold("Select your team:")}\n`;
+  teamList += `│\n`;
+  EF_TEAMS.forEach((t, i) => {
+    teamList += `│ ${i + 1}. ${t.flag} ${toBold(t.name)} ${"⭐".repeat(t.stars)}\n`;
+  });
+  teamList += `│\n`;
+  teamList += `│ 📝 Reply with a number (1-16)\n`;
+  teamList += `│ ⏱️ 60s to pick, then tournament starts\n`;
+  teamList += `│ 👥 Multiple players can join!\n`;
+  teamList += `╰━━━━━━━━━━━━━━━╯`;
+
+  await conn.sendMessage(from, { image: { url: EF_IMAGE }, caption: teamList, mentions: [sender] });
+
+  game.joinTimeout = setTimeout(async () => {
+    const g = efootballGames.get(from);
+    if (!g || g.phase !== "team_select") return;
+    if (g.players.size === 0) {
+      await conn.sendMessage(from, { text: "⚽ No one picked a team. Tournament cancelled!" });
+      efootballGames.delete(from);
+      return;
+    }
+    await conn.sendMessage(from, { text: `⚽ *Team selection closed!*\n🏟️ Starting tournament with ${g.players.size} player(s)...\n\n🎮 *Let the games begin!*` });
+    await new Promise(res => setTimeout(res, 1500));
+    await efStartTournament(conn, from, g);
+  }, 60000);
+});
+
+cmd({
+  pattern: "stopef",
+  alias: ["stopefootball", "cancelef"],
+  desc: "Stop eFootball tournament",
+  category: "games",
+  react: "🛑",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = efootballGames.get(from);
+  if (!game) return reply("⚽ No eFootball tournament is running!");
+  if (game.host !== sender) return reply("⚽ Only the host can stop the tournament!");
+  if (game.joinTimeout) clearTimeout(game.joinTimeout);
+  efootballGames.delete(from);
+  await conn.sendMessage(from, {
+    text: `⚽ Tournament cancelled by @${sender.split("@")[0]}!`,
+    mentions: [sender]
+  });
+});
+
+async function handleEfootballInput(conn, m, from, sender, text) {
+  const game = efootballGames.get(from);
+  if (!game || game.phase !== "team_select") return false;
+
+  const num = parseInt(text);
+  if (isNaN(num) || num < 1 || num > 16) return false;
+
+  const selectedTeam = EF_TEAMS[num - 1];
+
+  for (const [, data] of game.players) {
+    if (data.team.name === selectedTeam.name) {
+      await conn.sendMessage(from, {
+        text: `⚽ ${selectedTeam.flag} *${selectedTeam.name}* is already taken by @${data.sender.split("@")[0]}! Pick another.`,
+        mentions: [data.sender]
+      });
+      return true;
+    }
+  }
+
+  for (const [, data] of game.players) {
+    if (data.sender === sender) {
+      await conn.sendMessage(from, {
+        text: `⚽ @${sender.split("@")[0]}, you already picked ${data.team.flag} *${data.team.name}*!`,
+        mentions: [sender]
+      });
+      return true;
+    }
+  }
+
+  game.players.set(selectedTeam.name, { sender, team: selectedTeam });
+
+  await conn.sendMessage(from, {
+    text: `⚽ @${sender.split("@")[0]} picked ${selectedTeam.flag} *${selectedTeam.name}* ${"⭐".repeat(selectedTeam.stars)}\n👥 Players: ${game.players.size}/16`,
+    mentions: [sender]
+  });
+
+  if (game.players.size >= 16) {
+    if (game.joinTimeout) clearTimeout(game.joinTimeout);
+    await conn.sendMessage(from, { text: `⚽ *All 16 teams taken!*\n🏟️ Starting tournament...\n\n🎮 *Let the games begin!*` });
+    await new Promise(res => setTimeout(res, 1500));
+    await efStartTournament(conn, from, game);
+  }
+
+  return true;
+}
+
+cmd({
+  pattern: "startef",
+  alias: ["starttournament"],
+  desc: "Force start eFootball tournament",
+  category: "games",
+  react: "🏟️",
+  filename: __filename
+}, async (conn, mek, m, { from, sender, reply }) => {
+  const game = efootballGames.get(from);
+  if (!game) return reply("⚽ No eFootball tournament is running! Use .efootball to start one.");
+  if (game.host !== sender) return reply("⚽ Only the host can force start!");
+  if (game.phase !== "team_select") return reply("⚽ Tournament is already running!");
+  if (game.players.size === 0) return reply("⚽ At least 1 player must pick a team!");
+
+  if (game.joinTimeout) clearTimeout(game.joinTimeout);
+  await conn.sendMessage(from, { text: `⚽ *Host started the tournament!*\n🏟️ Starting with ${game.players.size} player(s)...\n\n🎮 *Let the games begin!*` });
+  await new Promise(res => setTimeout(res, 1500));
+  await efStartTournament(conn, from, game);
+});
+
 module.exports = {
   triviaGames,
   handleTriviaInput,
@@ -2931,5 +3315,7 @@ module.exports = {
   wordChainAiGames,
   diceGames,
   handleDiceJoin,
-  handleDiceRoll
+  handleDiceRoll,
+  efootballGames,
+  handleEfootballInput
 };

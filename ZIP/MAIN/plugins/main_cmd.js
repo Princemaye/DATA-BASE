@@ -38,52 +38,73 @@ cmd({
     desc: "Check if the bot is online and running",
     category: "main",
     filename: __filename
-  }, async (conn, mek, m, { from, pushname, reply, senderNumber, prefix, isGroup, q }) => {  // Add 'reply' to the destructured object
+  }, async (conn, mek, m, { from, pushname, reply, sender, senderNumber, prefix, isGroup, q }) => {
     try {
-        
-  
       const dateAndTime = await getDateAndTime(config.TIME_ZONE || "Asia/Colombo");
-      const hour = new Date().getHours();  // Get current hour to determine greeting
+      const hour = new Date().getHours();
       let greeting = "Good night";
       if (hour >= 5 && hour < 12) greeting = "Good morning";
       else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
       else if (hour >= 17 && hour < 21) greeting = "Good evening";
-  
-      
+
       const runtimes = (s) => {
         const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
         return `${h}h ${m}m ${sec}s`;
       };
 
+      let resolvedJid = (m.key.participantPn || sender || '').replace(/:.*@/, '@');
+
+      if (resolvedJid.endsWith('@lid') && isGroup) {
+          try {
+              const groupMeta = await conn.groupMetadata(from);
+              const participant = groupMeta.participants.find(p => p.id === resolvedJid || p.lid === resolvedJid);
+              if (participant && (participant.pn || participant.jid)) {
+                  resolvedJid = participant.pn || participant.jid;
+              }
+          } catch {}
+      }
+
+      if (resolvedJid.endsWith('@lid') && !isGroup) {
+          if (from.includes('@s.whatsapp.net')) {
+              resolvedJid = from;
+          }
+      }
+
+      const senderNum = resolvedJid.split('@')[0].split(':')[0];
+      const mentionJid = senderNum.match(/^\d+$/) ? `${senderNum}@s.whatsapp.net` : resolvedJid;
+
       const memUsage = `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB / ${Math.round(os.totalmem() / 1024 / 1024)}MB`;
       const date = dateAndTime.date || '';
       const time = dateAndTime.time || '';
       const runtime = runtimes(process.uptime());
-        const user = isGroup
-          ? `@${(m.key.participantPn || sender).split('@')[0]}`
-          : pushname;
+      const user = isGroup ? `@${senderNum}` : pushname;
       const version = dbData.VERSION || require("../package.json").version;
       const ownerNumber = config.OWNER_NUMBER;
       const ownerName = config.OWNER_NAME;
       const hostname = dbData.HOST_NAME;
-  
+      const totalCmds = commands.length || 0;
+
       let aliveText = (config.ALIVE_MESSAGE !== 'default')
               ? formatMessage(config.ALIVE_MESSAGE,{ user, date, time, version, memUsage, hostname, runtime, prefix, ownerName, ownerNumber }) :
-  `*🌹 Hey ${user}, I'm alive now!*\n
-  ╭━━═[  *BOT STATUS* ]═━━━╮
-  │
-  │  *Bot:* Online & Smooth
-  │  *${dateLang}:* ${date}
-  │  *${timeLang}:* ${time}
-  │  *${upLang}:* ${runtime}
-  │  *${ramLang}:* ${memUsage}
-  │  *${platform}:* ${hostname}
-  │  *${versionLang}:* ${version}
-  ╰═━═━═━═━═━═━═━═━╯
- `;
-  
+  `*${greeting}, ${user}!* 🌟\n\n` +
+  `╭━━━━━━━━━━━━━━━━╮\n` +
+  `┃  ⚡ *${botName || 'Prince MDX'}*\n` +
+  `┃  _I'm alive and running smooth!_\n` +
+  `╰━━━━━━━━━━━━━━━━╯\n\n` +
+  `┌─❒ *ʙᴏᴛ sᴛᴀᴛᴜs*\n` +
+  `│ *${dateLang}:* ${date}\n` +
+  `│ *${timeLang}:* ${time}\n` +
+  `│ *${upLang}:* ${runtime}\n` +
+  `│ *${ramLang}:* ${memUsage}\n` +
+  `│ *${platform}:* ${hostname}\n` +
+  `│ *${versionLang}:* ${version}\n` +
+  `│ *Commands:* ${totalCmds}\n` +
+  `│ *Owner:* ${ownerName}\n` +
+  `│ *Prefix:* [ ${prefix} ]\n` +
+  `└─────────────❒`;
+
   if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
+
         const buttons = [
              { buttonId: `${prefix}menu`, buttonText: { displayText: 'COMMAND LIST 📑' }, type: 1 },
              { buttonId: `${prefix}ping`, buttonText: { displayText: 'BOT SPEED ⚡' }, type: 1 },
@@ -94,16 +115,17 @@ cmd({
           image: { url: config.ALIVE_LOGO || config.LOGO },
           caption: aliveText,
           footer: config.FOOTER,
-          header: `👋 Hello ${pushname}`,
+          header: `👋 ${greeting} ${pushname}`,
           buttons,
           headerType: 1,
-          viewOnce: false
+          viewOnce: false,
+          mentions: [mentionJid]
         }, { quoted: mek });
 
            } else {
-           
-           aliveText += `\n1  COMMAND LIST 📑\n` +
-           `2  BOT SPEED ⚡\n` + 
+
+           aliveText += `\n\n1  COMMAND LIST 📑\n` +
+           `2  BOT SPEED ⚡\n` +
            `3  SYSTEM INFORMATION 🖲️\n\n` +
            config.FOOTER
 
@@ -111,31 +133,30 @@ cmd({
         numrep.push(`${prefix}menu`);
         numrep.push(`${prefix}ping`);
         numrep.push(`${prefix}system`);
-      
+
       const sentMsg = await conn.sendMessage(from, {
         image: { url: config.ALIVE_LOGO || config.LOGO },
         caption: aliveText,
+        mentions: [mentionJid],
         contextInfo: {
                 externalAdReply: {
-                     title: `👋 Hellow ${pushname}`,
+                     title: `👋 ${greeting} ${pushname}`,
                      body: config.BODY || "",
                      thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
                      mediaType: 1,
                      sourceUrl: q
           }},
-        mentions: [mek.sender],
       }, { quoted: mek });
-      
+
       const messageKey = sentMsg.key;
-       // await conn.sendMessage(from, { react: { text: '💀', key: messageKey } });
         const jsonmsg = {
                           key : messageKey,
                           numrep,
                           method : 'nondecimal'
                           }
-                        await storenumrepdata(jsonmsg) 
+                        await storenumrepdata(jsonmsg)
       }
-  
+
     } catch (err) {
       console.error(err);
       await conn.sendMessage(from, { text: 'An error occurred, please try again later ❌' },{ quoted: mek });

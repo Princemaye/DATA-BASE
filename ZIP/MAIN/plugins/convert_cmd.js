@@ -1557,61 +1557,6 @@ Do not use for real transactions.`;
     }
 });
 
-cmd({
-    pattern: "fakeprofile",
-    alias: ["profile", "fprofile", "fake"],
-    desc: "Generate complete fake profile from APIs",
-    category: "convert",
-    react: "🎭",
-    filename: __filename
-}, async (conn, mek, m, { reply }) => {
-    try {
-        await reply(generatingProfileMsg);
-        
-        const user = await fetchRandomUser();
-        const bank1 = await fetchRandomCompany();
-        const bank2 = await fetchRandomCompany();
-        
-        if (user && bank1 && bank2) {
-            const visa = generateCardDetails('visa');
-            const mastercard = generateCardDetails('mastercard');
-            
-            const message = 
-`COMPLETE FAKE PROFILE
-
-➠ PERSONAL INFO
-• Name: ${user.name.full}
-• Email: ${user.email}
-• Phone: ${user.phone}
-• DOB: ${user.dob}
-
-➠ ADDRESS
-• ${user.address.full}
-
-➠ VISA CARD
-• Bank: ${bank1}
-• Number: ${visa.number}
-• Expiry: ${visa.expiry} | CVV: ${visa.cvv}
-
-➠ MASTERCARD
-• Bank: ${bank2}
-• Number: ${mastercard.number}
-• Expiry: ${mastercard.expiry} | CVV: ${mastercard.cvv}
-
-Real person data from API + generated cards.
-Cards are fake — do not use for transactions.`;
-
-            await conn.sendMessage(mek.key.remoteJid, {
-                image: { url: user.picture },
-                caption: message
-            });
-        } else {
-            await reply(profileFetchError);
-        }
-    } catch (error) {
-        await reply("❌ Error generating profile: " + error.message);
-    }
-});
 
 cmd({
     pattern: "fakecard",

@@ -252,20 +252,58 @@ cmd({
     desc: "Create a WhatsApp-style Read More prank message",
     category: "other",
     react: "😏",
-    use: "readmore <first part> <second part>",
+    use: "readmore <text> | Reply to a message",
     filename: __filename
-}, async (conn, mek, m, { reply, args }) => {
+}, async (conn, mek, m, { from, reply, args }) => {
     try {
-        if (args.length < 2) return await reply(providePartsError);
+        const spam = "\u200B".repeat(4001);
 
-        const firstPart = args[0];
-        const secondPart = args.slice(1).join(" ");
+        if (m.quoted && m.quoted.msg) {
+            const quotedText = m.quoted.msg.trim();
+            const lines = quotedText.split('\n');
 
-        const zwnj = "\u200B";
-        const spam = zwnj.repeat(4001);
+            if (lines.length >= 2) {
+                const firstLine = lines[0];
+                const rest = lines.slice(1).join('\n');
+                const prankMsg = `${firstLine}${spam}${rest}`;
+                await conn.sendMessage(from, { text: prankMsg }, { quoted: mek });
+            } else {
+                const words = quotedText.split(/\s+/);
+                if (words.length >= 2) {
+                    const firstWord = words[0];
+                    const rest = words.slice(1).join(` ${spam}`);
+                    const prankMsg = `${firstWord}${spam}${rest}`;
+                    await conn.sendMessage(from, { text: prankMsg }, { quoted: mek });
+                } else {
+                    const prankMsg = `${quotedText}${spam}ㅤ`;
+                    await conn.sendMessage(from, { text: prankMsg }, { quoted: mek });
+                }
+            }
+            return;
+        }
 
-        const prankMsg = `${firstPart} ${spam} ${secondPart}`;
-        await reply(prankMsg);
+        if (args.length < 1) return await reply(`*Usage:*\n• Reply to a message with .readmore\n• .readmore <first part> | <second part>\n• .readmore <word1> <word2> <word3>...`);
+
+        const fullText = args.join(' ');
+
+        if (fullText.includes('|')) {
+            const parts = fullText.split('|');
+            const firstPart = parts[0].trim();
+            const secondPart = parts.slice(1).join('|').trim();
+            const prankMsg = `${firstPart}${spam}${secondPart}`;
+            await reply(prankMsg);
+        } else {
+            const words = fullText.split(/\s+/);
+            if (words.length >= 2) {
+                const firstWord = words[0];
+                const rest = words.slice(1).join(` ${spam}`);
+                const prankMsg = `${firstWord}${spam}${rest}`;
+                await reply(prankMsg);
+            } else {
+                const prankMsg = `${fullText}${spam}ㅤ`;
+                await reply(prankMsg);
+            }
+        }
     } catch (e) {
         console.error("WH Prank Error:", e);
         await reply(createPrankError);
