@@ -260,7 +260,7 @@ async (conn, mek, m, { from, reply, q }) => {
             output += `   🕒 ${time}${statusText ? ` (${statusText})` : ''}\n\n`;
         });
 
-        output += `_📊 Showing ${Math.min(filteredGames.length, 20)} of ${filteredGames.length} matches_\n\n${config.FOOTER}`;
+        output += `_📊 Showing ${Math.min(filteredGames.length, 300)} of ${filteredGames.length} matches_\n\n${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
             image: { url: SPORTS_IMAGE },
