@@ -353,7 +353,8 @@ cmd({
         console.error(error);
         await reply(errorMg, "❌");
     }
-});                                                      
+});     
+/*
 cmd({
     pattern: "ytmp3_dl",    
     react: "⬇️",
@@ -419,6 +420,70 @@ cmd({
             await m.react("✅");
         }
         
+    } catch (e) {
+        console.log(e);
+        await reply(errorMg, "❌");
+    }
+});
+
+*/
+
+cmd({
+    pattern: "ytmp3_dl",    
+    react: "⬇️",
+    dontAddCommandList: true,
+    filename: __filename
+}, async (conn, m, mek, { from, q, reply }) => {
+    try {
+        
+        if (!q || !q.includes("https")) {
+            return await reply(notFoundMg, "📛");
+        }
+
+        const parts = q.split(" ");
+        const url = parts[0];
+        const type = parts[1]?.trim().toLowerCase() || 'audio';
+        const title = parts.slice(2).join(" ") || 'Unknown Title';
+
+        // ✅ Your API
+        const apiUrl = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(url)}`;
+        
+        const response = await fetchJson(apiUrl);
+        const downloadUrl = response?.result?.download || response?.result?.url || response?.url;
+
+        if (!downloadUrl) {
+            return reply(downUrlNotfound, "⁉️");
+        }
+
+        await m.react("⬆️");
+
+        const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '').substring(0, 100);
+
+        if (type === "audio") {
+            await conn.sendMessage(from, {
+                audio: { url: downloadUrl },
+                mimetype: "audio/mpeg",
+                fileName: `${sanitizedTitle}.mp3`
+            }, { quoted: mek });
+
+        } else if (type === "doc") {
+            await conn.sendMessage(from, {
+                document: { url: downloadUrl },
+                fileName: `${sanitizedTitle}.mp3`,
+                mimetype: "audio/mpeg",
+                caption: `${title}\n\n> ${config.FOOTER}`
+            }, { quoted: mek });
+
+        } else if (type === "voice") {
+            await conn.sendMessage(from, {
+                audio: { url: downloadUrl },
+                mimetype: "audio/mpeg",
+                ptt: true
+            }, { quoted: mek });
+        }
+
+        await m.react("✅");
+
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
