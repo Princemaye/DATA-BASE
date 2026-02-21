@@ -427,7 +427,7 @@ cmd({
 });
 
 */
-
+/*
 cmd({
     pattern: "ytmp3_dl",    
     react: "⬇️",
@@ -487,6 +487,68 @@ cmd({
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
+    }
+});
+*/
+
+cmd({
+    pattern: "ytmp3_dl",    
+    react: "⬇️",
+    dontAddCommandList: true,
+    filename: __filename
+}, async (conn, m, mek, { from, q, reply }) => {
+    try {
+        
+        if (!q || !q.includes("https")) {
+            return await reply("Invalid URL ❌");
+        }
+
+        const parts = q.split(" ");
+        const url = parts[0];
+        const type = parts[1]?.trim().toLowerCase() || 'audio';
+
+        const apiUrl = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(url)}`;
+        
+        const response = await fetchJson(apiUrl);
+
+        // ✅ Correct field
+        const downloadUrl = response?.result?.download_url;
+        const title = response?.result?.title || "Audio";
+
+        if (!downloadUrl) {
+            return reply("*Download link not found ❌*");
+        }
+
+        await m.react("⬆️");
+
+        if (type === "audio") {
+            await conn.sendMessage(from, {
+                audio: { url: downloadUrl },
+                mimetype: "audio/mpeg",
+                fileName: `${title}.mp3`
+            }, { quoted: mek });
+
+        } else if (type === "doc") {
+            await conn.sendMessage(from, {
+                document: { url: downloadUrl },
+                mimetype: "audio/mpeg",
+                fileName: `${title}.mp3`,
+                caption: title
+            }, { quoted: mek });
+
+        } else if (type === "voice") {
+            await conn.sendMessage(from, {
+                audio: { url: downloadUrl },
+                mimetype: "audio/mpeg",
+                ptt: true
+            }, { quoted: mek });
+        }
+
+        await m.react("✅");
+
+    } catch (e) {
+        console.log(e);
+        reply("Error ❌");
     }
 });
 
