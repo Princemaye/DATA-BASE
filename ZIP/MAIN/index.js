@@ -23,7 +23,7 @@ const {
 const fs = require('fs');
 const P = require('pino');
 const config = require('./config');
-const { patchBaileysSocket, createButton, createSection } = require('prince-btns');
+const { createButton, createSection, sendButtonMessage, sendListMessage, patchBaileysSocket } = require('./lib/buttons');
 const qrcode = require('qrcode-terminal');
 const NodeCache = require('node-cache');
 const util = require('util');
@@ -406,7 +406,7 @@ if (!fs.existsSync("./temp")) {
 // <<==========PORTS===========>>
 const express = require("express");
 const app = express();
-const port = process.env.PORT || config.PORT || 8000;
+const port = process.env.PORT || config.PORT || 5000;
 let qrCodeData = '';
 let isConnected = false;
 //====================================
@@ -1596,6 +1596,7 @@ conn.ev.on("group-participants.update", welcomeHandler);
             if (mek.key && mek.key.remoteJid === 'status@broadcast') return
             const m = sms(conn, mek);
             const isReact = m?.message?.reactionMessage ? true : false;
+
             const type = getContentType(mek.message)
             const content = JSON.stringify(mek.message);
             const from = mek.key.remoteJid;
@@ -1726,8 +1727,19 @@ conn.ev.on("group-participants.update", welcomeHandler);
             // ============== BOT CONFIG ================
             config.LOGO = logo.mainLogo;
             config.CONTEXT_LOGO = logo.contextLogo;
+            config.DEFAULT_LOGO = logo.mainLogo;
             config.FOOTER = footer;
             config.BODY = contextBody;
+
+            try {
+                const savedBotPic = await ymd_db.get(dbData?.tableName, "ALIVE_LOGO");
+                if (savedBotPic) {
+                    config.ALIVE_LOGO = savedBotPic;
+                    config.LOGO = savedBotPic;
+                    config.CONTEXT_LOGO = savedBotPic;
+                }
+            } catch {}
+
 
 
             const reply = async (teks, emoji = null) => {
@@ -2836,12 +2848,17 @@ conn.ev.on('call', async (calls) => {
 }
 
 
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    next();
+});
+
 app.get("/", (req, res) => {
     res.send("❤️ 𝐏𝐑𝐈𝐍𝐂𝐄 𝐌𝐃𝐗 Working successfully!");
 });
 
     
-app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
+app.listen(port, '0.0.0.0', () => console.log(`Server listening on port http://0.0.0.0:${port}`));
 
 setTimeout(async () => {
     await connectToWA()
