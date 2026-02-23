@@ -2,7 +2,7 @@
 const { cmd } = require("../command");
 const config = require("../config");
 const { fetchJson } = require("../lib/functions");
-const { createSection, sendListMessage } = require('../lib/buttons');
+
 const { toBold, toSmallCaps } = require('../lib/fonts');
 const { storenumrepdata } = require('../lib/numreply-db');
 
@@ -139,23 +139,6 @@ cmd({
 },
 async (conn, mek, m, { from, prefix, reply }) => {
     try {
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            const sections = [
-                createSection('⚽ Scores', [
-                    { title: '🔴 Live Matches', description: 'Currently playing matches', id: `${prefix}livescoreget live` },
-                    { title: '✅ Finished Matches', description: 'Completed matches', id: `${prefix}livescoreget finished` },
-                    { title: '⏰ Upcoming Matches', description: 'Scheduled matches', id: `${prefix}livescoreget upcoming` }
-                ])
-            ];
-
-            await sendListMessage(conn, from, sections, mek, {
-                header: '⚽ LIVE SCORES',
-                body: `${toBold("Select Score Type")}\n\nChoose what matches you want to see:`,
-                footer: config.FOOTER,
-                buttonText: 'Select Option ⚽',
-                image: SPORTS_IMAGE
-            });
-        } else {
             let info = `╭━━━━━━━━━━━╮
 │ ⚽ ${toBold("LIVE SCORES")}
 ├━━━━━━━━━━━┤
@@ -181,7 +164,6 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 numrep,
                 method: 'nondecimal'
             });
-        }
     } catch (err) {
         console.error('Livescore error:', err);
         reply("❌ Error loading livescore menu.");
@@ -337,23 +319,6 @@ cmd({
 },
 async (conn, mek, m, { from, prefix, reply }) => {
     try {
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            const rows = Object.entries(LEAGUE_CONFIG).map(([num, cfg]) => ({
-                title: `${cfg.emoji} ${cfg.name}`,
-                description: `Top scorers in ${cfg.name}`,
-                id: `${prefix}topscorersget ${cfg.code}`
-            }));
-
-            const sections = [createSection('⚽ Select League', rows)];
-
-            await sendListMessage(conn, from, sections, mek, {
-                header: '⚽ TOP SCORERS',
-                body: `${toBold("Select a League")}\n\nChoose a league to view top scorers:`,
-                footer: config.FOOTER,
-                buttonText: 'Select League ⚽',
-                image: SPORTS_IMAGE
-            });
-        } else {
             let info = `╭━━━━━━━━━━━╮
 │ ⚽ ${toBold("TOP SCORERS")}
 ├━━━━━━━━━━━┤
@@ -377,7 +342,6 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 numrep,
                 method: 'nondecimal'
             });
-        }
     } catch (err) {
         console.error('Topscorers error:', err);
         reply("❌ Error loading top scorers menu.");
@@ -449,23 +413,6 @@ cmd({
 },
 async (conn, mek, m, { from, prefix, reply }) => {
     try {
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            const rows = Object.entries(LEAGUE_CONFIG).map(([num, cfg]) => ({
-                title: `${cfg.emoji} ${cfg.name}`,
-                description: `View ${cfg.name} standings`,
-                id: `${prefix}standingsget ${cfg.code}`
-            }));
-
-            const sections = [createSection('📊 Select League', rows)];
-
-            await sendListMessage(conn, from, sections, mek, {
-                header: '📊 LEAGUE STANDINGS',
-                body: `${toBold("Select a League")}\n\nChoose a league to view standings:`,
-                footer: config.FOOTER,
-                buttonText: 'Select League 📊',
-                image: SPORTS_IMAGE
-            });
-        } else {
             let info = `╭━━━━━━━━━━━╮
 │ 📊 ${toBold("STANDINGS")}
 ├━━━━━━━━━━━┤
@@ -489,7 +436,6 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 numrep,
                 method: 'nondecimal'
             });
-        }
     } catch (err) {
         console.error('Standings error:', err);
         reply("❌ Error loading standings menu.");
@@ -564,23 +510,6 @@ cmd({
 },
 async (conn, mek, m, { from, prefix, reply }) => {
     try {
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            const rows = Object.entries(LEAGUE_CONFIG).map(([num, cfg]) => ({
-                title: `${cfg.emoji} ${cfg.name}`,
-                description: `Upcoming ${cfg.name} matches`,
-                id: `${prefix}fixturesget ${cfg.code}`
-            }));
-
-            const sections = [createSection('📅 Select League', rows)];
-
-            await sendListMessage(conn, from, sections, mek, {
-                header: '📅 UPCOMING MATCHES',
-                body: `${toBold("Select a League")}\n\nChoose a league to view fixtures:`,
-                footer: config.FOOTER,
-                buttonText: 'Select League 📅',
-                image: SPORTS_IMAGE
-            });
-        } else {
             let info = `╭━━━━━━━━━━━╮
 │ 📅 ${toBold("FIXTURES")}
 ├━━━━━━━━━━━┤
@@ -604,7 +533,6 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 numrep,
                 method: 'nondecimal'
             });
-        }
     } catch (err) {
         console.error('Fixtures error:', err);
         reply("❌ Error loading fixtures menu.");
@@ -675,23 +603,6 @@ cmd({
 },
 async (conn, mek, m, { from, prefix, reply }) => {
     try {
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            const rows = Object.entries(LEAGUE_CONFIG).map(([num, cfg]) => ({
-                title: `${cfg.emoji} ${cfg.name}`,
-                description: `${cfg.name} match history`,
-                id: `${prefix}gamehistoryget ${cfg.code}`
-            }));
-
-            const sections = [createSection('📋 Select League', rows)];
-
-            await sendListMessage(conn, from, sections, mek, {
-                header: '📋 MATCH HISTORY',
-                body: `${toBold("Select a League")}\n\nChoose a league to view match history:`,
-                footer: config.FOOTER,
-                buttonText: 'Select League 📋',
-                image: SPORTS_IMAGE
-            });
-        } else {
             let info = `╭━━━━━━━━━━━╮
 │ 📋 ${toBold("MATCH HISTORY")}
 ├━━━━━━━━━━━┤
@@ -715,7 +626,6 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 numrep,
                 method: 'nondecimal'
             });
-        }
     } catch (err) {
         console.error('Gamehistory error:', err);
         reply("❌ Error loading match history menu.");

@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 const { cmd } = require("../command"); 
 const config = require("../config");
 const { getNpmPackageInfo, getNpmDownloads, getGithubUser, tiktokSearch } = require("../lib/scraper");
-const { createButton, createSection, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
+
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
@@ -14,7 +14,6 @@ const util = require('util')
 const { storenumrepdata } = require('../lib/numreply-db');
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('../lib/functions');
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
-const { buttonDesc, buttonTitle } = require('../lib/config');
 const botName = config.BOT_NAME && config.BOT_NAME !== "default" ? config.BOT_NAME : null;
 
 // ============================= L A N G U A G E =============================
@@ -396,90 +395,6 @@ cmd({
         const numrep = [];
         const tex = `\`🎬 OMDB Search Result List\`\n\n*Query:* ${q}\nSelect an option below to view details.`;
 
-        if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-
-            const rows = topResults.map((item) => {
-                const name = item.Title || "Untitled";
-                const year = item.Year || "N/A";
-                const id = item.imdbID;
-                const mediaType = item.Type;
-
-                return {
-                    title: `${name}`,
-                    description: `📅 ${year}`,
-                    id: `${prefix}omdbget ${mediaType} ${id}`
-                };
-            });
-
-            const listData = {
-                title: "🎬 Movie / TV List",
-                sections: [
-                    {
-                        title: "Select a Movie or TV Show 🎥",
-                        rows
-                    }
-                ]
-            };
-
-            const sentMsg = await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: tex,
-                footer: config.FOOTER,
-                contextInfo: {
-                    externalAdReply: {
-                        title: "🎬 OMDB Movie/TV Search",
-                        body: config.BODY,
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: ``
-                    }
-                },
-                buttons: [
-                    {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🎥 Select from List" },
-                        nativeFlowInfo: {
-                            name: "single_select",
-                            paramsJson: JSON.stringify(listData)
-                        }
-                    }
-                ],
-                headerType: 1,
-                viewOnce: true
-            }, { quoted: mek });
-
-        } else {
-            let searchList = "";
-            topResults.forEach((item, index) => {
-                searchList += `${index + 1}. *${item.Title}* (${item.Year || "N/A"})\n`;
-                numrep.push(`${prefix}omdbget ${item.Type} ${item.imdbID}`);
-            });
-
-            const sentMsg = await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: tex + "\n\n" + searchList,
-                contextInfo: {
-                    externalAdReply: {
-                        title: "🎬 OMDB Movie/TV Search",
-                        body: config.BODY,
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: ``
-                    }
-                },
-            }, { quoted: mek });
-
-            const messageKey = sentMsg.key;
-            await conn.sendMessage(from, { react: { text: "🎬", key: messageKey } });
-            const jsonmsg = {
-                key: messageKey,
-                numrep,
-                method: 'nondecimal'
-            };
-
-            await storenumrepdata(jsonmsg);
-        }
 
     } catch (error) {
         console.error(error);
@@ -565,90 +480,6 @@ cmd({
         const numrep = [];
         let tex = `\`🎬 TMDB Search Result List\`\n\n*Query:* ${q}\nSelect an option below to view details.`;
 
-        if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-            
-        const rows = topResults.map((item, index) => {
-            const name = item.title || item.name || "Untitled";
-            const year = item.release_date || item.first_air_date || "N/A";
-            const id = item.id;
-            const mediaType = item.media_type;
-
-            return {
-                title: `${name}`,
-                description: `📅 ${year}`,
-                id: `${prefix}tmdbget ${mediaType} ${id}`
-            };
-        });
-
-        const listData = {
-            title: buttonTitle,
-            sections: [
-                {
-                    title: "Select a Movie or TV Show 🎥",
-                    rows
-                }
-            ]
-        };
-
-        
-        const sentMsg = await conn.sendMessage(from, {
-            image: { url: config.LOGO },
-            caption: tex,
-            footer: config.FOOTER,
-            contextInfo: {
-                externalAdReply: {
-                    title: "🎬 TMDB Movie/TV Search",
-                    body: config.BODY,
-                    thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                    mediaType: 1,
-                    sourceUrl: ``
-                }
-            },
-            buttons: [
-                {
-                    buttonId: "action",
-                    type: 4,
-                    buttonText: { displayText: "🎥 Select from List" },
-                    nativeFlowInfo: {
-                        name: "single_select",
-                        paramsJson: JSON.stringify(listData)
-                    }
-                }
-            ],
-            headerType: 1,
-            viewOnce: true
-        }, { quoted: mek });
-
-        } else {
-            
-        topResults.forEach((item, index) => {
-            tex += `${index + 1}. *${item.title || item.name}* (${item.release_date || item.first_air_date || "N/A"})\n`;
-            numrep.push(`${prefix}tmdbget ${item.media_type} ${item?.id}`);
-            
-        });
-            
-        const sentMsg = await conn.sendMessage(from, { image: { url: config.LOGO }, caption: tex,
-            contextInfo: {
-                externalAdReply: {
-                    title: "🎬 TMDB Movie/TV Search",
-                    body: config.BODY,
-                    thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                    mediaType: 1,
-                    sourceUrl: ``
-                }
-            },
-        }, { quoted: mek });
-            
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: "🎬", key: messageKey } });
-        const jsonmsg = {
-            key: messageKey,
-            numrep,
-            method: 'nondecimal'
-        };
-
-        await storenumrepdata(jsonmsg);
-        }
 
     } catch (error) {
         console.error(error);
@@ -809,81 +640,6 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
 
         let tex = `\`💈 PRINCE-MDX 𝖳𝖨𝖪𝖳𝖮𝖪 𝖲𝖤𝖠𝖱𝖢𝖧𝖤𝖱 💈\`\n`;
 
-               if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-           const rows = data.map(item => ({
-             title: item.title,
-             description: buttonDesc,
-             id: `${prefix}tiktok ${item.id} true`
-           }));
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "Download Tiktok Videos 💈",
-              rows
-            }
-          ]
-        };
-        
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: tex,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: "PRINCE-MDX 𝖲𝖤𝖠𝖱𝖢𝖧𝖤𝖱",
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           tex += "\n"
-                   
-        for (let i = 0; i < data.length; i++) {
-            tex += `*${i + 1} ||* ${data[i].title}\n\n`;
-            numrep.push(`${prefix}tiktok ${data[i].id} true`);
-        }
-
-        tex += config.FOOTER
-
-        const sentMsg = await conn.sendMessage(from, { image: { url: config.LOGO }, text: tex,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: "PRINCE-MDX 𝖲𝖤𝖠𝖱𝖢𝖧𝖤𝖱 ",
-                                          body: config.BODY,
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: ''
-                                      }}}, { quoted: mek });
-        
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '💈', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg) 
-               }
 
     } catch (e) {
         console.error(e);

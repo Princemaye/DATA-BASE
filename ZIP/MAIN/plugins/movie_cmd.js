@@ -6,7 +6,7 @@ const fs = require("fs-extra");
 var Seedr = require("seedr");
 var seedr = new Seedr();
 var seedrApi = 'https://seedr-new.vercel.app/';
-const { createButton, createSection, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
+
 
 const { 
       cmd, 
@@ -78,7 +78,6 @@ const baiscopesubBase = "https://www.baiscopes.lk/";
 const apilinkcine = "https://cinesubz-store.vercel.app/";
 const CINESUBZ_API_KEY = config.CINESUBZ_API_KEY;
 
-const { buttonDesc, buttonTitle } = require('../lib/config');
 const botName = "PRINCE MDX";
 
 const preMg = "*The command is a command given to premium users by the owners here. ‼️*";
@@ -187,26 +186,6 @@ async (conn, mek, m, { from, prefix, q, isDev, isMe, isOwners, reply }) => {
 
         mg += `╰━━━━━━━━━━━━━━━━━⊷\n\n${config.FOOTER}`;
 
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-            await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: mg,
-                buttons,
-                headerType: 4
-            }, { quoted: mek });
-
-        } else {
-            const mass = await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: mg
-            }, { quoted: mek });
-
-            await storenumrepdata({
-                key: mass.key,
-                numrep,
-                method: 'nondecimal'
-            });
-        }
 
     } catch (e) {
         console.error(e);
@@ -308,64 +287,6 @@ async (conn, mek, m, { from, prefix, q, reply, isDev, isMe, isOwners }) => {
                       `│ 🍒 Results: *${movieCount + tvCount}*\n` +
                       `╰─────────────────╯`;
 
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button" && (rowsMovies.length || rowsTV.length)) {
-            const sections = [];
-            if (rowsMovies.length) sections.push({ title: "Download Movies", rows: rowsMovies });
-            if (rowsTV.length) sections.push({ title: "Download TV Shows", rows: rowsTV });
-                
-                const listData = {
-          title: buttonTitle,
-          sections
-        };
-                        
-                const buttons = [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ]
-                        
-            await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption,
-                footer: config.FOOTER,
-                buttons,
-                headerType: 1,
-                                viewOnce: true
-            }, { quoted: mek });
-
-        } else {
-            // fallback plain text
-            let textMsg = caption + "\n\n";
-
-            if (rowsMovies.length) {
-                textMsg += "🎬 *Movies:*\n";
-                rowsMovies.forEach((r, i) => textMsg += `*${formatNumber(i + 1)}.* ${r.title}\n`);
-                textMsg += "\n";
-            }
-
-            if (rowsTV.length) {
-                textMsg += "📺 *TV Shows:*\n";
-                rowsTV.forEach((r, i) => textMsg += `*${formatNumber(movieCount + i + 1)}.* ${r.title}\n`);
-                textMsg += "\n";
-            }
-
-            const mass = await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: `${textMsg}\n\n${config.FOOTER}`
-            }, { quoted: mek });
-
-            await storenumrepdata({
-                key: mass.key,
-                numrep,
-                method: "nondecimal"
-            });
-        }
 
     } catch (e) {
         console.error(e);
@@ -510,63 +431,8 @@ let cot = `╭──────────────────╮
             msg += `  *${formatNumber(i + 3)} ||* ${downurl[i].quality} [ ${downurl[i].size} (\`${type}\`) ]\n`;
             numrep.push(`${prefix}${dlcmd} ${down}🎈${data?.title || 'N/A'}🎈${downurl[i].quality}🎈${downurl[i].size}🎈${image || config.LOGO}`);
 
-            if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-                buttons.push({
-                                        title: `${downurl[i].quality} ( ${downurl[i].size} )`,
-                    description: type,
-                    id: `${prefix}${dlcmd} ${down}🎈${data?.title || 'N/A'}🎈${downurl[i].quality}🎈${downurl[i].size}🎈${image || config.LOGO}`
-                });
-            }
         }
 
-        if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-
-                                const listData = {
-                      title: buttonTitle,
-                      sections: [
-                        {
-                          title: "Movie Data",
-                          rows: [
-                                                          { title: `Send Details`, description: buttonDesc, id: `${prefix}mv_det ${q}` }, 
-                                          { title: `Send Images`, description: buttonDesc, id: `${prefix}mv_images ${q}` }
-                          ]
-                        },
-                                                {
-                          title: "Movie Download",
-                          rows: buttons
-                        }
-                      ]
-                    };
-                        
-            await conn.sendMessage(from, {
-                image: { url: image },
-                caption: cot,
-                                footer: config.FOOTER,
-                buttons: [
-                      {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🔽 Select Option" },
-                        nativeFlowInfo: {
-                          name: "single_select",
-                          paramsJson: JSON.stringify(listData)
-                        }
-                      }
-                    ],
-                headerType: 1,
-                                viewOnce: true
-            }, { quoted: mek });
-        } else {
-
-                cot += msg
-        const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
-
-        await storenumrepdata({
-            key: mass.key,
-            numrep,
-            method: 'nondecimal'
-        });
-    }
                 
     } catch (e) {
         l(e);
@@ -1483,15 +1349,12 @@ async (conn, mek, m, {
     cast = castList.map(c => c?.actor?.name || '').join(', ');
 
     // Prepare season/episode options
-    let rowsMap = {};
     mov.episodesDetails.forEach(season => {
       const seasonNum = season.season.number;
 
       season_mg += `\n> _[ Season 0${seasonNum} ]_\n${seasonNum}.1 || All Episodes\n`;
       const allEpId = `${prefix}${cmd} ${q}🎈${seasonNum}`;
       numrep.push(`${seasonNum}.1 ${allEpId}`);
-      if (!rowsMap[seasonNum]) rowsMap[seasonNum] = [];
-      rowsMap[seasonNum].push({ title: `All Episodes`, description: buttonDesc, id: allEpId });
 
       season.episodes.forEach(episode => {
         const parts = episode.number.split(" - ");
@@ -1503,9 +1366,6 @@ async (conn, mek, m, {
         const epId = `${prefix}ep_go ${episode.url}🎈${jidx}`;
         season_mg += `${epDisplay}\n`;
         numrep.push(`${seasonNum}.${episodeNum + 1} ${epId}`);
-
-        if (!rowsMap[seasonNum]) rowsMap[seasonNum] = [];
-        rowsMap[seasonNum].push({ title: epDisplay.split('|| ')[1], description: buttonDesc, id: epId });
       });
     });
 
@@ -1521,57 +1381,6 @@ async (conn, mek, m, {
 
     const imageUrl = mov.image?.replace(/-\d+x\d+\.jpg$/, '.jpg').replace(/-\d+x\d+\.webp$/, '.webp') || mov.mainImage || config.LOGO;
 
-    if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-
-  const listData = {
-  title: '📥 Choose Episode',
-  sections: Object.keys(rowsMap).map(season => ({
-    title: `Season ${season}`,
-    rows: rowsMap[season]
-   }))
-  };
- 
-
-      await conn.sendMessage(from, {
-        image: { url: imageUrl },
-        caption: output,
-        contextInfo: {
-          externalAdReply: {
-            title,
-            body: config.BODY || '',
-            mediaType: 1,
-            sourceUrl: q,
-            thumbnailUrl: imageUrl,
-            renderLargerThumbnail: false
-          }
-        },
-        footer: config.FOOTER,
-        buttons: [
-          {
-            buttonId: "action",
-            type: 4,
-            buttonText: { displayText: "🔽 Select Option" },
-            nativeFlowInfo: {
-              name: "single_select",
-              paramsJson: JSON.stringify(listData)
-            }
-          }
-        ],
-        headerType: 1,
-        viewOnce: true
-      }, { quoted: mek });
-
-    } else {
-      const caption = `${output}\n\n${season_mg}\n${config.FOOTER}`;
-      const msg = await conn.sendMessage(from, { image: { url: imageUrl }, caption }, { quoted: mek });
-
-      const jsonmsg = {
-        key: msg.key,
-        numrep,
-        method: 'decimal'
-      };
-      await storenumrepdata(jsonmsg);
-    }
 
   } catch (e) {
     l(e);
@@ -1646,50 +1455,6 @@ const downurl = [...arr1, ...arr2];
 > Select JID: ${jidx}`;
 
   // Buttons / Lists
-  if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-    let rows = [
-      { title: "Send Details 📜", description: buttonDesc, id: `${prefix}ep_det ${q}🎈${jidx}` },
-      { title: "Send Images 📷", description: buttonDesc, id: `${prefix}mv_images ${q}🎈${jidx}` }
-    ];
-    let rows2 = downurl.map(d => ({
-      title: `${d.quality} [ ${d.size} ]`,
-      description: buttonDesc,
-      id: `${prefix}${dlcmd} ${d.link || ''}🎈${title}🎈${d.quality}🎈${d.size}🎈${images[0] || imageUrls[0] || config.LOGO}🎈${jidx}`
-    }));
-
-    const listData = {
-      title: buttonTitle,
-      sections: [
-        { title: "Send movie details", rows },
-        { title: "Download movie", rows: rows2 }
-      ]
-    };
-
-    await conn.sendMessage(from, {
-      image: { url: images[0] || imageUrls[0] || config.LOGO },
-      caption: cot,
-      footer: config.FOOTER,
-      buttons: [
-        { buttonId: "action", type: 4, buttonText: { displayText: "🔽 Select Option" }, nativeFlowInfo: { name: "single_select", paramsJson: JSON.stringify(listData) } }
-      ],
-      headerType: 1,
-      viewOnce: true
-    }, { quoted: mek });
-
-  } else {
-    let numrep = [`${prefix}ep_det ${q}🎈${jidx}`, `${prefix}mv_images ${q}🎈${jidx}`];
-
-          cot += "\n*01 ||* Send Details\n" +
-                     "*02 ||* Send Images\n"
-                  
-    downurl.forEach((d, i) => {
-      cot += `\n*${i + 3} ||* ${d.quality} [ ${d.size} ]`;
-      numrep.push(`${prefix}${dlcmd} ${d.link || ''}🎈${title}🎈${d.quality}🎈${d.size}🎈${images[0] || imageUrls[0] || config.LOGO}🎈${jidx}`);
-    });
-
-    const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
-    await storenumrepdata({ key: mass.key, numrep, method: 'nondecimal' });
-  }
 
 } catch(e){
   console.error(e);

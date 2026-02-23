@@ -24,12 +24,7 @@ const {
     platformAwareRestart,
     uploadToCatbox,
 } = require("../lib/functions");
-const {
-    createButton,
-    createSection,
-    sendNativeFlowButtons,
-    sendQuickReplyButtons,
-} = require("../lib/buttons");
+
 const {
     saveAutoReply,
     deleteAutoReply,
@@ -58,7 +53,6 @@ const { storenumrepdata } = require("../lib/numreply-db");
 function formatNumber(num) {
     return String(num).padStart(2, "0");
 }
-const { buttonDesc, buttonTitle } = require("../lib/config");
 
 const botName =
     config.BOT_NAME && config.BOT_NAME !== "default" ? config.BOT_NAME : null;
@@ -604,75 +598,6 @@ cmd(
                 `${prefix}setenv CINESUBZ_API_KEY ${text}`,
             ];
 
-            // BUTTON MODE
-            const rows = numrep.map((cmd) => ({
-                title: cmd.split(" ")[1],
-                description: buttonDesc,
-                id: cmd,
-            }));
-
-            const listData = {
-                title: buttonTitle,
-                sections: [
-                    {
-                        title: "Update a specific environment config setting",
-                        rows,
-                    },
-                ],
-            };
-
-            if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-                await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        caption: info,
-                        footer: isMedia
-                            ? `Media: ${mediaTypeLabel}`
-                            : `Text: ${text}`,
-                        buttons: [
-                            {
-                                buttonId: "action",
-                                type: 4,
-                                buttonText: { displayText: "🔽 Select Option" },
-                                nativeFlowInfo: {
-                                    name: "single_select",
-                                    paramsJson: JSON.stringify(listData),
-                                },
-                            },
-                        ],
-                        headerType: 1,
-                        viewOnce: true,
-                    },
-                    { quoted: mek },
-                );
-            } else {
-                info +=
-                    `\n┏━━━━━━━━━━━━━━┓\n` +
-                    numrep
-                        .map(
-                            (cmd, i) =>
-                                `┣ ${(i + 1).toString().padStart(2, "0")}. ${cmd.split(" ")[1]}`,
-                        )
-                        .join("\n") +
-                    `\n┗━━━━━━━━━━━━━━━┛\n\n> ${isMedia ? `Media: ${mediaTypeLabel}` : `Text: ${text}`}`;
-
-                const sentMsg = await conn.sendMessage(
-                    from,
-                    { image: { url: config.LOGO }, caption: info },
-                    { quoted: mek },
-                );
-                const messageKey = sentMsg.key;
-                await conn.sendMessage(from, {
-                    react: { text: "🛡", key: sentMsg.key },
-                });
-
-                await storenumrepdata({
-                    key: messageKey,
-                    numrep,
-                    method: "nondecimal",
-                });
-            }
         } catch (e) {
             console.log(e);
             await reply(errorMg, "❌");
@@ -754,33 +679,6 @@ cmd(
             };
 
             // BUTTON MODE
-            if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-                return await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        caption: `╔══〘 *${bot_title} CUSTOMIZE* 〙══╗
-┃➠ Text Provided : ${text}
-┃➠ Total Options : ${numrep.length}
-╚════════════════════════╝`,
-                        footer: "Select what you want to change",
-                        buttons: [
-                            {
-                                buttonId: "action",
-                                type: 4,
-                                buttonText: { displayText: "🔽 Select Option" },
-                                nativeFlowInfo: {
-                                    name: "single_select",
-                                    paramsJson: JSON.stringify(listData),
-                                },
-                            },
-                        ],
-                        headerType: 1,
-                        viewOnce: true,
-                    },
-                    { quoted: mek },
-                );
-            }
 
             // NORMAL MODE (YOUR NEW DESIGN)
             let info = `╔══〘 *${bot_title}* 〙══╗
@@ -997,101 +895,6 @@ cmd(
                 },
             ];
 
-            if (config.MESSAGE_TYPE?.toLowerCase() === "button") {
-                const listData = {
-                    title: "Bot Settings",
-                    sections: settingsList.map((s) => ({
-                        title: s.name,
-                        rows:
-                            s.type === "boolean"
-                                ? [
-                                      {
-                                          title: "Enable",
-                                          description: s.desc,
-                                          id: `${prefix}setenv ${s.key} true`,
-                                      },
-                                      {
-                                          title: "Disable",
-                                          description: s.desc,
-                                          id: `${prefix}setenv ${s.key} false`,
-                                      },
-                                  ]
-                                : s.options.map((opt) => ({
-                                      title: opt.toUpperCase(),
-                                      description: s.desc,
-                                      id: `${prefix}setenv ${s.key} ${opt}`,
-                                  })),
-                    })),
-                };
-
-                await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        caption: header,
-                        footer: config.FOOTER,
-                        buttons: [
-                            {
-                                buttonId: "action",
-                                type: 4,
-                                buttonText: { displayText: "🔽 Select Option" },
-                                nativeFlowInfo: {
-                                    name: "single_select",
-                                    paramsJson: JSON.stringify(listData),
-                                },
-                            },
-                        ],
-                        headerType: 1,
-                        viewOnce: true,
-                    },
-                    { quoted: mek },
-                );
-            } else {
-                let text = header + "\n";
-                const numrep = [];
-
-                settingsList.forEach((s, i) => {
-                    const index = i + 1;
-
-                    text += `╭━━❮ ${toBold(s.name)} ❯━━╮\n`;
-
-                    if (s.type === "boolean") {
-                        text += `┃ ${index}.1  ${toSmallCaps("ENABLE")}\n`;
-                        text += `┃ ${index}.2  ${toSmallCaps("DISABLE")}\n`;
-                        numrep.push(`${index}.1 ${prefix}setenv ${s.key} true`);
-                        numrep.push(
-                            `${index}.2 ${prefix}setenv ${s.key} false`,
-                        );
-                    } else {
-                        s.options.forEach((opt, j) => {
-                            text += `┃ ${index}.${j + 1}  ${toSmallCaps(opt.toUpperCase())}\n`;
-                            numrep.push(
-                                `${index}.${j + 1} ${prefix}setenv ${s.key} ${opt}`,
-                            );
-                        });
-                    }
-
-                    text += `╰━━━━━━━━━━━╯\n`;
-                });
-
-                text += `${config.FOOTER}`;
-
-                const sentMsg = await conn.sendMessage(
-                    from,
-                    { image: { url: config.LOGO }, caption: text },
-                    { quoted: mek },
-                );
-
-                await conn.sendMessage(from, {
-                    react: { text: "⚙️", key: sentMsg.key },
-                });
-
-                await storenumrepdata({
-                    key: sentMsg.key,
-                    numrep,
-                    method: "decimal",
-                });
-            }
         } catch (e) {
             console.log(e);
             reply(errorMg);
@@ -1145,123 +948,6 @@ cmd(
 
             let info = ` ${botName || "PRINCE-MDX"} 𝖲𝖴𝖣𝖮`;
 
-            if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-                const rows = [
-                    {
-                        title: "Add SUDO_NUMBERS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo SUDO_NUMBERS add ${user}`,
-                    },
-                    {
-                        title: "Delete SUDO_NUMBERS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo SUDO_NUMBERS delete ${user}`,
-                    },
-                    {
-                        title: "Add BAND_USERS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo BAND_USERS add ${user}`,
-                    },
-                    {
-                        title: "Delete BAND_USERS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo BAND_USERS delete ${user}`,
-                    },
-                    {
-                        title: "Add SUDO_GROUPS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo SUDO_GROUPS add ${user}`,
-                    },
-                    {
-                        title: "Delete SUDO_GROUPS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo SUDO_GROUPS delete ${user}`,
-                    },
-                    {
-                        title: "Add BAND_GROUPS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo BAND_GROUPS add ${user}`,
-                    },
-                    {
-                        title: "Delete BAND_GROUPS",
-                        description: buttonDesc,
-                        id: `${prefix}set_sudo BAND_GROUPS delete ${user}`,
-                    },
-                ];
-
-                const listData = {
-                    title: buttonTitle,
-                    sections: [
-                        {
-                            title: "Change sudo access",
-                            rows,
-                        },
-                    ],
-                };
-
-                await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        caption: info,
-                        footer: `${userTag}: ${user}`,
-                        buttons: [
-                            {
-                                buttonId: "action",
-                                type: 4,
-                                buttonText: { displayText: "🔽 Select Option" },
-                                nativeFlowInfo: {
-                                    name: "single_select",
-                                    paramsJson: JSON.stringify(listData),
-                                },
-                            },
-                        ],
-                        headerType: 1,
-                        viewOnce: true,
-                    },
-                    { quoted: mek },
-                );
-            } else {
-                info += `
-┏━━━━ Admin Menu ━━━━━┓
-┃➠ 01. Add SUDO_NUMBERS
-┃➠ 02. Delete SUDO_NUMBERS
-┃➠ 03. Add BAND_USERS
-┃➠ 04. Delete BAND_USERS
-┃➠ 05. Add SUDO_GROUPS
-┃➠ 06. Delete SUDO_GROUPS
-┃➠ 07. Add BAND_GROUPS
-┃➠ 08. Delete BAND_GROUPS
-┗━━━━━━━━━━━━━━━━━━━━┛
-
-> ${userTag}: ${user}`;
-
-                const numrep = [];
-                numrep.push(`${prefix}set_sudo SUDO_NUMBERS add ${user}`);
-                numrep.push(`${prefix}set_sudo SUDO_NUMBERS delete ${user}`);
-                numrep.push(`${prefix}set_sudo BAND_USERS add ${user}`);
-                numrep.push(`${prefix}set_sudo BAND_USERS delete ${user}`);
-                numrep.push(`${prefix}set_sudo SUDO_GROUPS add ${user}`);
-                numrep.push(`${prefix}set_sudo SUDO_GROUPS delete ${user}`);
-                numrep.push(`${prefix}set_sudo BAND_GROUPS add ${user}`);
-                numrep.push(`${prefix}set_sudo BAND_GROUPS delete ${user}`);
-
-                const sentMsg = await conn.sendMessage(
-                    from,
-                    { image: { url: config.LOGO }, caption: info },
-                    { quoted: mek },
-                );
-                const messageKey = sentMsg.key;
-                await conn.sendMessage(from, {
-                    react: { text: "🛡", key: sentMsg.key },
-                });
-                const jsonmsg = {
-                    key: messageKey,
-                    numrep,
-                    method: "nondecimal",
-                };
-                await storenumrepdata(jsonmsg);
-            }
         } catch (e) {
             console.log(e);
             await reply(errorMg, "❌");
@@ -1292,113 +978,6 @@ cmd(
                 text = from;
             }
 
-            let info = `\`📜 ${botName || "PRINCE-MDX"} 𝖠𝖴𝖳𝖮 𝖭𝖤𝖶𝖲 📜\`\n\n`;
-
-            if (
-                config.MESSAGE_TYPE &&
-                config.MESSAGE_TYPE.toLowerCase() === "button"
-            ) {
-                const rows = [
-                    {
-                        title: "Set HIRUNEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews HIRUNEWS_SEND_JIDS add ${text}`,
-                    },
-                    {
-                        title: "Remove HIRUNEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews HIRUNEWS_SEND_JIDS remove ${text}`,
-                    },
-                    {
-                        title: "Set SIRASANEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews SIRASANEWS_SEND_JIDS add ${text}`,
-                    },
-                    {
-                        title: "Remove SIRASANEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews SIRASANEWS_SEND_JIDS remove ${text}`,
-                    },
-                    {
-                        title: "Set DERANANEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews DERANANEWS_SEND_JIDS add ${text}`,
-                    },
-                    {
-                        title: "Remove DERANANEWS_SEND_JIDS",
-                        id: `${prefix}set_autonews DERANANEWS_SEND_JIDS remove ${text}`,
-                    },
-                ];
-
-                const listData = {
-                    title: "📢 Select News Action",
-                    sections: [
-                        {
-                            title: "Available Actions",
-                            rows,
-                        },
-                    ],
-                };
-
-                await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        caption: info,
-                        footer: `Jid: ${text}`,
-                        buttons: [
-                            {
-                                buttonId: "action",
-                                type: 4,
-                                buttonText: { displayText: "🔽 Select Option" },
-                                nativeFlowInfo: {
-                                    name: "single_select",
-                                    paramsJson: JSON.stringify(listData),
-                                },
-                            },
-                        ],
-                        headerType: 1,
-                        viewOnce: true,
-                    },
-                    { quoted: mek },
-                );
-            } else {
-                info += `
-┏━━━━ News JID Settings ━━━━━┓
-┃➠ 1.1 Set HIRUNEWS_SEND_JIDS
-┃➠ 1.2 Remove HIRUNEWS_SEND_JIDS
-
-┃➠ 2.1 Set SIRASANEWS_SEND_JIDS
-┃➠ 2.2 Remove SIRASANEWS_SEND_JIDS
-
-┃➠ 3.1 Set DERANANEWS_SEND_JIDS
-┃➠ 3.2 Remove DERANANEWS_SEND_JIDS
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-> JID: ${text}`;
-
-                const numrep = [
-                    `1.1 ${prefix}set_autonews HIRUNEWS_SEND_JIDS add ${text}`,
-                    `1.2 ${prefix}set_autonews HIRUNEWS_SEND_JIDS remove ${text}`,
-                    `2.1 ${prefix}set_autonews SIRASANEWS_SEND_JIDS add ${text}`,
-                    `2.2 ${prefix}set_autonews SIRASANEWS_SEND_JIDS remove ${text}`,
-                    `3.1 ${prefix}set_autonews DERANANEWS_SEND_JIDS add ${text}`,
-                    `3.2 ${prefix}set_autonews DERANANEWS_SEND_JIDS remove ${text}`,
-                ];
-
-                const sentMsg = await conn.sendMessage(
-                    from,
-                    {
-                        image: { url: config.LOGO },
-                        text: info,
-                    },
-                    { quoted: mek },
-                );
-
-                const messageKey = sentMsg.key;
-
-                const jsonmsg = {
-                    key: messageKey,
-                    numrep,
-                    method: "decimal",
-                };
-                await storenumrepdata(jsonmsg);
-            }
         } catch (e) {
             console.error(e);
             await reply(errorMg || "❌ An error occurred");

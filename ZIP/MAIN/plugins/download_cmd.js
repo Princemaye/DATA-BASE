@@ -2,7 +2,7 @@
 const config = require('../config');
 const { cmd } = require('../command');
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, checkDailymotionLink, checkGDriveLink, getThumbnailFromUrl, resizeThumbnail, formatMessage } = require('../lib/functions')
-const { createButton, createSection, sendListMessage, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
+
 const fg = require('api-dylux');
 const DY_SCRAP = require('@dark-yasiya/scrap');
 const dy_scrap = new DY_SCRAP();
@@ -43,7 +43,6 @@ const folderMap = {
 const API_KEY = "AIzaSyDWPxRtg3qpGZrnzyImlTqA_LsZOuuGXv4";
 const apilink = "https://darkyasiya-new-movie-api.vercel.app/";
 const apikey = '';
-const { buttonDesc } = require('../lib/config');
 const API_SITE = "https://ymd-apis.vercel.app";
 
 const botName = config.BOT_NAME && config.BOT_NAME !== "default" ? config.BOT_NAME : null;
@@ -113,34 +112,6 @@ cmd({
 `
            
            
-           if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-        const sections = [
-            createSection("📂 Video Type", [
-                { title: "Watermark Video 📹", description: buttonDesc, id: `${prefix}tt_dl ${sd} SD VIDEO=${title}` },
-                { title: "Without Watermark Video 🎥", description: buttonDesc, id: `${prefix}tt_dl ${sd} HD VIDEO=${title}` }
-            ]),
-            createSection("🎥 Document Type", [
-                { title: "Watermark Video 📹", description: buttonDesc, id: `${prefix}tt_dl ${sd} SD DOC=${title}` },
-                { title: "Without Watermark Video 🎥", description: buttonDesc, id: `${prefix}tt_dl ${sd} HD DOC=${title}` }
-            ]),
-            createSection("🎧 Music", [
-                { title: "Audio 🎼", description: buttonDesc, id: `${prefix}tt_dl ${music} MUSIC AUDIO=${title}` },
-                { title: "Document 📁", description: buttonDesc, id: `${prefix}tt_dl ${music} MUSIC DOC=${title}` },
-                { title: "Voice 🎤", description: buttonDesc, id: `${prefix}tt_dl ${music} MUSIC VOICE=${title}` }
-            ])
-        ];
-
-        await sendListMessage(conn, from, sections, mek, {
-            header: `${botName || "PRINCE-MDX"} TIKTOK`,
-            body: info,
-            footer: `${type}: ${url}`,
-            buttonText: "🔽 Select Option",
-            image: config.LOGO
-        });
-
-           } else {
-           
         info += `\n${numreplyMg}\n\n` +
 `➠ *[1] Video Type*
 1.1  Watermark Video
@@ -183,7 +154,6 @@ cmd({
                           method : 'decimal'
                           }
                         await storenumrepdata(jsonmsg);
-                  }
         
     } catch (e) {
         console.log(e);
@@ -285,31 +255,6 @@ cmd({
 ┗━━━━━━━━━━━━━━━━━┛
 `;
             
-        if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-            const buttons = [
-                { buttonId: `${prefix}ytmp3_dl ${url} AUDIO ${title}`, buttonText: { displayText: 'Audio Type 🎵' }, type: 1 },
-                { buttonId: `${prefix}ytmp3_dl ${url} DOC ${title}`, buttonText: { displayText: 'Document Type 📁' }, type: 1 },
-                { buttonId: `${prefix}ytmp3_dl ${url} VOICE ${title}`, buttonText: { displayText: 'Voice Type 🎤' }, type: 1 }
-            ]
-     
-            await sendQuickReplyButtons(conn, from, buttons, mek, {
-                image: image,
-                caption: info,
-                footer: config.FOOTER,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `🎶 ${botName || "PRINCE-𝖬𝖣X"} 𝖲𝖮𝖭𝖦 🎶`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: url
-                    }
-                }
-            });
-
-        } else {
-           
             info += `\n${numreplyMg}\n` +
 `1.1  Audio Type
 1.2  Document Type
@@ -344,7 +289,6 @@ cmd({
                 method : 'decimal'
             }
             await storenumrepdata(jsonmsg) 
-        }
 
     } catch (error) {
         console.error(error);
@@ -456,51 +400,6 @@ cmd({
 ┗━━━━━━━━━━━━━━━━━┛
 `;
             
-            if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "📂 Video Type",
-              rows: [
-                { title: "144p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 144 VIDEO` },
-                { title: "360p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 360 VIDEO` },
-                { title: "480p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 480 VIDEO` },
-                { title: "720p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 720 VIDEO` },
-                { title: "1080p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 1080 VIDEO` }
-              ]
-            },{
-              title: "🎥 Document Type",
-              rows: [
-                { title: "144p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 144 DOC` },
-                { title: "360p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 360 DOC` },
-                { title: "480p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 480 DOC` },
-                { title: "720p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 720 DOC` },
-                { title: "1080p Quality", description: buttonDesc, id: `${prefix}ytmp4_dl ${url} 1080 DOC` }
-              ]
-            }
-          ]
-        };
-        
-
-
-         await sendNativeFlowButtons(conn, from, listData, mek, {
-          image: config.LOGO,
-          caption: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: ` ${botName || "PRINCE-𝖬𝖣X"} 𝖸𝖳𝖬𝖯4`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }}
-        });
-
-           } else {
-           
             info += `\n${numreplyMg}\n\n` +
 ` ➠ *[1] Video Type*
 1.1  144p Quality
@@ -547,8 +446,7 @@ cmd({
                           numrep,
                           method : 'decimal'
                           }
-                        await storenumrepdata(jsonmsg) 
-                        }
+                        await storenumrepdata(jsonmsg)
 
         
     } catch (error) {
@@ -639,98 +537,6 @@ cmd({
             `┗━━━━━━━━━━━━━━━━━┛\n`;
 
         // ================= BUTTON MODE =================
-        if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-
-            const listData = {
-                title: buttonTitle,
-                sections: [
-                    {
-                        title: "📂 Video Type",
-                        rows: [
-                            { title: "SD Video 🪫", description: buttonDesc, id: `${prefix}fb_dl ${sd} SD VIDEO=${title}` },
-                            { title: "HD Video 🔋", description: buttonDesc, id: `${prefix}fb_dl ${hd} HD VIDEO=${title}` }
-                        ]
-                    },
-                    {
-                        title: "🎥 Document Type",
-                        rows: [
-                            { title: "SD Video 🪫", description: buttonDesc, id: `${prefix}fb_dl ${sd} SD DOC=${title}` },
-                            { title: "HD Video 🔋", description: buttonDesc, id: `${prefix}fb_dl ${hd} HD DOC=${title}` }
-                        ]
-                    }
-                ]
-            };
-
-            await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: info,
-                footer: `URL: ${q}`,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `${botName || "PRINCE-𝖬𝖣X"} 𝖥𝖡 𝖣𝖮𝖶𝖭𝖫𝖮..`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: q
-                    }
-                },
-                buttons: [
-                    {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🔽 Select Option" },
-                        nativeFlowInfo: {
-                            name: "single_select",
-                            paramsJson: JSON.stringify(listData)
-                        }
-                    }
-                ],
-                headerType: 1,
-                viewOnce: true
-            }, { quoted: mek });
-
-        // ================= NUM-REPLY MODE =================
-        } else {
-
-            info +=
-                `\n${numreplyMg}\n\n` +
-                `➠ *[1] Video Type*\n` +
-                `1.1  SD Video\n` +
-                `1.2  HD Video\n` +
-                `➠ *[2] Document Type*\n` +
-                `2.1  SD Video\n` +
-                `2.2  HD Video\n\n` +
-                `> URL: ${q}`;
-
-            const numrep = [
-                `1.1 ${prefix}fb_dl ${sd} SD VIDEO=${title}`,
-                `1.2 ${prefix}fb_dl ${hd} HD VIDEO=${title}`,
-                `2.1 ${prefix}fb_dl ${sd} SD DOC=${title}`,
-                `2.2 ${prefix}fb_dl ${hd} HD DOC=${title}`
-            ];
-
-            const sentMsg = await conn.sendMessage(from, {
-                image: { url: image },
-                caption: info,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `${botName || "PRINCE-𝖬𝖣X"} 𝖥𝖡 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: q
-                    }
-                }
-            }, { quoted: mek });
-
-            await conn.sendMessage(from, { react: { text: '🎥', key: sentMsg.key } });
-
-            await storenumrepdata({
-                key: sentMsg.key,
-                numrep,
-                method: "decimal"
-            });
-        }
 
     } catch (e) {
         console.log(e);
@@ -798,83 +604,6 @@ cmd({
       let apkurl = "https://i.ibb.co/hxb7GFV3/y-VAZqx-Vaih.jpg";
        let info = `\`${botName || "PRINCE-𝖬𝖣X"} 𝖠𝖯𝖪 \`\n`
        
-       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-           const rows = response.map(item => ({
-             title: item.name,
-             description: buttonDesc,
-             id: `${prefix}apk_dl ${item.id}`
-           }));
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "Download Application 📦",
-              rows
-            }
-          ]
-        };
-        
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `🕵️‍♂️ ${botName || "PRINCE-MDX"} 𝖠𝖯𝖪 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 🕵️‍♂️`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           info += "\n"
-           
-        for (let v = 0 ; v < response.length; v++) {
-            info += `*${formatNumber(v + 1)} ||* ${response[v].name}\n`
-            numrep.push(`${prefix}apk_dl ${response[v].id}`);
-        }
-
-        info += `\n> ${config.FOOTER}`
-            
-
-        const sentMsg = await conn.sendMessage(from, { image: { url: apkurl }, caption: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: ` ${botName || "PRINCE-MDX"} 𝖠𝖯𝖪 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 `,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: q
-                                      }}}, { quoted: mek });
-        
-
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '🕵️‍♂️', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg)
-                        }
         
     } catch (e) {
         console.log(e);
@@ -944,83 +673,6 @@ cmd({
       
        let info = `\` ${botName || "PRINCE-𝖬𝖣X"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 \`\n\n`
        
-       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-           const rows = data.map(item => ({
-             title: item.title,
-             description: buttonDesc,
-             id: `${prefix}ph_det ${item.videoUrl}`
-           }));
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "Download Pornhub Video 🍀",
-              rows
-            }
-          ]
-        };
-        
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `🔞 ${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 🔞`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           info += "\n"
-           
-        for (let v = 0 ; v < data.length; v++) {
-            info += `*${formatNumber(v + 1)} ||* ${data[v].title}\n`
-            numrep.push(`${prefix}ph_det ${data[v].videoUrl}`);
-        }
-
-        info += `\n> ${config.FOOTER}`
-            
-
-        const sentMsg = await conn.sendMessage(from, { text: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `🔞 ${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡🔞`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: q
-                                      }}}, { quoted: mek });
-        
-
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '🔞', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg)
-                        }
         
     } catch (e) {
         console.log(e);
@@ -1050,84 +702,6 @@ cmd({
         let msg = `_*💦 Title:* ${title}_\n\n`;
         let numrep = [];
 
-        if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-            const rows = videos.map(item => ({
-                title: item.quality || "Unknown Quality",
-                description: buttonDesc,
-                id: `${prefix}ph_dl ${title}🎈${item.url}🎈${cover}`
-            }));
-
-            const listData = {
-                title: buttonTitle,
-                sections: [
-                    {
-                        title: "Download Pornhub Video 🍀",
-                        rows
-                    }
-                ]
-            };
-
-            await conn.sendMessage(from, {
-                image: { url: cover || config.LOGO },
-                caption: msg,
-                footer: config.FOOTER,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `🔞 ${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 🔞`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: q
-                    }
-                },
-                buttons: [
-                    {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🔽 Select Option" },
-                        nativeFlowInfo: {
-                            name: "single_select",
-                            paramsJson: JSON.stringify(listData)
-                        }
-                    }
-                ],
-                headerType: 1,
-                viewOnce: true
-            }, { quoted: mek });
-
-        } else {
-            for (let v = 0; v < videos.length; v++) {
-                const quality = videos[v].quality || "Unknown";
-                const cleanQuality = quality.split('-')[0].trim();
-                msg += `*${formatNumber(v + 1)}.  ${cleanQuality} Quality*\n`;
-                numrep.push(`${prefix}ph_dl ${title}🎈${videos[v].url}🎈${cover}`);
-            }
-
-            msg += `\n\n${config.FOOTER}`;
-
-            const sentMsg = await conn.sendMessage(from, {
-                image: { url: cover || config.LOGO }, 
-                caption: msg,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `🔞 ${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 🔞`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: q
-                    }
-                }
-            }, { quoted: mek });
-
-            const messageKey = sentMsg.key;
-            await conn.sendMessage(from, { react: { text: '🔞', key: messageKey } });
-
-            await storenumrepdata({
-                key: messageKey,
-                numrep,
-                method: 'nondecimal'
-            });
-        }
 
     } catch (e) {
         console.log(e);
@@ -1202,83 +776,6 @@ cmd({
       
        let info = `\` ${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮\`\n\n`
        
-       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-           const rows = data.map(item => ({
-             title: item.title,
-             description: buttonDesc,
-             id: `${prefix}xvid_dl ${item.url}`
-           }));
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "Download Xvideo Video 🍀",
-              rows
-            }
-          ]
-        };
-        
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `🔞 ${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮🔞`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           info += "\n"
-           
-        for (let v = 0 ; v < data.length; v++) {
-            info += `*${formatNumber(v + 1)} ||* ${data[v].title}\n`
-            numrep.push(`${prefix}xvid_dl ${data[v].url}`);
-        }
-
-        info += `\n> ${config.FOOTER}`
-            
-
-        const sentMsg = await conn.sendMessage(from, { text: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `🔞 ${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮🔞`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: q
-                                      }}}, { quoted: mek });
-        
-
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '🔞', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg)
-                        }
         
     } catch (e) {
         console.log(e);
@@ -1461,90 +958,6 @@ cmd({
       
        let info = `\`⚡ ${botName || "PRINCE-MDX"} 𝖦𝖨𝖭𝖨𝖲𝖨𝖲𝖨𝖫𝖠\`\n`
        
-       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-           const rows = data.map(item => ({
-             title: item.title,
-             description: item.releaseDate,
-             id: `${prefix}gini_det ${item.link}`
-           }));
-           
-        const listData = {
-          title: buttonTitle,
-          sections: [
-            {
-              title: "Next Page 📖",
-              rows: [
-                { title: 'Next Page', description: buttonDesc, id: `${prefix}ginisisila ${response?.data?.nextPage}`}
-              ]
-            },
-            {
-              title: "Download Cartoons ⚡",
-              rows
-            }
-          ]
-        };
-        
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `⚡ ${botName || "PRINCE-MDX"} 𝖦𝖨𝖭𝖨𝖲𝖨𝖲𝖨𝖫a⚡`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           info += `\n*${formatNumber(1)} ||* Next Page\n\n`
-           numrep.push(`${prefix}ginisisila ${response?.data?.nextPage}`)
-               
-        for (let v = 0 ; v < data.length; v++) {
-            info += `*${formatNumber(v + 2)} ||* ${data[v].title}\n`
-            numrep.push(`${prefix}gini_det ${data[v].link}`);
-        }
-
-        info += `\n> ${config.FOOTER}`
-            
-
-        const sentMsg = await conn.sendMessage(from, { text: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `⚡ ${botName || "PRINCE-MDX"} 𝖦𝖨𝖭𝖨𝖲𝖨𝖲𝖨𝖫𝖠⚡`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: q
-                                      }}}, { quoted: mek });
-        
-
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '⚡', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg)
-                        }
         
     } catch (e) {
         console.log(e);
@@ -1627,124 +1040,6 @@ cmd({
            `┣  *Desc:* ${desc}\n` +
            `┗━━━━━━━━━━━━━━━━━━━┛\n` 
            
-           if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
-        const listData = {
-          title: "Download Video 🎬",
-          sections: [
-            {
-              title: "📂 Video Type",
-              rows: [
-                { title: "SD Video 🪫", description: buttonDesc, id: `${prefix}tw_dl ${video_sd} SD VIDEO=${title}` },
-                { title: "HD Video 🔋", description: buttonDesc, id: `${prefix}tw_dl ${video_hd} HD VIDEO=${title}` }
-              ]
-            },{
-              title: "🎥 Document Type",
-              rows: [
-                { title: "SD Video 🪫", description: buttonDesc, id: `${prefix}tw_dl ${video_sd} SD DOC=${title}` },
-                { title: "HD Video 🔋", description: buttonDesc, id: `${prefix}tw_dl ${video_hd} HD DOC=${title}` }
-              ]
-            }
-          ]
-        };
-        
-        
-        const listData2 = {
-          title: "Download Audio 🎶",
-          sections: [
-            {
-              title: "🎧 Music",
-              rows: [
-                { title: "Audio 🎼", description: buttonDesc, id: `${prefix}tw_dl ${audio} MUSIC AUIDO=${title}` },
-                { title: "Document 📁", description: buttonDesc, id: `${prefix}tw_dl ${audio} MUSIC DOC=${title}` },
-                { title: "Voice 🎤", description: buttonDesc, id: `${prefix}tw_dl ${audio} MUSIC VOICE=${title}` }
-              ]
-            }
-          ]
-        };
-
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
-          caption: info,
-          footer: `URL: ${url}`,
-          contextInfo: {
-                externalAdReply: {
-                     title: `🐋 ${botName || "PRINCE-MDX"} 𝖳𝖶𝖨𝖳𝖳𝖤𝖱🐋`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            },{
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData2)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-           info += `\n${numreplyMg}\n` +
-`_[1] Video Type_
-1.1  SD Video
-1.2  HD Video
-
-_[2] Document Type_
-2.1  SD Video
-2.2  HD Video
-
-_[3] Music_
-3.1  Audio
-3.2  Document
-3.3  Voice
-
-> URL: ${q}`;
-
-        const numrep = [];
-        numrep.push(`1.1 ${prefix}tw_dl ${video_sd} SD VIDEO=${title}`);
-        numrep.push(`1.2 ${prefix}tw_dl ${video_hd} HD VIDEO=${title}`);
-        numrep.push(`2.1 ${prefix}tw_dl ${video_sd} SD DOC=${title}`);
-        numrep.push(`2.2 ${prefix}tw_dl ${video_hd} HD DOC=${title}`);
-        numrep.push(`3.1 ${prefix}tw_dl ${audio} MUSIC AUDIO=${title}`);
-        numrep.push(`3.2 ${prefix}tw_dl ${audio} MUSIC DOC=${title}`);
-        numrep.push(`3.3 ${prefix}tw_dl ${audio} MUSIC VOICE=${title}`);
-
-        const sentMsg = await conn.sendMessage(from, { image: { url: thumb || config.LOGO }, caption: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `🐋 ${botName || "PRINCE-MDX"} 𝖳𝖶𝖨𝖳𝖳𝖤𝖱 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 🐋`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: q
-                                      }}}, { quoted: mek });
-        
-        
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '🎥', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg) 
-                        }
         
 
     } catch (e) {
@@ -2491,67 +1786,6 @@ cmd({
 
         let info = `\`📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃\`\n\n`
             
-                       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-           
- 
-         const buttons = [
-             { buttonId: `${prefix}pp_dl O/L`, buttonText: { displayText: 'O/L Past Paper' }, type: 1 },
-             { buttonId: `${prefix}pp_dl A/L`, buttonText: { displayText: 'A/L Past Paper' }, type: 1 },
-             { buttonId: `${prefix}pp_dl G10`, buttonText: { displayText: 'Grade 10 Past Paper' }, type: 1 },
-                         { buttonId: `${prefix}pp_dl G11`, buttonText: { displayText: 'Grade 11 Past Paper' }, type: 1 }
-             ]
-     
-         await conn.sendMessage(from, {
-          image : { url: config.LOGO },
-          text: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: dbData?.OFFICIAL_SITE || ""
-          }},
-          buttons,
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-            info += `\n${numreplyMg}\n` +
-            `1.1  *O/L Past Paper*\n` +
-            `1.2  *A/L Past Paper*\n` +
-            `1.3  *Grade 10 Past Paper*\n` +
-                        `1.4  *Grade 11 Past Paper*\n\n` +
-            `> ${config.FOOTER}`;
-
-        const numrep = [];
-        numrep.push(`1.1 ${prefix}pp_dl O/L`);
-        numrep.push(`1.2 ${prefix}pp_dl A/L`);
-        numrep.push(`1.3 ${prefix}pp_dl G10`);
-                numrep.push(`1.4 ${prefix}pp_dl G11`);
-    
-        const sentMsg = await conn.sendMessage(from, { image : { url: config.LOGO }, text: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: dbData?.OFFICIAL_SITE || ""
-                                      }}}, { quoted: mek });
-        
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '📃', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'decimal'
-                          }
-                        await storenumrepdata(jsonmsg) 
-                        }
 
     } catch (error) {
         console.error(error);
@@ -2591,148 +1825,13 @@ cmd({
         let info = `\`📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃\`\n\n`;
                 let info2 = "";
                 let numrep = [];
-                let rows = [];
 
         for (let item = 0; item < data.data.length; item++) {
-                rows.push({
-                    title: data.data[item].title,
-                    description: buttonDesc,
-                    id: `${prefix}pp_dl ${data.data[item].url}`
-                });
                             info2 += `${formatNumber(item + 1)} || ${data.data[item].title}\n`
                 numrep.push(`${prefix}pp_dl ${data.data[item].url}`);
                 }            
 
                 
-                       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-
-
-                                const listData = {
-                      title: buttonTitle,
-                      sections: [
-                                                {
-                          title: "Past Paper Downloader",
-                          rows
-                        }
-                      ]
-                    };
-     
-         await conn.sendMessage(from, {
-          image : { url: config.LOGO },
-          text: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: dbData?.OFFICIAL_SITE || ""
-          }},
-            buttons: [
-                    {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🔽 Select Option" },
-                        nativeFlowInfo: {
-                          name: "single_select",
-                          paramsJson: JSON.stringify(listData)
-                        }
-                      }
-                    ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
-            info += `\n${numreplyMg}\n` +
-            info2 +
-            `\n> ${config.FOOTER}`;
-    
-        const sentMsg = await conn.sendMessage(from, { image : { url: config.LOGO }, text: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: dbData?.OFFICIAL_SITE || ""
-                                      }}}, { quoted: mek });
-        
-        const messageKey = sentMsg.key;
-        await conn.sendMessage(from, { react: { text: '📃', key: messageKey } });
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg) 
-                        }
-
-                } else {
-
-                        const data = await fetchJson(`${API_SITE}/api/download/pastpaper?url=${q}`);
-
-
-        let info = `\`📃 ${botName || "PRINCE-MD"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱 📃\`\n\n`;
-                let info2 = "";
-                let numrep = [];
-                let rows = [];
-
-        for (let item = 0; item < data.data.results.length; item++) {
-                rows.push({
-                    title: data.data.results[item].title,
-                    description: buttonDesc,
-                    id: `${prefix}pp_dl2 ${data.data.results[item].url}🎈${data.data.results[item].title}`
-                });
-                            info2 += `${formatNumber(item + 1)} || ${data.data.results[item].title}\n`
-                numrep.push(`${prefix}pp_dl2 ${data.data.results[item].url}🎈${data.data.results[item].title}`);
-                }            
-
-                
-                       if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-
-
-                                const listData = {
-                      title: buttonTitle,
-                      sections: [
-                                                {
-                          title: "Past Paper Downloader",
-                          rows
-                        }
-                      ]
-                    };
-     
-         await conn.sendMessage(from, {
-          image : { url: config.LOGO },
-          text: info,
-          footer: config.FOOTER,
-          contextInfo: {
-                externalAdReply: {
-                     title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱📃`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: dbData?.OFFICIAL_SITE || ""
-          }},
-            buttons: [
-                    {
-                        buttonId: "action",
-                        type: 4,
-                        buttonText: { displayText: "🔽 Select Option" },
-                        nativeFlowInfo: {
-                          name: "single_select",
-                          paramsJson: JSON.stringify(listData)
-                        }
-                      }
-                    ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
-
-           } else {
-           
             info += `\n${numreplyMg}\n` +
             info2 +
             `\n> ${config.FOOTER}`;
@@ -2754,9 +1853,7 @@ cmd({
                           numrep,
                           method : 'nondecimal'
                           }
-                        await storenumrepdata(jsonmsg) 
-                        }
-                        
+                        await storenumrepdata(jsonmsg)
                 }
                 
     } catch (error) {

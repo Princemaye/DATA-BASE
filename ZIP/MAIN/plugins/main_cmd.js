@@ -7,8 +7,8 @@ const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, 
 const si = require('systeminformation');
 const emojiRegex = require('emoji-regex');
 const { storenumrepdata } = require('../lib/numreply-db');
-const { buttonDesc, buttonTitle } = require('../lib/config');
-const { createButton, createSection, sendButtonMessage, sendListMessage, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
+
+
 const DBM = require("../lib/database");
 const dbData = require("../lib/config");
 const ymd_db = new DBM();
@@ -103,59 +103,6 @@ cmd({
   `│ *Prefix:* [ ${prefix} ]\n` +
   `└─────────────❒`;
 
-  if(config.MESSAGE_TYPE.toLowerCase() === "button"){
-
-        const buttons = [
-             { buttonId: `${prefix}menu`, buttonText: { displayText: 'COMMAND LIST 📑' }, type: 1 },
-             { buttonId: `${prefix}ping`, buttonText: { displayText: 'BOT SPEED ⚡' }, type: 1 },
-             { buttonId: `${prefix}system`, buttonText: { displayText: 'SYSTEM INFORMATION 🖲️' }, type: 1 }
-             ]
-
-         await conn.sendMessage(from, {
-          image: { url: config.ALIVE_LOGO || config.LOGO },
-          caption: aliveText,
-          footer: config.FOOTER,
-          header: `👋 ${greeting} ${pushname}`,
-          buttons,
-          headerType: 1,
-          viewOnce: false,
-          mentions: [mentionJid]
-        }, { quoted: mek });
-
-           } else {
-
-           aliveText += `\n\n1  COMMAND LIST 📑\n` +
-           `2  BOT SPEED ⚡\n` +
-           `3  SYSTEM INFORMATION 🖲️\n\n` +
-           config.FOOTER
-
-        const numrep = [];
-        numrep.push(`${prefix}menu`);
-        numrep.push(`${prefix}ping`);
-        numrep.push(`${prefix}system`);
-
-      const sentMsg = await conn.sendMessage(from, {
-        image: { url: config.ALIVE_LOGO || config.LOGO },
-        caption: aliveText,
-        mentions: [mentionJid],
-        contextInfo: {
-                externalAdReply: {
-                     title: `👋 ${greeting} ${pushname}`,
-                     body: config.BODY || "",
-                     thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                     mediaType: 1,
-                     sourceUrl: q
-          }},
-      }, { quoted: mek });
-
-      const messageKey = sentMsg.key;
-        const jsonmsg = {
-                          key : messageKey,
-                          numrep,
-                          method : 'nondecimal'
-                          }
-                        await storenumrepdata(jsonmsg)
-      }
 
     } catch (err) {
       console.error(err);
@@ -421,49 +368,6 @@ cmd({
 
 `;
 
-        // BUTTON MODE
-        if (config.MESSAGE_TYPE.toLowerCase() === "button") {
-
-            const rows = menuSections.map(section => ({
-                title: `${section.id}  ${section.name}`,
-                description: "Tap to view commands",
-                id: `${prefix}menu_list ${section.category} ${section.logo || config.LOGO}=${section.name}`
-            }));
-
-            const listData = {
-                title: "Menu Categories",
-                sections: [
-                    {
-                        title: "Select a category",
-                        rows
-                    }
-                ]
-            };
-
-            await conn.sendMessage(from, {
-                image: { url: config.LOGO },
-                caption: menuText,
-                footer: `${config.FOOTER}`,
-                header: "",
-                buttons: [
-                    {
-                        buttonId: "menu_select",
-                        type: 4,
-                        buttonText: { displayText: "📂 Open Menu" },
-                        nativeFlowInfo: {
-                            name: "single_select",
-                            paramsJson: JSON.stringify(listData)
-                        }
-                    }
-                ],
-                headerType: 1,
-                viewOnce: true
-            }, { quoted: mek });
-
-        } 
-        // TEXT MODE
-        else {
-
             menuSections.forEach(section => {
                 menuText += `• ${section.id}  *${section.name}*\n`;
             });
@@ -493,7 +397,6 @@ ${config.FOOTER}
             };
 
             await storenumrepdata(jsonmsg);
-        }
 
     } catch (e) {
         console.error(e);

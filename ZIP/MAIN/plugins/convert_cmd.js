@@ -15,7 +15,7 @@ const fileType = require("file-type");
 const { getContentType } = require('prince-baileys');
 const { Sticker, createSticker, StickerTypes } = require("wa-sticker-formatter");
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('../lib/functions');
-const { createButton, sendButtonMessage } = require('../lib/buttons');
+
 const { TempMail } = require("tempmail.lol");
 const tempmail = new TempMail();
 const botName = config.BOT_NAME && config.BOT_NAME !== "default" ? config.BOT_NAME : null;
@@ -832,16 +832,9 @@ async (conn, mek, m, { from, quoted, reply }) => {
                 const imageUrl = result.result.url;
                 await m.react("✅");
                 
-                const buttons = [
-                    createButton('copy', '📋 Copy URL', imageUrl),
-                    createButton('url', '🌐 Visit URL', imageUrl)
-                ];
-                
-                await sendButtonMessage(conn, from, buttons, mek, {
-                    header: '🔗 Image Uploaded',
-                    body: `✅ *Upload Successful!*\n\n🌍 *URL:*\n${imageUrl}`,
-                    footer: config.FOOTER || 'Prince MDX'
-                });
+                await conn.sendMessage(from, {
+                    text: `🔗 *Image Uploaded*\n\n✅ *Upload Successful!*\n\n🌍 *URL:*\n${imageUrl}\n\n> ${config.FOOTER || 'Prince MDX'}`
+                }, { quoted: mek });
 
                 fs.unlinkSync(filePath);
             })()
