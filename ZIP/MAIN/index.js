@@ -23,7 +23,7 @@ const {
 const fs = require('fs');
 const P = require('pino');
 const config = require('./config');
-const { createButton, createSection, sendButtonMessage, sendListMessage, patchBaileysSocket } = require('./lib/buttons');
+
 const qrcode = require('qrcode-terminal');
 const NodeCache = require('node-cache');
 const util = require('util');
@@ -463,8 +463,6 @@ async function princeMd(userName = "Princemaye", repoName = "DATA-BASE"){
             auth: state,
             version
         })
-
-    patchBaileysSocket(conn);
 
     conn.ev.on('connection.update', async (update) => {
         const {
