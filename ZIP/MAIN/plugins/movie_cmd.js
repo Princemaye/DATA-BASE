@@ -6,7 +6,7 @@ const fs = require("fs-extra");
 var Seedr = require("seedr");
 var seedr = new Seedr();
 var seedrApi = 'https://seedr-new.vercel.app/';
-const { createButton, createSection, sendListFromData } = require('prince-btns');
+const { createButton, createSection, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
 
 const { 
       cmd, 

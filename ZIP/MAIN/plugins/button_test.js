@@ -1,6 +1,6 @@
 const config = require('../config');
 const { cmd } = require('../command');
-const { createButton, createSection } = require('prince-btns');
+const { createButton, createSection, sendButtonMessage, sendListMessage } = require('../lib/buttons');
 
 cmd({
     pattern: "testbutton",
@@ -17,7 +17,7 @@ cmd({
             createButton('copy', 'Copy Code 📋', 'PRINCE-MDX-2024')
         ];
 
-        await conn.sendButtonMessage(from, buttons, mek, {
+        await sendButtonMessage(conn, from, buttons, mek, {
             header: '🔘 Button Test',
             body: '*Testing Interactive Buttons!*\n\nIf you can see clickable buttons below, then buttons are working correctly! ✅',
             footer: config.FOOTER || 'Prince MDX Bot'
@@ -49,7 +49,7 @@ cmd({
             ])
         ];
 
-        await conn.sendListMessage(from, sections, mek, {
+        await sendListMessage(conn, from, sections, mek, {
             header: '📋 List Test',
             body: '*Testing List Menu!*\n\nIf you can see a dropdown menu below, then list messages are working correctly! ✅',
             footer: config.FOOTER || 'Prince MDX Bot',
@@ -76,7 +76,7 @@ cmd({
             createButton('reply', 'Check Speed ⚡', `${prefix}ping`)
         ];
 
-        await conn.sendButtonMessage(from, buttons, mek, {
+        await sendButtonMessage(conn, from, buttons, mek, {
             header: '🖼️ Image Button Test',
             body: '*Testing Buttons with Image!*\n\nIf you see an image with buttons, everything works! ✅',
             footer: config.FOOTER || 'Prince MDX Bot',

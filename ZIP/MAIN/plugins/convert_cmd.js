@@ -15,7 +15,7 @@ const fileType = require("file-type");
 const { getContentType } = require('prince-baileys');
 const { Sticker, createSticker, StickerTypes } = require("wa-sticker-formatter");
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('../lib/functions');
-const { createButton } = require('prince-btns');
+const { createButton, sendButtonMessage } = require('../lib/buttons');
 const { TempMail } = require("tempmail.lol");
 const tempmail = new TempMail();
 const botName = config.BOT_NAME && config.BOT_NAME !== "default" ? config.BOT_NAME : null;
@@ -837,7 +837,7 @@ async (conn, mek, m, { from, quoted, reply }) => {
                     createButton('url', '🌐 Visit URL', imageUrl)
                 ];
                 
-                await conn.sendButtonMessage(from, buttons, mek, {
+                await sendButtonMessage(conn, from, buttons, mek, {
                     header: '🔗 Image Uploaded',
                     body: `✅ *Upload Successful!*\n\n🌍 *URL:*\n${imageUrl}`,
                     footer: config.FOOTER || 'Prince MDX'

@@ -2,11 +2,11 @@
 const { cmd } = require("../command");
 const config = require("../config");
 const { fetchJson } = require("../lib/functions");
-const { createSection } = require('prince-btns');
+const { createSection, sendListMessage } = require('../lib/buttons');
 const { toBold, toSmallCaps } = require('../lib/fonts');
 const { storenumrepdata } = require('../lib/numreply-db');
 
-const SPORTS_API_BASE = "https://apiskeith.top";
+const SPORTS_API_BASE = "https://apiskeith.vercel.app";
 const SPORTS_IMAGE = "https://i.ibb.co/gLRMhk9p/N0r-QVLHAY0.jpg";
 
 // ============================= L A N G U A G E =============================
@@ -148,7 +148,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
                 ])
             ];
 
-            await conn.sendListMessage(from, sections, mek, {
+            await sendListMessage(conn, from, sections, mek, {
                 header: '⚽ LIVE SCORES',
                 body: `${toBold("Select Score Type")}\n\nChoose what matches you want to see:`,
                 footer: config.FOOTER,
@@ -260,7 +260,7 @@ async (conn, mek, m, { from, reply, q }) => {
             output += `   🕒 ${time}${statusText ? ` (${statusText})` : ''}\n\n`;
         });
 
-        output += `_📊 Showing ${Math.min(filteredGames.length, 300)} of ${filteredGames.length} matches_\n\n${config.FOOTER}`;
+        output += `_📊 Showing ${Math.min(filteredGames.length, 20)} of ${filteredGames.length} matches_\n\n${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
             image: { url: SPORTS_IMAGE },
@@ -346,7 +346,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
 
             const sections = [createSection('⚽ Select League', rows)];
 
-            await conn.sendListMessage(from, sections, mek, {
+            await sendListMessage(conn, from, sections, mek, {
                 header: '⚽ TOP SCORERS',
                 body: `${toBold("Select a League")}\n\nChoose a league to view top scorers:`,
                 footer: config.FOOTER,
@@ -458,7 +458,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
 
             const sections = [createSection('📊 Select League', rows)];
 
-            await conn.sendListMessage(from, sections, mek, {
+            await sendListMessage(conn, from, sections, mek, {
                 header: '📊 LEAGUE STANDINGS',
                 body: `${toBold("Select a League")}\n\nChoose a league to view standings:`,
                 footer: config.FOOTER,
@@ -573,7 +573,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
 
             const sections = [createSection('📅 Select League', rows)];
 
-            await conn.sendListMessage(from, sections, mek, {
+            await sendListMessage(conn, from, sections, mek, {
                 header: '📅 UPCOMING MATCHES',
                 body: `${toBold("Select a League")}\n\nChoose a league to view fixtures:`,
                 footer: config.FOOTER,
@@ -684,7 +684,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
 
             const sections = [createSection('📋 Select League', rows)];
 
-            await conn.sendListMessage(from, sections, mek, {
+            await sendListMessage(conn, from, sections, mek, {
                 header: '📋 MATCH HISTORY',
                 body: `${toBold("Select a League")}\n\nChoose a league to view match history:`,
                 footer: config.FOOTER,

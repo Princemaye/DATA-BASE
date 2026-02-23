@@ -2,7 +2,7 @@
 const config = require('../config');
 const { cmd } = require('../command');
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, checkDailymotionLink, checkGDriveLink, getThumbnailFromUrl, resizeThumbnail, formatMessage } = require('../lib/functions')
-const { createButton, createSection, sendListFromData } = require('prince-btns');
+const { createButton, createSection, sendListMessage, sendNativeFlowButtons, sendQuickReplyButtons } = require('../lib/buttons');
 const fg = require('api-dylux');
 const DY_SCRAP = require('@dark-yasiya/scrap');
 const dy_scrap = new DY_SCRAP();
@@ -131,7 +131,7 @@ cmd({
             ])
         ];
 
-        await conn.sendListMessage(from, sections, mek, {
+        await sendListMessage(conn, from, sections, mek, {
             header: `${botName || "PRINCE-MDX"} TIKTOK`,
             body: info,
             footer: `${type}: ${url}`,
@@ -293,8 +293,8 @@ cmd({
                 { buttonId: `${prefix}ytmp3_dl ${url} VOICE ${title}`, buttonText: { displayText: 'Voice Type 🎤' }, type: 1 }
             ]
      
-            await conn.sendMessage(from, {
-                image: { url: image },
+            await sendQuickReplyButtons(conn, from, buttons, mek, {
+                image: image,
                 caption: info,
                 footer: config.FOOTER,
                 contextInfo: {
@@ -305,11 +305,8 @@ cmd({
                         mediaType: 1,
                         sourceUrl: url
                     }
-                },
-                buttons,
-                headerType: 1,
-                viewOnce: true
-            }, { quoted: mek });
+                }
+            });
 
         } else {
            
@@ -353,8 +350,7 @@ cmd({
         console.error(error);
         await reply(errorMg, "❌");
     }
-});     
-/*
+});                                                      
 cmd({
     pattern: "ytmp3_dl",    
     react: "⬇️",
@@ -367,21 +363,17 @@ cmd({
             return await reply(notFoundMg, "📛");
         }
 
-        // Parse the query: URL, type, and title
         const parts = q.split(" ");
         const url = parts[0];
         const type = parts[1]?.trim().toLowerCase() || 'audio';
         const title = parts.slice(2).join(" ") || 'Unknown Title';
         
-        // Using the new API endpoint
-        const apiUrl = `https://apiskeith.vercel.app/download/audio?url=${encodeURIComponent(url)}`;
+        const apiUrl = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(url)}`;
         
-        // Fetch data from the API
         const response = await fetch(apiUrl);
         const result = await response.json();
         
-        // Extract download URL from API response
-        const downloadUrl = result?.result;
+        const downloadUrl = result?.result?.download_url;
             
         if(!downloadUrl){
             reply(downUrlNotfound, "⁉️");
@@ -390,8 +382,7 @@ cmd({
             
         await m.react("⬆️");
         
-        // Sanitize filename by removing invalid characters
-        const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '').substring(0, 100);
+        const sanitizedTitle = (result?.result?.title || title).replace(/[<>:"/\\|?*]/g, '').substring(0, 100);
             
         if(type === "audio"){
             await conn.sendMessage(from, { 
@@ -406,7 +397,7 @@ cmd({
                 document: { url: downloadUrl }, 
                 fileName: `${sanitizedTitle}.mp3`, 
                 mimetype: "audio/mpeg", 
-                caption: `${title}\n\n> ${config.FOOTER}` 
+                caption: `${sanitizedTitle}\n\n> ${config.FOOTER}` 
             }, { quoted: mek });
             await m.react("✅");
             
@@ -423,132 +414,6 @@ cmd({
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
-    }
-});
-
-*/
-/*
-cmd({
-    pattern: "ytmp3_dl",    
-    react: "⬇️",
-    dontAddCommandList: true,
-    filename: __filename
-}, async (conn, m, mek, { from, q, reply }) => {
-    try {
-        
-        if (!q || !q.includes("https")) {
-            return await reply(notFoundMg, "📛");
-        }
-
-        const parts = q.split(" ");
-        const url = parts[0];
-        const type = parts[1]?.trim().toLowerCase() || 'audio';
-        const title = parts.slice(2).join(" ") || 'Unknown Title';
-
-        // ✅ Your API
-        const apiUrl = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(url)}`;
-        
-        const response = await fetchJson(apiUrl);
-        const downloadUrl = response?.result?.download || response?.result?.url || response?.url;
-
-        if (!downloadUrl) {
-            return reply(downUrlNotfound, "⁉️");
-        }
-
-        await m.react("⬆️");
-
-        const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '').substring(0, 100);
-
-        if (type === "audio") {
-            await conn.sendMessage(from, {
-                audio: { url: downloadUrl },
-                mimetype: "audio/mpeg",
-                fileName: `${sanitizedTitle}.mp3`
-            }, { quoted: mek });
-
-        } else if (type === "doc") {
-            await conn.sendMessage(from, {
-                document: { url: downloadUrl },
-                fileName: `${sanitizedTitle}.mp3`,
-                mimetype: "audio/mpeg",
-                caption: `${title}\n\n> ${config.FOOTER}`
-            }, { quoted: mek });
-
-        } else if (type === "voice") {
-            await conn.sendMessage(from, {
-                audio: { url: downloadUrl },
-                mimetype: "audio/mpeg",
-                ptt: true
-            }, { quoted: mek });
-        }
-
-        await m.react("✅");
-
-    } catch (e) {
-        console.log(e);
-        await reply(errorMg, "❌");
-    }
-});
-*/
-
-cmd({
-    pattern: "ytmp3_dl",    
-    react: "⬇️",
-    dontAddCommandList: true,
-    filename: __filename
-}, async (conn, m, mek, { from, q, reply }) => {
-    try {
-        
-        if (!q || !q.includes("https")) {
-            return await reply("Invalid URL ❌");
-        }
-
-        const parts = q.split(" ");
-        const url = parts[0];
-        const type = parts[1]?.trim().toLowerCase() || 'audio';
-
-        const apiUrl = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(url)}`;
-        
-        const response = await fetchJson(apiUrl);
-
-        // ✅ Correct field
-        const downloadUrl = response?.result?.download_url;
-        const title = response?.result?.title || "Audio";
-
-        if (!downloadUrl) {
-            return reply("*Download link not found ❌*");
-        }
-
-        await m.react("⬆️");
-
-        if (type === "audio") {
-            await conn.sendMessage(from, {
-                audio: { url: downloadUrl },
-                mimetype: "audio/mpeg",
-                fileName: `${title}.mp3`
-            }, { quoted: mek });
-
-        } else if (type === "doc") {
-            await conn.sendMessage(from, {
-                document: { url: downloadUrl },
-                mimetype: "audio/mpeg",
-                fileName: `${title}.mp3`,
-                caption: title
-            }, { quoted: mek });
-
-        } else if (type === "voice") {
-            await conn.sendMessage(from, {
-                audio: { url: downloadUrl },
-                mimetype: "audio/mpeg",
-                ptt: true
-            }, { quoted: mek });
-        }
-
-        await m.react("✅");
-
-    } catch (e) {
-        console.log(e);
-        reply("Error ❌");
     }
 });
 
@@ -620,8 +485,8 @@ cmd({
         
 
 
-         await conn.sendMessage(from, {
-          image: { url: config.LOGO },
+         await sendNativeFlowButtons(conn, from, listData, mek, {
+          image: config.LOGO,
           caption: info,
           footer: config.FOOTER,
           contextInfo: {
@@ -631,21 +496,8 @@ cmd({
                      thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
                      mediaType: 1,
                      sourceUrl: q
-          }},
-          buttons: [
-            {
-              buttonId: "action",
-              type: 4,
-              buttonText: { displayText: "🔽 Select Option" },
-              nativeFlowInfo: {
-                name: "single_select",
-                paramsJson: JSON.stringify(listData)
-              }
-            }
-          ],
-          headerType: 1,
-          viewOnce: true
-        }, { quoted: mek });
+          }}
+        });
 
            } else {
            

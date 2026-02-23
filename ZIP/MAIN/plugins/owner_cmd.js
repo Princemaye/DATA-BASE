@@ -27,8 +27,9 @@ const {
 const {
     createButton,
     createSection,
-    sendListFromData,
-} = require("prince-btns");
+    sendNativeFlowButtons,
+    sendQuickReplyButtons,
+} = require("../lib/buttons");
 const {
     saveAutoReply,
     deleteAutoReply,
@@ -1470,6 +1471,93 @@ cmd(
             await reply(
                 `*${await tr("❌ An error occurred while updating.", lang)}*`,
             );
+        }
+    },
+);
+
+cmd(
+    {
+        pattern: "botpic",
+        alias: ["botimg"],
+        react: "🖼️",
+        desc: "Set bot picture/logo URL",
+        category: "owner",
+        filename: __filename,
+    },
+    async (conn, mek, m, { from, reply, isOwners, args, q }) => {
+        try {
+            if (!isOwners) return await reply(ownerMg);
+
+            const quoted = m?.quoted;
+            const isQuotedImage = quoted && (
+                quoted.mtype?.includes("image") ||
+                quoted.type?.includes("image") ||
+                quoted.mimetype?.includes("image") ||
+                (quoted.message && Object.keys(quoted.message)[0]?.includes("image"))
+            );
+
+            if (isQuotedImage) {
+                await reply(`*🖼️ Uploading image, please wait...*`);
+                const buffer = await quoted.download();
+                const url = await uploadToCatbox(buffer, 'botpic.jpg');
+                if (!url || !isUrl(url)) {
+                    return await reply(`*❌ Failed to upload image. Try again or use a URL instead.*`);
+                }
+
+                await ymd_db.input(tableName, "ALIVE_LOGO", url);
+                config.ALIVE_LOGO = url;
+                config.LOGO = url;
+                config.CONTEXT_LOGO = url;
+
+                await conn.sendMessage(from, {
+                    image: { url: url },
+                    caption: `*🖼️ Bot picture updated successfully ✔*\n\n${toSmallCaps("url")}: ${url}`,
+                }, { quoted: mek });
+
+                return await conn.sendMessage(from, { react: { text: "✔", key: mek.key } });
+            }
+
+            const url = q?.trim();
+
+            if (!url) {
+                const currentPic = config.LOGO || "Not set";
+                return await reply(
+                    `${toBold("🖼️ Bot Picture Settings")}\n\n` +
+                    `${toSmallCaps("current")}: ${currentPic}\n\n` +
+                    `${toSmallCaps("usage")}:\n` +
+                    `• Reply to an image with .botpic\n` +
+                    `• .botpic <image_url> - Set new bot picture\n` +
+                    `• .botpic reset - Reset to default`
+                );
+            }
+
+            if (url.toLowerCase() === "reset") {
+                await ymd_db.input(tableName, "ALIVE_LOGO", "");
+                config.ALIVE_LOGO = "";
+                config.LOGO = config.DEFAULT_LOGO || "";
+                config.CONTEXT_LOGO = config.DEFAULT_LOGO || "";
+                await reply(`*🖼️ Bot picture has been reset to default ✔*`);
+                return await conn.sendMessage(from, { react: { text: "✔", key: mek.key } });
+            }
+
+            if (!isUrl(url)) {
+                return await reply(`*❌ Please provide a valid image URL.*`);
+            }
+
+            await ymd_db.input(tableName, "ALIVE_LOGO", url);
+            config.ALIVE_LOGO = url;
+            config.LOGO = url;
+            config.CONTEXT_LOGO = url;
+
+            await conn.sendMessage(from, {
+                image: { url: url },
+                caption: `*🖼️ Bot picture updated successfully ✔*\n\n${toSmallCaps("url")}: ${url}`,
+            }, { quoted: mek });
+
+            await conn.sendMessage(from, { react: { text: "✔", key: mek.key } });
+        } catch (e) {
+            console.error("❌ botpic command error:", e);
+            await reply(`*❌ Failed to set bot picture. Make sure the URL or image is valid.*`);
         }
     },
 );

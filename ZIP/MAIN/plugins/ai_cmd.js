@@ -2,9 +2,7 @@
 const axios = require("axios");
 const { cmd } = require("../command");
 const config = require("../config");
-const { fetchJson, uploadToCatbox } = require("../lib/functions");
-const fs = require("fs");
-const path = require("path");
+const { fetchJson } = require("../lib/functions");
 const { blackbox } = require("../lib/scraper");
 
 const PRINCE_API_KEY = "prince";
@@ -476,45 +474,5 @@ cmd({
         }
     } catch (e) {
         console.log("Bible source handler error:", e.message);
-    }
-});
-
-cmd({
-    pattern: "transcribe",
-    react: "🎙️",
-    alias: ["speech", "audio2text", "whisper","tbe","tbb"],
-    desc: "Transcribe quoted audio or video to text",
-    category: "ai",
-    filename: __filename,
-},
-async (conn, mek, m, { from, reply }) => {
-    try {
-        const quoted = m?.quoted;
-        if (!quoted) return await reply("📌 Reply to an audio or video message to transcribe it.");
-
-        const mtype = quoted.mtype || quoted.type || Object.keys(quoted.message || {})[0] || "";
-        const isAudio = mtype.includes("audio") || quoted.mimetype?.includes("audio");
-        const isVideo = mtype.includes("video") || quoted.mimetype?.includes("video");
-
-        if (!isAudio && !isVideo) return await reply("❌ Please reply to an audio or video message.");
-
-        await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
-
-        const buffer = await quoted.download();
-        const ext = isAudio ? "mp3" : "mp4";
-        const mediaUrl = await uploadToCatbox(buffer, `transcribe.${ext}`);
-
-        if (!mediaUrl) return await reply("❌ Failed to upload media for transcription.");
-
-        const { data: result } = await axios.get(`https://apiskeith.top/ai/transcribe?q=${encodeURIComponent(mediaUrl)}`);
-
-        if (!result?.status || !result?.result?.text) return await reply("❌ No transcription found. Try a shorter or clearer clip.");
-
-        await conn.sendMessage(from, { text: `🎙️ *Transcription:*\n\n${result.result.text}` }, { quoted: mek });
-        await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
-
-    } catch (e) {
-        console.log("Transcription error:", e.message);
-        await reply("❌ Failed to transcribe. Try a shorter or clearer clip.");
     }
 });

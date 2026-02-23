@@ -2930,7 +2930,7 @@ ${tttAiFormatBoard(game.board)}
 
 // ================= eFOOTBALL TOURNAMENT GAME =================
 const EF_IMAGE = "https://i.ibb.co/gLRMhk9p/N0r-QVLHAY0.jpg";
-const EF_TROPHY_IMAGE = "https://i.ibb.co/gLRMhk9p/N0r-QVLHAY0.jpg";
+const EF_TROPHY_IMAGE = "https://i.ibb.co/8g0cNYwh/images-1.jpg";
 const efootballGames = new Map();
 
 const EF_TEAMS = [
