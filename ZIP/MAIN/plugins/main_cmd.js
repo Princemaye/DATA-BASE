@@ -103,6 +103,11 @@ cmd({
   `│ *Prefix:* [ ${prefix} ]\n` +
   `└─────────────❒`;
 
+      await conn.sendMessage(
+          from,
+          { image: { url: config.LOGO }, caption: aliveText + `\n\n> ${config.FOOTER}` },
+          { quoted: mek, mentions: [mentionJid] },
+      );
 
     } catch (err) {
       console.error(err);
@@ -819,3 +824,86 @@ developers.forEach(dev => {
     });
 });
 */
+
+// ============================= FETCH =============================
+cmd({
+    pattern: "fetch",
+    alias: ["get", "testapi", "curl"],
+    react: "🌐",
+    desc: "Fetch and display content from a URL",
+    category: "main",
+    use: "fetch <url>",
+    filename: __filename
+}, async (conn, mek, m, { from, q, reply }) => {
+    try {
+        if (!q) return reply("❌ Provide a valid URL to fetch.");
+
+        const axios = require("axios");
+        const response = await axios.get(q, {
+            responseType: "arraybuffer",
+            validateStatus: () => true,
+            timeout: 60000,
+            maxContentLength: 100 * 1024 * 1024,
+        });
+
+        const contentType = response.headers["content-type"] || "application/octet-stream";
+        const buffer = Buffer.from(response.data);
+
+        const urlParts = q.split("?")[0].split("/");
+        let filename = urlParts.pop() || "file";
+        if (filename.length > 100) filename = filename.substring(0, 100);
+
+        if (!filename.includes(".") || filename.startsWith(".")) {
+            const mimeMap = { "image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp", "video/mp4": ".mp4", "audio/mpeg": ".mp3", "audio/ogg": ".ogg", "application/pdf": ".pdf", "application/json": ".json", "text/html": ".html", "text/plain": ".txt" };
+            const ext = Object.entries(mimeMap).find(([k]) => contentType.includes(k))?.[1] || ".bin";
+            filename = filename.replace(/^\.+/, "") || "file";
+            filename += ext;
+        }
+
+        if (contentType.includes("image/")) {
+            return conn.sendMessage(from, { image: buffer, caption: q }, { quoted: mek });
+        }
+
+        if (contentType.includes("video/")) {
+            return conn.sendMessage(from, { video: buffer, caption: q }, { quoted: mek });
+        }
+
+        if (contentType.includes("audio/")) {
+            return conn.sendMessage(from, { audio: buffer, mimetype: contentType.split(";")[0], fileName: filename }, { quoted: mek });
+        }
+
+        const textTypes = ["text/", "application/json", "application/javascript", "application/xml", "application/yaml", "application/sql"];
+        if (textTypes.some(t => contentType.includes(t))) {
+            const textContent = buffer.toString("utf-8");
+
+            if (contentType.includes("json")) {
+                try {
+                    const json = JSON.parse(textContent);
+                    const formatted = JSON.stringify(json, null, 2);
+                    return reply("```json\n" + formatted + "\n```");
+                } catch {
+                    return reply(textContent);
+                }
+            }
+
+            const lang = contentType.includes("javascript") ? "javascript"
+                : contentType.includes("css") ? "css"
+                : contentType.includes("xml") ? "xml"
+                : contentType.includes("sql") ? "sql"
+                : contentType.includes("yaml") ? "yaml"
+                : "";
+            if (lang) return reply("```" + lang + "\n" + textContent + "\n```");
+            return reply(textContent);
+        }
+
+        return conn.sendMessage(from, {
+            document: buffer,
+            mimetype: contentType.split(";")[0] || "application/octet-stream",
+            fileName: filename,
+        }, { quoted: mek });
+
+    } catch (err) {
+        console.error("fetch error:", err);
+        return reply("❌ Failed to fetch: " + (err.message || "Unknown error"));
+    }
+});
