@@ -598,6 +598,40 @@ cmd(
                 `${prefix}setenv CINESUBZ_API_KEY ${text}`,
             ];
 
+            const labels = [
+                "PREFIX",
+                "OWNER_NUMBER",
+                "OWNER_NAME",
+                "OWNER_REACT_EMOJI",
+                "ANTI_DELETE_SEND",
+                "ANTI_BAD_VALUE",
+                "ANTI_LINK_VALUE",
+                "ANTI_MENTION_MESSAGE",
+                "SEEDR_EMAIL",
+                "SEEDR_PASSWORD",
+                "TIME_ZONE",
+                "AUTOSEND_TVSERIES_JID",
+                "CINESUBZ_API_KEY",
+            ];
+
+            info += `\n📎 ${mediaTypeLabel} detected\n`;
+            info += `\n_Select where to apply:_\n\n`;
+            labels.forEach((label, i) => {
+                info += `${formatNumber(i + 1)}. ${label}\n`;
+            });
+            info += `\n> ${config.FOOTER}`;
+
+            const sentMsg = await conn.sendMessage(
+                from,
+                { image: { url: config.LOGO }, caption: info },
+                { quoted: mek },
+            );
+            await storenumrepdata({
+                key: sentMsg.key,
+                numrep,
+                method: "nondecimal",
+            });
+
         } catch (e) {
             console.log(e);
             await reply(errorMg, "❌");
@@ -894,6 +928,40 @@ cmd(
                     desc: "Auto-reply when bot is mentioned in groups",
                 },
             ];
+
+            let info = header + `\n`;
+            const numrep = [];
+
+            settingsList.forEach((s, i) => {
+                const idx = i + 1;
+                info += `╭━━❮ ${toBold(s.name)} ❯━━╮\n`;
+                if (s.type === "boolean") {
+                    info += `┃ ${idx}.1  ${toSmallCaps("enable")}\n`;
+                    info += `┃ ${idx}.2  ${toSmallCaps("disable")}\n`;
+                    numrep.push(`${idx}.1 ${prefix}setenv ${s.key} true`);
+                    numrep.push(`${idx}.2 ${prefix}setenv ${s.key} false`);
+                } else if (s.options) {
+                    s.options.forEach((opt, oi) => {
+                        info += `┃ ${idx}.${oi + 1}  ${toSmallCaps(opt)}\n`;
+                        numrep.push(`${idx}.${oi + 1} ${prefix}setenv ${s.key} ${opt}`);
+                    });
+                }
+                info += `╰━━━━━━━━━━━╯\n`;
+            });
+
+            info += `> ${config.FOOTER}`;
+
+            const sentMsg = await conn.sendMessage(
+                from,
+                { image: { url: config.LOGO }, caption: info },
+                { quoted: mek },
+            );
+
+            await storenumrepdata({
+                key: sentMsg.key,
+                numrep,
+                method: "decimal",
+            });
 
         } catch (e) {
             console.log(e);
