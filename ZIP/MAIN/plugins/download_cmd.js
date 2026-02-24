@@ -599,11 +599,30 @@ cmd({
         }
 
         const response = await apkSearch(q);
-        if(response?.length === 0) return await reply(notFoundMg, "📛");
+        if(!response || response.length === 0) return await reply(notFoundMg, "📛");
         const numrep = [];
-      let apkurl = "https://i.ibb.co/hxb7GFV3/y-VAZqx-Vaih.jpg";
-       let info = `\`${botName || "PRINCE-𝖬𝖣X"} 𝖠𝖯𝖪 \`\n`
-       
+        let info = `\`${botName || "PRINCE-𝖬𝖣X"} 𝖠𝖯𝖪 \`\n\n`;
+        info += `📦 *Results for:* _${q}_\n\n`;
+
+        const maxResults = Math.min(response.length, 15);
+        for (let i = 0; i < maxResults; i++) {
+            info += `*${formatNumber(i + 1)}.* ${response[i].name}\n`;
+            numrep.push(`${prefix}apk_dl ${response[i].id}`);
+        }
+
+        info += `\n> ${config.FOOTER}`;
+
+        const sentMsg = await conn.sendMessage(
+            from,
+            { image: { url: config.LOGO }, caption: info },
+            { quoted: mek },
+        );
+
+        await storenumrepdata({
+            key: sentMsg.key,
+            numrep,
+            method: "nondecimal",
+        });
         
     } catch (e) {
         console.log(e);
