@@ -1014,7 +1014,53 @@ cmd(
             if (user.endsWith("@g.us")) userTag = "Group Jid";
             else if (user.endsWith("@lid")) userTag = "User Lid";
 
-            let info = ` ${botName || "PRINCE-MDX"} 𝖲𝖴𝖣𝖮`;
+            let info = `╔════〘 ${toBold("SUDO")} 〙════╗\n\n`;
+            info += `👤 *${userTag}:* ${user}\n\n`;
+            const numrep = [];
+
+            if (user.endsWith("@g.us")) {
+                info += `╭━━❮ ${toBold("Sudo Groups")} ❯━━╮\n`;
+                info += `┃ 1.1  ${toSmallCaps("add")}\n`;
+                info += `┃ 1.2  ${toSmallCaps("remove")}\n`;
+                info += `╰━━━━━━━━━━━╯\n`;
+                numrep.push(`1.1 ${prefix}set_sudo SUDO_GROUPS add ${user}`);
+                numrep.push(`1.2 ${prefix}set_sudo SUDO_GROUPS remove ${user}`);
+
+                info += `╭━━❮ ${toBold("Band Groups")} ❯━━╮\n`;
+                info += `┃ 2.1  ${toSmallCaps("add")}\n`;
+                info += `┃ 2.2  ${toSmallCaps("remove")}\n`;
+                info += `╰━━━━━━━━━━━╯\n`;
+                numrep.push(`2.1 ${prefix}set_sudo BAND_GROUPS add ${user}`);
+                numrep.push(`2.2 ${prefix}set_sudo BAND_GROUPS remove ${user}`);
+            } else {
+                info += `╭━━❮ ${toBold("Sudo Numbers")} ❯━━╮\n`;
+                info += `┃ 1.1  ${toSmallCaps("add")}\n`;
+                info += `┃ 1.2  ${toSmallCaps("remove")}\n`;
+                info += `╰━━━━━━━━━━━╯\n`;
+                numrep.push(`1.1 ${prefix}set_sudo SUDO_NUMBERS add ${user}`);
+                numrep.push(`1.2 ${prefix}set_sudo SUDO_NUMBERS remove ${user}`);
+
+                info += `╭━━❮ ${toBold("Band Users")} ❯━━╮\n`;
+                info += `┃ 2.1  ${toSmallCaps("add")}\n`;
+                info += `┃ 2.2  ${toSmallCaps("remove")}\n`;
+                info += `╰━━━━━━━━━━━╯\n`;
+                numrep.push(`2.1 ${prefix}set_sudo BAND_USERS add ${user}`);
+                numrep.push(`2.2 ${prefix}set_sudo BAND_USERS remove ${user}`);
+            }
+
+            info += `\n> ${config.FOOTER}`;
+
+            const sentMsg = await conn.sendMessage(
+                from,
+                { image: { url: config.LOGO }, caption: info },
+                { quoted: mek },
+            );
+
+            await storenumrepdata({
+                key: sentMsg.key,
+                numrep,
+                method: "decimal",
+            });
 
         } catch (e) {
             console.log(e);

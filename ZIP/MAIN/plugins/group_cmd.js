@@ -336,8 +336,43 @@ cmd({
         if (!isAdmins) { if (!isDev) return reply(needAdmin)}
 
         if (!isBotAdmins) return reply(giveMeAdmin);
-            
-            
+
+        const settings = [
+            { name: "Anti Link", key: "ANTI_LINK" },
+            { name: "Anti Bad Word", key: "ANTI_BAD" },
+            { name: "Anti Bot", key: "ANTI_BOT" },
+            { name: "Status Mention Block", key: "STATUS_MENTION_BLOCK" },
+            { name: "Welcome Message", key: "WELCOME_MESSAGE" },
+            { name: "Goodbye Message", key: "GOODBYE_MESSAGE" },
+        ];
+
+        let info = `╔════〘 ${toBold("GROUP SETTINGS")} 〙════╗\n\n`;
+        const numrep = [];
+
+        for (let i = 0; i < settings.length; i++) {
+            const idx = i + 1;
+            info += `╭━━❮ ${toBold(settings[i].name)} ❯━━╮\n`;
+            info += `┃ ${idx}.1  ${toSmallCaps("enable")}\n`;
+            info += `┃ ${idx}.2  ${toSmallCaps("disable")}\n`;
+            info += `╰━━━━━━━━━━━╯\n`;
+            numrep.push(`${idx}.1 ${prefix}gp_setting set ${settings[i].key}`);
+            numrep.push(`${idx}.2 ${prefix}gp_setting remove ${settings[i].key}`);
+        }
+
+        info += `\n> ${config.FOOTER}`;
+
+        const sentMsg = await conn.sendMessage(
+            from,
+            { image: { url: config.LOGO }, caption: info },
+            { quoted: mek },
+        );
+
+        await storenumrepdata({
+            key: sentMsg.key,
+            numrep,
+            method: "decimal",
+        });
+
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
