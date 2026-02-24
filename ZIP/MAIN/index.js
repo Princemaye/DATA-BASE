@@ -1729,14 +1729,10 @@ conn.ev.on("group-participants.update", welcomeHandler);
             config.FOOTER = footer;
             config.BODY = contextBody;
 
-            try {
-                const savedBotPic = await ymd_db.get(dbData?.tableName, "ALIVE_LOGO");
-                if (savedBotPic) {
-                    config.ALIVE_LOGO = savedBotPic;
-                    config.LOGO = savedBotPic;
-                    config.CONTEXT_LOGO = savedBotPic;
-                }
-            } catch {}
+            if (config.ALIVE_LOGO) {
+                config.LOGO = config.ALIVE_LOGO;
+                config.CONTEXT_LOGO = config.ALIVE_LOGO;
+            }
 
 
 
