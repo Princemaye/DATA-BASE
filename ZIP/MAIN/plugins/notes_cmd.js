@@ -1,4 +1,5 @@
 const { cmd } = require("../command");
+const config = require('../config');
 const DBM = require("../lib/user-db");
 const dbData = require("../lib/config");
 const { getContextInfo } = require('../lib/functions');

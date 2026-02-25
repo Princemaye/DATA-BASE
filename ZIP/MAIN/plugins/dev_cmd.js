@@ -1,4 +1,5 @@
 const { cmd, commands } = require("../command");
+const config = require('../config');
 const fs = require("fs");
 const path = require("path");
 const { getContextInfo } = require('../lib/functions');
