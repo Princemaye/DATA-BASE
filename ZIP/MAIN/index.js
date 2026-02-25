@@ -421,7 +421,7 @@ async function princeMd(userName = "Princemaye", repoName = "DATA-BASE"){
            
     const botData = await loadBotData(`https://raw.githubusercontent.com/${userName}/${repoName}/refs/heads/main/BOT-DATA/data.json`);
     const { pairSite, releaseVersion, tableName, supportGroup, logo, footer, contextBody, connectMsgSendNb, publicRepo, officialChannel, newsletters, nonbuttonDbUrl, officialSite, antiBotId, antiBotCpation, token, user, supGpAccess, betaBotLid } = botData || {};             
-    const { getBuffer, getGroupAdmins, isParticipantAdmin, getParticipantIds, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, fetchBuffer, getFile, getDateAndTime, formatMessage, platformAwareRestart } = require('./lib/functions');
+    const { getBuffer, getGroupAdmins, isParticipantAdmin, getParticipantIds, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, fetchBuffer, getFile, getDateAndTime, formatMessage, platformAwareRestart, getContextInfo } = require('./lib/functions');
     const { pqs_connection_start, start_numrep_process, upload_to_pqs, get_data_from_pqs, storenumrepdata, getstorednumrep } = require(`./lib/numreply-db.js`)
     const { sms, downloadMediaMessage } = require('./lib/msg');
     let dbData = require("./lib/config");
@@ -1740,7 +1740,8 @@ conn.ev.on("group-participants.update", welcomeHandler);
                 try {
 
                     var text = teks;
-                    const replyMsg = await conn.sendMessage(from, { text }, { quoted: mek });
+                    const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : 'PRINCE-MDX');
+                    const replyMsg = await conn.sendMessage(from, { text, contextInfo: ctxInfo }, { quoted: mek });
 
                     if (emoji && replyMsg?.key) {
                         if (!isReact) return;
