@@ -7,6 +7,18 @@ const {
 } = require('file-type')
 const sharp = require("sharp");
 
+const getContextInfo = (botName) => {
+    return {
+        forwardingScore: 5,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363404978384902@newsletter',
+            newsletterName: botName || 'PRINCE-MDX',
+            serverMessageId: 143
+        }
+    };
+};
+
 const getBuffer = async (url, options) => {
     try {
         options ? options : {}
@@ -464,7 +476,8 @@ module.exports = {
     getMyGroupDetails,
     formatMessage,
     platformAwareRestart,
-    uploadToCatbox
+    uploadToCatbox,
+    getContextInfo
 }
 
 async function uploadToCatbox(buffer, filename = 'file.bin') {
