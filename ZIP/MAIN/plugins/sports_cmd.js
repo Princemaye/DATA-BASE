@@ -1,7 +1,7 @@
 // ============================= SPORTS PLUGIN =============================
 const { cmd } = require("../command");
 const config = require("../config");
-const { fetchJson } = require("../lib/functions");
+const {fetchJson, getContextInfo} = require("../lib/functions");
 
 const { toBold, toSmallCaps } = require('../lib/fonts');
 const { storenumrepdata } = require('../lib/numreply-db');
@@ -116,7 +116,7 @@ async (conn, mek, m, { from, reply }) => {
         txt += `_⚠️ Bet responsibly. Past results don't guarantee future outcomes._\n\n${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: txt 
         }, { quoted: mek });
         await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
@@ -155,7 +155,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
             numrep.push(`${prefix}livescoreget upcoming`);
 
             const sentMsg = await conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: info 
             }, { quoted: mek });
 
@@ -220,7 +220,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         if (filteredGames.length === 0) {
             return conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: `╭━━━━━━━━━━━╮\n│ ${selected.emoji} ${toBold(selected.name)}\n╰━━━━━━━━━━━╯\n\n_No matches found._`
             }, { quoted: mek });
         }
@@ -245,7 +245,7 @@ async (conn, mek, m, { from, reply, q }) => {
         output += `_📊 Showing ${Math.min(filteredGames.length, 20)} of ${filteredGames.length} matches_\n\n${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: output 
         }, { quoted: mek });
     } catch (err) {
@@ -296,7 +296,7 @@ async (conn, mek, m, { from, reply }) => {
         txt += `🔗 ${toSmallCaps("More at:")} keithsite.vercel.app/sports\n\n${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: txt 
         }, { quoted: mek });
         await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
@@ -333,7 +333,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
             info += `╰━━━━━━━━━━━╯`;
 
             const sentMsg = await conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: info 
             }, { quoted: mek });
 
@@ -392,7 +392,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         output += `\n${config.FOOTER}`;
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: output 
         }, { quoted: mek });
     } catch (err) {
@@ -427,7 +427,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
             info += `╰━━━━━━━━━━━╯`;
 
             const sentMsg = await conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: info 
             }, { quoted: mek });
 
@@ -489,7 +489,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         output += `_🏆UCL 🔵UEL 🔴Rel_\n\n${config.FOOTER}`;
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: output 
         }, { quoted: mek });
     } catch (err) {
@@ -524,7 +524,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
             info += `╰━━━━━━━━━━━╯`;
 
             const sentMsg = await conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: info 
             }, { quoted: mek });
 
@@ -582,7 +582,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         output += `\n${config.FOOTER}`;
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: output 
         }, { quoted: mek });
     } catch (err) {
@@ -617,7 +617,7 @@ async (conn, mek, m, { from, prefix, reply }) => {
             info += `╰━━━━━━━━━━━╯`;
 
             const sentMsg = await conn.sendMessage(from, { 
-                image: { url: SPORTS_IMAGE },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
                 caption: info 
             }, { quoted: mek });
 
@@ -678,7 +678,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         output += `\n${config.FOOTER}`;
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: output 
         }, { quoted: mek });
     } catch (err) {
@@ -720,7 +720,7 @@ ${toBold("Available Leagues:")}
 ${config.FOOTER}`;
 
         await conn.sendMessage(from, { 
-            image: { url: SPORTS_IMAGE },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: SPORTS_IMAGE },
             caption: menuText 
         }, { quoted: mek });
     } catch (e) {

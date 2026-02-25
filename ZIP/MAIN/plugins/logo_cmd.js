@@ -1,6 +1,7 @@
 const config = require('../config');
 const axios = require('axios');
 const { cmd } = require('../command');
+const { getContextInfo } = require('../lib/functions');
 
 const API_KEY = 'prince';
 const API_BASE = 'https://api.princetechn.com/api/ephoto360';
@@ -36,13 +37,13 @@ const sendLogo = async (conn, from, mek, effect, text, emoji, effectName) => {
       });
       
       await conn.sendMessage(from, {
-        image: Buffer.from(imgResponse.data),
+        contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: Buffer.from(imgResponse.data),
         caption: `${emoji} *${effectName}*\n\n${config.FOOTER}`
       }, { quoted: mek });
       return true;
     } catch (e) {
       await conn.sendMessage(from, {
-        image: { url: imageUrl },
+        contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
         caption: `${emoji} *${effectName}*\n\n${config.FOOTER}`
       }, { quoted: mek });
       return true;
@@ -312,7 +313,7 @@ cmd({
 
 ${config.FOOTER}`;
 
-  await conn.sendMessage(from, { text: menuText }, { quoted: mek });
+  await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: menuText }, { quoted: mek });
 });
 
 module.exports = { fetchLogo, sendLogo };

@@ -5,6 +5,7 @@ const axios = require('axios');
 
 // ============================= L A N G U A G E =============================
 var allLangs = require("../lib/language.json");
+const { getContextInfo } = require('../lib/functions');
 var LANG = config.LANG === 'EN' ? 'EN' 
          : config.LANG === 'FR' ? 'FR' 
          : 'EN';
@@ -525,7 +526,7 @@ async (conn, mek, m, { from, reply }) => {
         }
         
         await conn.sendMessage(from, { 
-            image: { url: imageUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
             caption: config.FOOTER || "🐱 Random Cat"
         }, { quoted: mek });
         
@@ -553,7 +554,7 @@ async (conn, mek, m, { from, reply }) => {
         }
         
         await conn.sendMessage(from, { 
-            image: { url: imageUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
             caption: config.FOOTER || "🐶 Random Dog"
         }, { quoted: mek });
         
@@ -627,7 +628,7 @@ async (conn, mek, m, { from, reply }) => {
         ];
 
         for (const line of steps) {
-            await conn.sendMessage(from, { text: line }, { quoted: mek });
+            await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: line }, { quoted: mek });
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
     } catch (e) {

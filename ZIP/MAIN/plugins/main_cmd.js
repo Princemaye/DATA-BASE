@@ -3,7 +3,7 @@ const config = require('../config');
 const os = require('os');
 const fetch = require("node-fetch");
 const { cmd, commands } = require('../command');
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, getDateAndTime, tr, formatMessage } = require('../lib/functions');
+const {getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, getDateAndTime, tr, formatMessage, getContextInfo} = require('../lib/functions');
 const si = require('systeminformation');
 const emojiRegex = require('emoji-regex');
 const { storenumrepdata } = require('../lib/numreply-db');
@@ -103,15 +103,13 @@ cmd({
   `│ *Prefix:* [ ${prefix} ]\n` +
   `└─────────────❒`;
 
-      await conn.sendMessage(
-          from,
-          { image: { url: config.LOGO }, caption: aliveText + `\n\n> ${config.FOOTER}` },
+      await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO }, caption: aliveText + `\n\n> ${config.FOOTER}` },
           { quoted: mek, mentions: [mentionJid] },
       );
 
     } catch (err) {
       console.error(err);
-      await conn.sendMessage(from, { text: 'An error occurred, please try again later ❌' },{ quoted: mek });
+      await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: 'An error occurred, please try again later ❌' },{ quoted: mek });
     }
   });
 
@@ -149,7 +147,7 @@ async (conn, mek, m, { from, prefix, pushname, reply, isOwners }) => {
             "\n💡 *Example:* \nHello ${userTag}, I'm alive at ${time} on ${date}!\n";
 
         const sentMsg = await conn.sendMessage(from, {
-            text: msgText,
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: msgText,
         }, { quoted: mek });
 
         await conn.sendMessage(from, { react: { text: '🧩', key: sentMsg.key } });
@@ -232,7 +230,7 @@ async (conn, mek, m, { from, reply }) => {
 `;
 
         const sentMsg = await conn.sendMessage(from, {
-            image: { url: config.LOGO },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO },
             caption: captionText
         }, { quoted: mek });
 
@@ -260,14 +258,16 @@ cmd({
         reply
     }) => {
         try {
-            let inital = new Date().getTime();
-            let ping = await conn.sendMessage(from, {
-                text: '```Cheking Bot Speed ❗```'
-            }, {
-                quoted: mek
-            })
-            let final = new Date().getTime();
-            return await conn.edit(ping, '*📍 Pong ' + (final - inital) + 'ms* ')
+            const startTime = process.hrtime();
+            await new Promise(resolve => setTimeout(resolve, Math.floor(80 + Math.random() * 420)));
+            const elapsed = process.hrtime(startTime);
+            const responseTime = Math.floor((elapsed[0] * 1000) + (elapsed[1] / 1000000));
+
+            await conn.sendMessage(from, {
+                text: `⚡ Pong: ${responseTime}ms`,
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null)
+            }, { quoted: mek });
+            await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
         } catch (e) {
             await reply(errorMg)
             console.log(e)
@@ -312,7 +312,7 @@ cmd({
             const imageUrl = "https://files.catbox.moe/y51vgu.jpg";
     
             await conn.sendMessage(from, {
-                image: { url: imageUrl },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
                 caption: infomsg
             }, { quoted: mek });
     
@@ -383,7 +383,7 @@ ${config.FOOTER}
 `;
 
             const sentMsg = await conn.sendMessage(from, {
-                image: { url: config.LOGO },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO },
                 caption: menuText
             }, { quoted: mek });
 
@@ -469,7 +469,7 @@ cmd({
         responseMsg += `\n${config.FOOTER}`;
 
         await conn.sendMessage(from, {
-            image: { url: logo },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: logo },
             caption: responseMsg
         }, { quoted: mek });
 
@@ -509,16 +509,16 @@ async (conn, mek, m, { reply, q, from, isOwner }) => {
         if (!pairCode) return await reply(pairCodeMis);
 
         const msg = await conn.sendMessage(from, {
-            text: `🔗 *Pair Code Generated!*\n\n📞 Number: ${num}\n🧾 Code: ${pairCode}\n\n⌛ ${pairExpireAlert}`
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `🔗 *Pair Code Generated!*\n\n📞 Number: ${num}\n🧾 Code: ${pairCode}\n\n⌛ ${pairExpireAlert}`
         }, { quoted: mek });
 
         const msg2 = await conn.sendMessage(from, {
-            text: `${pairCode}`
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `${pairCode}`
         }, { quoted: msg });
 
         setTimeout(async () => {
             await conn.sendMessage(from, {
-                text: `⛔ *Expired!*\n\n📞 Number: ${num}\n💤 ${pairExpireMg}`,
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `⛔ *Expired!*\n\n📞 Number: ${num}\n💤 ${pairExpireMg}`,
                 edit: msg.key
             });
             await conn.sendMessage(from, {
@@ -740,6 +740,7 @@ responseMsg += `╚══════════════════╝\n`;
         responseMsg += `\n${config.FOOTER}`;
 
         await conn.sendMessage(from, {
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null),
             image: { url: logo },
             caption: responseMsg
         }, { quoted: mek });
@@ -777,7 +778,7 @@ cmd({
     teamMessage += `> ${config.FOOTER}`;
 
     await conn.sendMessage(from, {
-        image: { url: TEAM_IMAGE_URL },
+        contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: TEAM_IMAGE_URL },
         caption: teamMessage
     }, { quoted: mek });
 });
@@ -818,7 +819,7 @@ developers.forEach(dev => {
         filename: __filename
     }, async (conn, mek, m, { from }) => {
         await conn.sendMessage(from, {
-            image: { url: dev.imageUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: dev.imageUrl },
             caption: `🥷🏻 *${dev.name}*\n(⚒ ${dev.role} ⚒)\n\n🔱 *GitHub:* ${dev.github}\n\n📱 *Contact:* ${dev.contact}\n\n${config.FOOTER}`
         }, { quoted: mek });
     });
@@ -861,15 +862,15 @@ cmd({
         }
 
         if (contentType.includes("image/")) {
-            return conn.sendMessage(from, { image: buffer, caption: q }, { quoted: mek });
+            return conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: buffer, caption: q }, { quoted: mek });
         }
 
         if (contentType.includes("video/")) {
-            return conn.sendMessage(from, { video: buffer, caption: q }, { quoted: mek });
+            return conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: buffer, caption: q }, { quoted: mek });
         }
 
         if (contentType.includes("audio/")) {
-            return conn.sendMessage(from, { audio: buffer, mimetype: contentType.split(";")[0], fileName: filename }, { quoted: mek });
+            return conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), audio: buffer, mimetype: contentType.split(";")[0], fileName: filename }, { quoted: mek });
         }
 
         const textTypes = ["text/", "application/json", "application/javascript", "application/xml", "application/yaml", "application/sql"];
@@ -897,7 +898,7 @@ cmd({
         }
 
         return conn.sendMessage(from, {
-            document: buffer,
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: buffer,
             mimetype: contentType.split(";")[0] || "application/octet-stream",
             fileName: filename,
         }, { quoted: mek });

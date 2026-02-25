@@ -1,7 +1,7 @@
 // ============================= R E Q U E S T =============================
 const config = require('../config');
 const { cmd } = require('../command');
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, checkDailymotionLink, checkGDriveLink, getThumbnailFromUrl, resizeThumbnail, formatMessage } = require('../lib/functions')
+const {getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, checkDailymotionLink, checkGDriveLink, getThumbnailFromUrl, resizeThumbnail, formatMessage, getContextInfo} = require('../lib/functions')
 
 const fg = require('api-dylux');
 const DY_SCRAP = require('@dark-yasiya/scrap');
@@ -136,7 +136,7 @@ cmd({
         numrep.push(`3.3 ${prefix}tt_dl ${music} MUSIC VOICE=${title}`);
 
         
-        const sentMsg = await conn.sendMessage(from, { image: { url: config.LOGO }, caption: info,
+        const sentMsg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO }, caption: info,
                               contextInfo: {
                                       externalAdReply: {
                                           title: ` ${botName || "PRINCE-𝖬𝖣X"} 𝖳𝖨𝖪𝖳𝖮𝖪 `,
@@ -182,30 +182,30 @@ cmd({
         if(quality === "MUSIC"){
                 
                 if(type === "audio"){
-        await conn.sendMessage(from, { audio: { url }, mimetype: "audio/mpeg" }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), audio: { url }, mimetype: "audio/mpeg" }, { quoted: mek });
         await m.react("✅");
                         
                 } else if(type === "doc"){
-        await conn.sendMessage(from, { document: { url }, fileName: `${title}.mp3`, mimetype: "audio/mpeg", caption: `${title}\n\n> ${config.FOOTER}` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url }, fileName: `${title}.mp3`, mimetype: "audio/mpeg", caption: `${title}\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
                         
                 } else if(type === "voice"){
-        await conn.sendMessage(from, { audio: { url }, mimetype: "audio/mpeg", ptt: true }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), audio: { url }, mimetype: "audio/mpeg", ptt: true }, { quoted: mek });
         await m.react("✅");
                         
             }  
                 
         } else if(type === "video"){
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your TikTok Video!*\n\n_${title}_\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your TikTok Video!*\n\n_${title}_\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         } else if(type === "doc"){
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your TikTok Video!*\n\n_${title}_\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your TikTok Video!*\n\n_${title}_\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         }
         
@@ -267,18 +267,18 @@ cmd({
             numrep.push(`1.2 ${prefix}ytmp3_dl ${url} DOC ${title}`);
             numrep.push(`1.3 ${prefix}ytmp3_dl ${url} VOICE ${title}`);
     
+            const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+            ctxInfo.externalAdReply = {
+                title: `🎶 ${botName || "PRINCE-MDX"} 𝖲𝖮𝖭𝖦  🎶`,
+                body: config.BODY || "",
+                thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
+                mediaType: 1,
+                sourceUrl: url
+            };
             const sentMsg = await conn.sendMessage(from, { 
                 image: { url: image }, 
                 caption: info,
-                contextInfo: {
-                    externalAdReply: {
-                        title: `🎶 ${botName || "PRINCE-MDX"} 𝖲𝖮𝖭𝖦  🎶`,
-                        body: config.BODY || "",
-                        thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                        mediaType: 1,
-                        sourceUrl: url
-                    }
-                }
+                contextInfo: ctxInfo
             }, { quoted: mek });
         
             const messageKey = sentMsg.key;
@@ -428,15 +428,16 @@ cmd({
         numrep.push(`2.4 ${prefix}ytmp4_dl ${url} 720 DOC`);
         numrep.push(`2.5 ${prefix}ytmp4_dl ${url} 1080 DOC`);
 
+        const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+        ctxInfo.externalAdReply = {
+            title: `🎬 ${botName || "PRINCE-𝖬𝖣X"} 𝖸𝖳𝖬𝖯4 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 🎬`,
+            body: config.BODY || "",
+            thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
+            mediaType: 1,
+            sourceUrl: url
+        };
         const sentMsg = await conn.sendMessage(from, { image: { url: image }, caption: info,
-                              contextInfo: {
-                                      externalAdReply: {
-                                          title: `🎬 ${botName || "PRINCE-𝖬𝖣X"} 𝖸𝖳𝖬𝖯4 𝖣𝖮𝖶𝖭𝖫𝖮𝖠𝖣𝖤𝖱 🎬`,
-                                          body: config.BODY || "",
-                                          thumbnailUrl: config.CONTEXT_LOGO || config.LOGO,
-                                          mediaType: 1,
-                                          sourceUrl: url
-                                      }}}, { quoted: mek });
+                              contextInfo: ctxInfo }, { quoted: mek });
 
         
         const messageKey = sentMsg.key;
@@ -563,16 +564,16 @@ cmd({
         const title = q.split("=")[1] || '';
 
         if(type === "video"){
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         } else {
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         }
         
@@ -612,9 +613,7 @@ cmd({
 
         info += `\n> ${config.FOOTER}`;
 
-        const sentMsg = await conn.sendMessage(
-            from,
-            { image: { url: config.LOGO }, caption: info },
+        const sentMsg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO }, caption: info },
             { quoted: mek },
         );
 
@@ -753,7 +752,7 @@ cmd({
         const thumbnailBuffer = await resizeThumbnail(rawBuffer);
         await m.react('⬆️');
         const dom = await conn.sendMessage(from, {
-            document: { url: downloadUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downloadUrl },
             jpegThumbnail: thumbnailBuffer,
             mimetype: "video/mp4",
             fileName: title + '.mp4',
@@ -837,7 +836,7 @@ ${config.FOOTER}`;
         const thumbnailBuffer = await resizeThumbnail(rawBuffer);
         await m.react('⬆️');
         const dom = await conn.sendMessage(from, {
-            document: { url: downloadUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downloadUrl },
             jpegThumbnail: thumbnailBuffer,
             mimetype: "video/mp4",
             fileName: title + '.mp4',
@@ -885,7 +884,7 @@ cmd({
         info += `\n\n${config.FOOTER}`;
 
         const sentMsg = await conn.sendMessage(from, {
-            text: info,
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: info,
             contextInfo: {
                 externalAdReply: {
                     title: "📥 Download via PRINCE-MDX",
@@ -939,7 +938,7 @@ cmd({
         await m.react('📤');
 
         await conn.sendMessage(from, {
-            document: { url: downloadUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downloadUrl },
             jpegThumbnail: thumbnailBuffer,
             mimetype: mimetype,
             fileName: `${title}.${ext}`,
@@ -1019,7 +1018,7 @@ cmd({
 
 
         const dom = await conn.sendMessage(from, {
-            document: { url: videoUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: videoUrl },
             mimetype: "video/mp4",
             fileName: data.title + '.mp4',
             caption: `${data.title}\n\n${config.FOOTER}`
@@ -1087,29 +1086,29 @@ cmd({
         if(quality === "MUSIC"){
                 
                 if(type === "audio"){
-        await conn.sendMessage(from, { audio: { url }, mimetype: "audio/mpeg" }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), audio: { url }, mimetype: "audio/mpeg" }, { quoted: mek });
         await m.react("✅");
                         
                 } else if(type === "doc"){
-        await conn.sendMessage(from, { document: { url }, fileName: `${title}.mp3`, mimetype: "audio/mpeg", caption: `${title}\n\n> ${config.FOOTER}` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url }, fileName: `${title}.mp3`, mimetype: "audio/mpeg", caption: `${title}\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
                         
                 } else if(type === "voice"){
-        await conn.sendMessage(from, { audio: { url }, mimetype: "audio/ogg; codecs=opus", ptt: true }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), audio: { url }, mimetype: "audio/ogg; codecs=opus", ptt: true }, { quoted: mek });
         await m.react("✅");
                         
             }  
         } else if(type === "video"){
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: { url }, fileName: `${title}.mp4`, caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         } else if(type === "doc"){
-        const msg = await conn.sendMessage(from, { text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
-        await conn.sendMessage(from, { document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
+        const msg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `📥 Downloading ${quality} Video...` }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url }, fileName: `${title}.mp4`, mimetype: "video/mp4", caption: `🎥 *Here is your FB Video!*\n\n> ${config.FOOTER}` }, { quoted: mek });
         await m.react("✅");
-        await conn.sendMessage(from, { text : mediaMg , edit : msg.key })
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: mediaMg , edit : msg.key })
             
         }
         
@@ -1143,7 +1142,7 @@ cmd({
 
         const mime = (await axios.get(response.url)).headers['content-type'] || "application/zip"
         await conn.sendMessage(from, {
-            document: { url: response.url },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: response.url },
             mimetype: mime,
             fileName: response.filename,
             caption: `\`💾 FileName\`: ${response.title || "N/A"}\n\`💽 Size:\` ${response.size || "N/A"}\n\`📅 UploadDate:\` ${response.date || "N/A"}\n\n> ${config.FOOTER}`
@@ -1175,7 +1174,7 @@ cmd({
 
         const url = `https://image.thum.io/get/fullpage/${q}`
 
-        await conn.sendMessage(from, { image: { url: url }, caption: config.FOOTER, }, { quoted: mek });
+        await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: url }, caption: config.FOOTER, }, { quoted: mek });
 
         await m.react("✔");
 
@@ -1209,10 +1208,8 @@ cmd({
             return await reply("❌ No video found for this Instagram link.");
         }
 
-        await conn.sendMessage(
-            from,
-            {
-                video: { url: videoUrl },
+        await conn.sendMessage(from, {
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: { url: videoUrl },
                 mimetype: "video/mp4",
                 caption: `🎥 Here is your Instagram Video!\n\n> ${config.FOOTER || ""}`
             },
@@ -1254,7 +1251,7 @@ cmd({
             const buffer = Buffer.concat(chunks);
 
             await conn.sendMessage(from, {
-                document: buffer,
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: buffer,
                 fileName,
                 caption: config.FOOTER,
                 mimetype: mimeType
@@ -1311,7 +1308,7 @@ async (conn, mek, m, { from, args, reply, q }) => {
                 });
                 
                 await conn.sendMessage(from, {
-                    image: Buffer.from(imgResponse.data),
+                    contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: Buffer.from(imgResponse.data),
                     caption: `🔍 *Search:* ${q}\n\n${config.FOOTER}`
                 }, { quoted: mek });
                 
@@ -1373,7 +1370,7 @@ async (conn, mek, m, { from, args, reply, q }) => {
             const imageUrl = image.webformatURL;
         
             await conn.sendMessage(from, {
-                image: { url: imageUrl },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
                 caption: `🔍 *Search:* ${keyword}\n\n> ${config.FOOTER}`
             });
         }
@@ -1434,7 +1431,7 @@ async (conn, mek, m, { from, args, reply }) => {
             const photographerProfile = img.user.links.html;
 
             await conn.sendMessage(from, {
-                image: { url: imageUrl },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
                 caption: `
 ➠ Wallpaper for: ${keyword}
 ➠ Type: ${type}
@@ -1478,7 +1475,7 @@ async (conn, mek, m, { from, args, q, reply }) => {
 *🕹️ File Type:* ${res.mimetype}`);        
 
         await conn.sendMessage(from, { 
-            document: { url: res.downloadUrl }, 
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: res.downloadUrl }, 
             fileName: res.fileName, 
             mimetype: res.mimetype 
         }, { quoted: mek });
@@ -1574,7 +1571,7 @@ cmd({
             fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
             await conn.sendMessage(m.chat, {
-                document: fs.readFileSync(filePath),
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: fs.readFileSync(filePath),
                 mimetype: 'application/json',
                 fileName: fileName,
             }, { quoted: m });
@@ -1589,7 +1586,7 @@ cmd({
         fs.writeFileSync(txtPath, html);
 
         await conn.sendMessage(m.chat, {
-            document: fs.readFileSync(txtPath),
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: fs.readFileSync(txtPath),
             mimetype: 'text/plain',
             fileName: txtFileName,
         }, { quoted: m });
@@ -1628,7 +1625,7 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
     let urls = q.includes(",") ? q.split(",").map(u => u.trim()).filter(Boolean) : [q];
 
     for (let url of urls) {
-      const smsg = await conn.sendMessage(from, { text: "📥 *Downloading File...*" }, { quoted: mek });
+      const smsg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: "📥 *Downloading File...*" }, { quoted: mek });
 
       let filename = "file";
       let contentType = "application/octet-stream";
@@ -1653,12 +1650,12 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
         filename = decodeURIComponent(new URL(url).pathname.split("/").pop() || "file");
       }
 
-      await conn.sendMessage(from, { text: `⬆️ *Uploading file...*\n\n> ${filename}`, edit: smsg.key });
+      await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `⬆️ *Uploading file...*\n\n> ${filename}`, edit: smsg.key });
 
       try {
         // Direct streaming
         await conn.sendMessage(from, {
-          document: { url },
+          contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url },
           fileName: filename,
           mimetype: contentType,
           caption: `${filename}\n\n${config.CAPTION || config.FOOTER}`
@@ -1667,7 +1664,7 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
         // Buffer fallback
         const buffer = (await axios.get(url, { responseType: "arraybuffer" })).data;
         await conn.sendMessage(from, {
-          document: buffer,
+          contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: buffer,
           fileName: filename,
           mimetype: contentType,
           caption: `${filename}\n\n${config.CAPTION || config.FOOTER}`
@@ -1722,7 +1719,7 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
         if (!hdFile) return await reply("⚠️ HD video file not found.");
     
         const sent = await conn.sendMessage(m.chat, {
-          video: { url: hdFile.link },
+          contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), video: { url: hdFile.link },
           caption: `💖 *Romantic Video*
     \n\n${config.FOOTER}`
         }, { quoted: mek });
@@ -1775,7 +1772,7 @@ async (conn, mek, m, { q, reply, from, prefix }) => {
           const imageUrl = image.src.original;
     
           const sent = await conn.sendMessage(m.chat, {
-            image: { url: imageUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: imageUrl },
             caption: `💖 *Romantic Image ${index + 1}/3*\n\n${config.FOOTER}`
           }, { quoted: mek });
     
@@ -1855,7 +1852,7 @@ cmd({
             info2 +
             `\n> ${config.FOOTER}`;
     
-        const sentMsg = await conn.sendMessage(from, { image : { url: config.LOGO }, text: info,
+        const sentMsg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO }, text: info,
                               contextInfo: {
                                       externalAdReply: {
                                           title: `📃 ${botName || "PRINCE-MDX"} 𝖯𝖠𝖲𝖳 𝖯𝖠𝖯𝖤𝖱 📃`,
@@ -1918,7 +1915,7 @@ cmd({
                 
         const mime = "application/pgf";
         await conn.sendMessage(from, {
-            document: { url: downUrl },
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downUrl },
             mimetype: mime,
             fileName: `${filename}.pdf`,
             caption: `${filename}\n\n> ${config.FOOTER}`

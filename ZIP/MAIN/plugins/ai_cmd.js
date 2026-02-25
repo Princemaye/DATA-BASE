@@ -2,7 +2,7 @@
 const axios = require("axios");
 const { cmd } = require("../command");
 const config = require("../config");
-const { fetchJson } = require("../lib/functions");
+const {fetchJson, getContextInfo} = require("../lib/functions");
 const { blackbox } = require("../lib/scraper");
 
 const PRINCE_API_KEY = "prince";
@@ -268,7 +268,7 @@ async (conn, mek, m, { from, reply, q }) => {
 
         if (res1?.success && res1?.result) {
             await conn.sendMessage(from, { 
-                image: { url: res1.result }, 
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: res1.result }, 
                 caption: `🎨 *Image Generated*\n\n📝 Prompt: ${q}\n\n${config.FOOTER}` 
             }, { quoted: mek });
         } else {
@@ -414,7 +414,7 @@ async (conn, mek, m, { from, args, reply, prefix, q }) => {
                 return `${i + 1}. ${src.text || src.title || "Source"}`;
             }).join("\n");
 
-        const sent = await conn.sendMessage(from, { text: caption }, { quoted: mek });
+        const sent = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: caption }, { quoted: mek });
         const messageId = sent.key.id;
         
         bibleSourcesCache.set(messageId, { sources, from, timestamp: Date.now() });
@@ -442,7 +442,7 @@ cmd({
         
         const selected = cached.sources[index];
         if (!selected) {
-            return conn.sendMessage(from, { text: "❌ Invalid number. Reply with a valid source number." }, { quoted: mek });
+            return conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: "❌ Invalid number. Reply with a valid source number." }, { quoted: mek });
         }
 
         await conn.sendMessage(from, { react: { text: "📖", key: mek.key } });
@@ -454,21 +454,21 @@ cmd({
                 const verseData = verseRes.data;
 
                 if (!verseData.status || !verseData.result?.verses) {
-                    return conn.sendMessage(from, { text: `❌ Couldn't fetch verse: ${selected.text}` }, { quoted: mek });
+                    return conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `❌ Couldn't fetch verse: ${selected.text}` }, { quoted: mek });
                 }
 
                 const verses = verseData.result.verses.map(v =>
                     `📖 *${v.book} ${v.chapter}:${v.verse}*\n${v.text}`
                 ).join("\n\n");
 
-                await conn.sendMessage(from, { text: verses }, { quoted: mek });
+                await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: verses }, { quoted: mek });
             } catch (err) {
                 console.error("Verse fetch error:", err);
-                await conn.sendMessage(from, { text: "❌ Error fetching verse text." }, { quoted: mek });
+                await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: "❌ Error fetching verse text." }, { quoted: mek });
             }
         } else if (selected.type === "article") {
             await conn.sendMessage(from, {
-                image: { url: selected.image },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: selected.image },
                 caption: `📘 *${selected.title}*\n\n${selected.text}\n\n🔗 ${selected.url}`
             }, { quoted: mek });
         }

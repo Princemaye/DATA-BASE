@@ -13,8 +13,7 @@ const {
       commands 
       } = require('../command');
 
-const { 
-      getBuffer, 
+const {getBuffer, 
       getGroupAdmins, 
       getRandom,
       h2k, 
@@ -26,8 +25,7 @@ const {
       fetchApi, 
       getThumbnailFromUrl, 
       resizeThumbnail,
-      formatMessage 
-      } = require('../lib/functions');
+      formatMessage, getContextInfo} = require('../lib/functions');
 
 const { 
       inputMovie, 
@@ -590,7 +588,7 @@ const {
   
   config.LOGO;
           
-             await conn.sendMessage(from, { image: { url: image }, caption: cap }, { quoted : mek })
+             await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: image }, caption: cap }, { quoted : mek })
              
              await m.react("✔️");
 
@@ -718,7 +716,7 @@ try{
           }
 
           for(let i of imageUrls){
-             await conn.sendMessage(jidx, { image: { url: i }, caption: config.CPATION || config.FOOTER || '' }, { quoted : mek })
+             await conn.sendMessage(jidx, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: i }, caption: config.CPATION || config.FOOTER || '' }, { quoted : mek })
           }
              reply("*All images send successfully ✅*");
              await m.react("✔️");
@@ -845,13 +843,13 @@ cmd({
         }
 
         // Sending "uploading" message
-        const upMsg = await conn.sendMessage(from, { image: { url: config.LOGO }, text: "*Uploading Your Requested File ⬆️*" }, { quoted: mek });
+        const upMsg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO }, text: "*Uploading Your Requested File ⬆️*" }, { quoted: mek });
         await m.react("⬆️");
 
         let sendDoc = async (fileUrl) => {
             try {
                 return await conn.sendMessage(from, {
-                    document: { url: fileUrl },
+                    contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: fileUrl },
                     fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${title}.mp4`,
                     mimetype: 'video/mp4',
                     jpegThumbnail: thumbnailBuffer,
@@ -864,7 +862,7 @@ cmd({
                 // Retry once
                 try {
                     return await conn.sendMessage(from, {
-                        document: { url: fileUrl },
+                        contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: fileUrl },
                         fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${title}.mp4`,
                         mimetype: 'video/mp4',
                         jpegThumbnail: thumbnailBuffer,
@@ -1062,11 +1060,11 @@ try{
               return
         }
 */
-        const up_mg = await conn.sendMessage(from, { image: { url:  config.LOGO }, text: "*Uploading Your Requested Movie ⬆️*" }, { quoted: mek });
+        const up_mg = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url:  config.LOGO }, text: "*Uploading Your Requested Movie ⬆️*" }, { quoted: mek });
         await m.react("⬆️");
 
         const mvdoc = await conn.sendMessage(from, {
-                                                  document: { url: data }, 
+                                                  contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: data }, 
                                                   fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${upload?.[0]?.name || title + ".mp4"}`,
                                                   mimetype: `video/mp4`, 
                                                   jpegThumbnail: thumbnailBuffer,
@@ -1132,7 +1130,7 @@ try{
               `╰─────────────────────╯\n\n` +
               `${s_m_g}`
 
-      const mass = await conn.sendMessage(from, { image: { url : "https://files.catbox.moe/y51vgu.jpg" || config.LOGO }, caption: mg }, { quoted: mek });
+      const mass = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url : "https://files.catbox.moe/y51vgu.jpg" || config.LOGO }, caption: mg }, { quoted: mek });
                        const jsonmsg = {
                           key : mass.key,
                           numrep,
@@ -1208,7 +1206,7 @@ try{
               `╰─────────────────────╯\n\n` +
               `${s_r_m}`
     
-          const mass = await conn.sendMessage(from, { text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
+          const mass = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `${cot}\n\n${config.FOOTER}` }, { quoted: mek });
           const jsonmsg = {
                           key : mass.key,
                           numrep,
@@ -1277,7 +1275,7 @@ try{
         await m.react("⬆️");
         
         const mvdoc = await conn.sendMessage(from, {
-                                                  document: { url: data.downloadUrl }, 
+                                                  contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: data.downloadUrl }, 
                                                   fileName: `${config.FILE_NAME ? config.FILE_NAME + ' ' : ''}${data.title}.zip`,
                                                   mimetype: `application/zip`, 
                                                   caption: `${data.title}\n${pk} ❤️❤️ ${pk2}\n\n${config.CAPTION || config.FOOTER || ''}`
@@ -1516,7 +1514,7 @@ try {
       (config.CAPTION || config.FOOTER);
 
   // Send details card
-  await conn.sendMessage(from, { image: { url: epImage }, caption: cap }, { quoted: mek });
+  await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: epImage }, caption: cap }, { quoted: mek });
 
 
   await m.react("✔️");
@@ -1562,7 +1560,7 @@ try {
         casts = mov.cast.map(c => c.actor?.name || c.name).join(', ') || ''
     }
     
-    let message = await conn.sendMessage(from, { text: "*⏩ Starting process...*" }, { quoted: mek })    
+    let message = await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: "*⏩ Starting process...*" }, { quoted: mek })    
 
     let yt = `*${mov.maintitle}*
 
@@ -1585,7 +1583,7 @@ ${config.CAPTION || config.FOOTER || ""}
     const data = mov.episodesDetails[sid - 1]?.episodes || [];
 
         for (let chatId of jid) {
-    await conn.sendMessage(chatId, { image: { url: movImg || config.LOGO }, caption: yt + `${config.CAPTION}` })
+    await conn.sendMessage(chatId, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: movImg || config.LOGO }, caption: yt + `${config.CAPTION}` })
         }
         
     await conn.edit(message, "*✅ Successfully fetched details!*\n*Uploading episodes...⬆️*")
@@ -1673,7 +1671,7 @@ ${config.CAPTION || config.FOOTER || ""}
             const thumbnailBuffer = await resizeThumbnail(rawBuffer);
 
                         const doc = await conn.sendMessage(conn.user.id || conn.user.lid, {
-                document: { url: gdriveLink },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: gdriveLink },
                 fileName: `${config.FILE_NAME} ${epTitle}.mp4`,
                 mimetype: mimeType,
                 jpegThumbnail: thumbnailBuffer,
@@ -1693,7 +1691,7 @@ ${config.CAPTION || config.FOOTER || ""}
 
         } catch (err) {
             l(err)
-            await conn.sendMessage(from, { text: `*⚠️ Failed to upload Episode ${i+1}*` })
+            await conn.sendMessage(from, { contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: `*⚠️ Failed to upload Episode ${i+1}*` })
             continue
         }
     }

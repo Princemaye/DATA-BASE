@@ -1,7 +1,7 @@
 // ============================= ANIME PLUGIN =============================
 const { cmd } = require("../command");
 const config = require("../config");
-const { fetchJson } = require("../lib/functions");
+const {fetchJson, getContextInfo} = require("../lib/functions");
 
 const PRINCE_API_KEY = "prince";
 const PRINCE_API_BASE = "https://api.princetechn.com/api/anime";
@@ -46,7 +46,7 @@ async (conn, mek, m, { from, reply }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `💕 *Random Waifu*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
@@ -74,7 +74,7 @@ async (conn, mek, m, { from, reply }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `🎀 *Anime Maid*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
@@ -106,7 +106,7 @@ async (conn, mek, m, { from, reply, isGroup }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `🔞 *Ero Anime*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
@@ -134,7 +134,7 @@ async (conn, mek, m, { from, reply }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `🍭 *Anime Loli*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
@@ -166,7 +166,7 @@ async (conn, mek, m, { from, reply, isGroup }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `🔞 *Anime Milf*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
@@ -198,7 +198,7 @@ async (conn, mek, m, { from, reply, isGroup }) => {
         
         if (result.success && result.url) {
             await conn.sendMessage(from, {
-                image: { url: result.url },
+                contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: result.url },
                 caption: `🔞 *Anime Image*\n\n${config.FOOTER}`
             }, { quoted: mek });
         } else {
