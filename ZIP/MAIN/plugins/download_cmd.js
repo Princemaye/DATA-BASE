@@ -727,21 +727,21 @@ cmd({
 
         } else {
             await reply("🔍 *Searching...*");
-            const searchUrl = `https://www.xnxx.health/?k=${encodeURIComponent(q)}&p=${Math.floor(Math.random() * 3) + 1}`;
+            const searchUrl = `https://xnxx.health/?k=${encodeURIComponent(q)}&p=${Math.floor(Math.random() * 3) + 1}`;
             const result = await axios.get(searchUrl, { timeout: 15000 });
             const $ = cheerio.load(result.data);
             const results = [];
 
-            $("div.mozaique > div").each(function (i) {
+            $("div.thumb-block").each(function (i) {
                 if (i >= 10) return false;
                 const el = $(this);
-                const titleEl = el.find("div.thumb-under p.title a");
-                const t = titleEl.attr("title") || titleEl.text();
-                const href = titleEl.attr("href");
-                const dur = el.find("div.thumb-under p.metadata span.duration").text().trim();
-                const thumb = el.find("div.thumb img").attr("data-src") || el.find("div.thumb img").attr("src");
+                const linkEl = el.find("div.thumb-under p a");
+                const t = linkEl.attr("title") || linkEl.text().trim();
+                const href = linkEl.attr("href");
+                const thumb = el.find("div.thumb-inside img").attr("src");
+                const dur = el.find("p.metadata").text().trim().match(/(\d+min)/)?.[1] || "";
                 if (t && href) {
-                    results.push({ title: t, url: "https://www.xnxx.health" + href, duration: dur, thumb });
+                    results.push({ title: t, url: "https://xnxx.health" + href, duration: dur, thumb });
                 }
             });
 
@@ -752,7 +752,7 @@ cmd({
             const numrep = [];
             results.forEach((r, i) => {
                 info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"}\n\n`;
-                numrep.push(`${i + 1} ${prefix}ph_search ${r.url}`);
+                numrep.push(`${prefix}ph_search ${r.url}`);
             });
             info += `${numreplyMg}\n\n> ${config.FOOTER}`;
 
@@ -763,7 +763,7 @@ cmd({
                 contextInfo: ctxInfo
             }, { quoted: mek });
             await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
-            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'nondecimal' });
         }
 
     } catch (e) {
@@ -937,7 +937,7 @@ cmd({
             const numrep = [];
             limited.forEach((r, i) => {
                 info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"} ${r.quality ? `| ${r.quality}` : ""}\n\n`;
-                numrep.push(`${i + 1} ${prefix}xvid_search ${r.url}`);
+                numrep.push(`${prefix}xvid_search ${r.url}`);
             });
             info += `${numreplyMg}\n\n> ${config.FOOTER}`;
 
@@ -948,7 +948,7 @@ cmd({
                 contextInfo: ctxInfo
             }, { quoted: mek });
             await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
-            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'nondecimal' });
         }
 
     } catch (e) {
