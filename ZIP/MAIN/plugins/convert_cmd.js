@@ -119,7 +119,7 @@ cmd({
 
         try {
             // Call Flux API with arraybuffer response
-            const response = await axios.get(`https://apiskeith.vercel.app/ai/flux?q=${encodeURIComponent(prompt)}`, {
+            const response = await axios.get(`https://Keithsite.top/ai/flux?q=${encodeURIComponent(prompt)}`, {
                 responseType: "arraybuffer",
                 timeout: 45000 // 45 seconds timeout for image generation
             });
@@ -950,7 +950,7 @@ cmd({
         }
 
         const apiUrl =
-            `https://apiskeith.vercel.app/ai/text2speech?q=${encodeURIComponent(text)}`;
+            `https://Keithsite.top/ai/text2speech?q=${encodeURIComponent(text)}`;
 
         const { data } = await axios.get(apiUrl, { timeout: 60000 });
         const result = data?.result;
@@ -1069,7 +1069,7 @@ cmd({
             
             // Call Keith's removebg API (exact same endpoint)
             const response = await axios.get(
-                `https://apiskeith.vercel.app/ai/removebg?url=${encodeURIComponent(imageUrl)}`,
+                `https://Keithsite.top/ai/removebg?url=${encodeURIComponent(imageUrl)}`,
                 {
                     headers: {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"

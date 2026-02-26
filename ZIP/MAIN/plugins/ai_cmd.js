@@ -397,7 +397,7 @@ async (conn, mek, m, { from, args, reply, prefix, q }) => {
     if (!q) return await reply(`📖 Ask a Bible question.\n\nExample: ${prefix}bibleai what is faith`);
 
     try {
-        const res = await axios.get(`https://apiskeith.vercel.app/ai/bible?q=${encodeURIComponent(q)}`);
+        const res = await axios.get(`https://Keithsite.top/ai/bible?q=${encodeURIComponent(q)}`);
         const data = res.data;
 
         if (!data.status || !data.result?.results?.data?.answer) {
@@ -450,7 +450,7 @@ cmd({
         if (selected.type === "verse") {
             const ref = selected.bcv?.referenceLong?.replace(/\s+/g, "").replace(":", ":") || selected.text;
             try {
-                const verseRes = await axios.get(`https://apiskeith.vercel.app/search/bible?q=${encodeURIComponent(ref)}`);
+                const verseRes = await axios.get(`https://Keithsite.top/search/bible?q=${encodeURIComponent(ref)}`);
                 const verseData = verseRes.data;
 
                 if (!verseData.status || !verseData.result?.verses) {

@@ -674,7 +674,6 @@ cmd(
                 `${prefix}setenv FILE_NAME ${text}`,
                 `${prefix}setenv MOVIE_DETAILS_CARD ${text}`,
                 `${prefix}setenv EPISODE_DETAILS_CARD ${text}`,
-                `${prefix}setenv AUTO_NEWS_MESSAGE ${text}`,
                 `${prefix}setenv TIKTOK_DETAILS_MESSAGE ${text}`,
                 `${prefix}setenv FB_DETAILS_MESSAGE ${text}`,
                 `${prefix}setenv SONG_DETAILS_MESSAGE ${text}`,
@@ -1050,36 +1049,6 @@ cmd(
         }
     },
 );
-cmd(
-    {
-        pattern: "activenews",
-        react: "📰",
-        alias: ["stopnews", "setnews", "removenews", "autonews"],
-        desc: "Manage active news broadcast JIDs",
-        category: "owner",
-        use: "activenews",
-        filename: __filename,
-    },
-    async (conn, mek, m, { from, reply, isOwners, prefix, q }) => {
-        try {
-            if (!isOwners) return await reply(ownerMg);
-            let text = q;
-
-            if (
-                !q ||
-                !q.endsWith("@g.us") ||
-                !q.endsWith("@lid") ||
-                !q.endsWith("@s.whatsapp.net")
-            ) {
-                text = from;
-            }
-
-        } catch (e) {
-            console.error(e);
-            await reply(errorMg || "❌ An error occurred");
-        }
-    },
-);
 
 cmd(
     {
@@ -1315,127 +1284,6 @@ cmd(
             await reply(
                 `*${await tr("An error occurred while updating.", lang)}*`,
             );
-        }
-    },
-);
-
-cmd(
-    {
-        pattern: "set_autonews",
-        react: "📰",
-        dontAddCommandList: true,
-        filename: __filename,
-    },
-    async (conn, mek, m, { from, reply, isOwners, args }) => {
-        try {
-            if (!isOwners) return reply(ownerMg);
-
-            const [setting, action, ...valueParts] = args;
-            const jid = valueParts.join(" ").trim();
-
-            const validSettings = [
-                "HIRUNEWS_SEND_JIDS",
-                "SIRASANEWS_SEND_JIDS",
-                "DERANANEWS_SEND_JIDS",
-            ];
-            const validActions = ["add", "remove"];
-
-            if (!setting || !action || !jid) {
-                return reply(
-                    `⚠️ Usage: ${config.PREFIX}set_autonews <${validSettings.join("/")}> <${validActions.join("/")}> <jid>`,
-                );
-            }
-            if (!validSettings.includes(setting)) {
-                return reply(
-                    await tr(
-                        `❌ Invalid setting. Use: ${validSettings.join(", ")}`,
-                        lang,
-                    ),
-                );
-            }
-            if (!validActions.includes(action)) {
-                return reply(
-                    await tr(
-                        `❌ Action must be: ${validActions.join("/")}`,
-                        lang,
-                    ),
-                );
-            }
-            if (!/^\d+@(s\.whatsapp\.net|g\.us|lid)$/.test(jid)) {
-                return reply(await tr(`❌ Invalid JID format.`, lang));
-            }
-
-            let autoNews = await ymd_db.get(tableName, "AUTO_NEWS");
-            if (!autoNews || typeof autoNews !== "object") {
-                autoNews = {
-                    HIRUNEWS_SEND_JIDS: [],
-                    SIRASANEWS_SEND_JIDS: [],
-                    DERANANEWS_SEND_JIDS: [],
-                };
-            }
-
-            let list = Array.isArray(autoNews[setting])
-                ? autoNews[setting]
-                : [];
-
-            if (action === "add") {
-                if (list.includes(jid))
-                    return reply(
-                        await tr(`⚠️ Already exists in *${setting}*`, lang),
-                    );
-                list.push(jid);
-                autoNews[setting] = list;
-                await ymd_db.input(tableName, "AUTO_NEWS", autoNews);
-                await reply(`✅ Added *${jid}* to *${setting}*`);
-            }
-
-            if (action === "remove") {
-                if (!list.includes(jid))
-                    return reply(
-                        await tr(`⚠️ Not found in *${setting}*`, lang),
-                    );
-                list = list.filter((item) => item !== jid);
-                autoNews[setting] = list;
-                await ymd_db.input(tableName, "AUTO_NEWS", autoNews);
-                await reply(`✅ Removed *${jid}* from *${setting}*`);
-            }
-
-            await conn.sendMessage(from, {
-                react: { text: "✔", key: mek.key },
-            });
-        } catch (e) {
-            console.error(`❌ [set_autonews Error] ${e.message}`);
-            reply(errorMg);
-        }
-    },
-);
-
-cmd(
-    {
-        pattern: "resetautonews",
-        react: "♻️",
-        alias: ["clearautonews", "resetautonews", "autonewsclear"],
-        desc: "Reset all saved auto news jids",
-        category: "owner",
-        use: "resetautonews",
-        filename: __filename,
-    },
-    async (conn, mek, m, { from, reply, isOwners }) => {
-        try {
-            if (!isOwners) return reply(ownerMg);
-
-            await ymd_db.input(tableName, "AUTO_NEWS", {
-                HIRUNEWS_SEND_JIDS: [],
-                SIRASANEWS_SEND_JIDS: [],
-                DERANANEWS_SEND_JIDS: [],
-            });
-
-            await reply(
-                "♻️ All saved auto news jids have been reset successfully.",
-            );
-        } catch (e) {
-            console.error(e);
-            await reply(errorMg);
         }
     },
 );
@@ -2777,58 +2625,6 @@ Example:
 ➠ Episode Title : ${epTitle}
 ➠ Release Date  : ${epReleasedate}
 ➠ Watch Now     : ${epUrl}
-
-➠ After setting the message, use ${prefix}apply to apply changes.
-`;
-            const sentMsg = await conn.sendMessage(from, {
-                    contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), text: msgText,
-                },
-                { quoted: mek },
-            );
-        } catch (e) {
-            console.log(e);
-            await reply(errorMg);
-        }
-    },
-);
-
-cmd(
-    {
-        pattern: "news_setup",
-        react: "🧩",
-        alias: ["newsset", "autonews_setup", "news_set"],
-        desc: "Show Auto News variable keys.",
-        category: "owner",
-        use: "news_setup",
-        filename: __filename,
-    },
-    async (conn, mek, m, { from, prefix, pushname, reply, isOwners }) => {
-        try {
-            if (!isOwners) return await reply(ownerMg);
-
-            const keysList = [
-                "`${title}` -  News Title",
-                "`${desc}` - News Description",
-                "`${date}` - News Upload Date",
-                "`${url}` - News Url",
-            ];
-
-            const msgText =
-                `Auto News Keys Guide
-
-You can use the following variables in your AUTO_NEWS_MESSAGE:
-
-` +
-                keysList.map((k) => "➠ " + k).join("\n") +
-                `
-
-Example:
-
-➠ ${title}
-➠ Date : ${date}
-➠ Link : ${url}
-
-➠ ${desc}
 
 ➠ After setting the message, use ${prefix}apply to apply changes.
 `;

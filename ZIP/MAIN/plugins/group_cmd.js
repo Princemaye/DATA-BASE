@@ -83,7 +83,7 @@ cmd({
     try {
         if (!isGroup) return reply(groupOnly);
         if (!isOwners) return reply(needOwner);
-                if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+                if (!isAdmins) return reply(needAdmin);
 
         const participants = groupMetadata?.participants || [];
         if (participants.length === 0) return reply("❌ No participants found.");
@@ -333,7 +333,7 @@ cmd({
     try {
 
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
 
         if (!isBotAdmins) return reply(giveMeAdmin);
 
@@ -388,7 +388,7 @@ cmd({
     try {
 
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
 
         if (!isBotAdmins) return reply(giveMeAdmin);
         const action = q.split(" ")[0];
@@ -455,7 +455,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 await conn.groupSettingUpdate(from, 'announcement')
@@ -481,7 +481,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 await conn.groupSettingUpdate(from, 'not_announcement')
@@ -507,7 +507,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 await conn.groupSettingUpdate(from, 'locked')
@@ -532,7 +532,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 await conn.groupSettingUpdate(from, 'unlocked')
@@ -584,7 +584,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 if (!q) return reply("*Please write the new Group Subject* 🖊️")
@@ -611,7 +611,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 if (!q) return reply("*Please write the new Group Description* 🖊️")
@@ -665,7 +665,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
 if (!isGroup) return reply(groupOnly);
-if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+if (!isAdmins) return reply(needAdmin);
 if (!isBotAdmins) return reply(giveMeAdmin);
         
 const code = await conn.groupInviteCode(from)
@@ -693,7 +693,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, msr
 try{
 
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
         if (!isBotAdmins) return reply(giveMeAdmin);
         
 await conn.groupRevokeInvite(from)
@@ -719,7 +719,7 @@ async (conn, mek, m, { from, quoted, q, isGroup, isAdmins, isBotAdmins, isDev, p
     try {
             
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
         if (!isBotAdmins) return reply(giveMeAdmin);
         
 
@@ -765,7 +765,7 @@ async (conn, mek, m, { from, q, isGroup, isAdmins, isDev, isOwner, isBotAdmins, 
     try {
             
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
         if (!isBotAdmins) return reply(giveMeAdmin);
         
         if (!q) return reply('*❗ Please provide a phone number or invite link to add a member.*');
@@ -800,7 +800,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, mentionByTag , args, 
 try{
 
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
         if (!isBotAdmins) return reply(giveMeAdmin); 
         
                         let users;
@@ -838,7 +838,7 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, mentionByTag , args, 
 try{
 
         if (!isGroup) return reply(groupOnly);
-        if (!isAdmins) { if (!isDev) return reply(needAdmin)}
+        if (!isAdmins) return reply(needAdmin);
         if (!isBotAdmins) return reply(giveMeAdmin);
         
                         let users;

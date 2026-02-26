@@ -1199,7 +1199,7 @@ cmd({
             return await reply("❌ Please provide a valid Instagram video URL.");
         }
 
-        const apiUrl = `https://apiskeith.vercel.app/download/instadl?url=${encodeURIComponent(q)}`;
+        const apiUrl = `https://Keithsite.top/download/instadl?url=${encodeURIComponent(q)}`;
         const response = await fetch(apiUrl, { method: "GET" });
         const data = await response.json();
 

@@ -187,56 +187,35 @@ try {
 
 cmd({
     pattern: "repo",
-    react: "🍬",
-    alias: ["sc", "script", "bot_sc"],
-    desc: "Check bot repo.",
+    react: "💜",
+    alias: ["sc", "script"],
+    desc: "Fetch bot script.",
     category: "main",
     use: "repo",
     filename: __filename
 },
-async (conn, mek, m, { from, reply }) => {
+async (conn, mek, m, { from, pushname, reply }) => {
     try {
+        const princeRepo = dbData.REPO.replace("https://github.com/", "").replace(/\/$/, "");
+        const ownerName = config.OWNER_NAME || "PRINCE";
+        const bName = botName || "PRINCE-MDX";
 
-        // Extract owner & repo name from URL
-        const repoUrl = dbData.REPO.replace("https://github.com/", "").replace(/\/$/, "");
-        const [owner, repo] = repoUrl.split("/");
+        const response = await fetch(`https://api.github.com/repos/${princeRepo}`);
+        const repoData = await response.json();
 
-        // Fetch repo data from GitHub API
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
-        const data = await res.json();
-
-        if (!data || data.message) {
+        if (!repoData || repoData.message) {
             return reply("❌ Failed to fetch repository information.");
         }
 
-        const captionText = `
-╭───「 Repository Info 」──
-┃➠ Name        : ${data.name}
-┃➠ Owner       : ${data.owner.login}
-┃➠ Stars       : ⭐ ${data.stargazers_count}
-┃➠ Forks       : 🍴 ${data.forks_count}
-┃➠ Watchers    : 👁️ ${data.watchers_count}
-┃➠ Issues      : 🧩 ${data.open_issues_count}
-┃➠ Version     : ${dbData.VERSION}
-┃➠ Framework   : Baileys Multi-Device
-┃➠ Developer   : ᴘʀɪɴᴄᴇ ᴛᴇᴄʜ
-┃➠ GitHub      : ${dbData.REPO}
-┃➠ Website     : ${dbData.OFFICIAL_SITE}
-┃➠ Support     : https://chat.whatsapp.com/${dbData.SUPPORT_GROUP}
-┃➠ Channel     : ${dbData.OFFICIAL_CHANNEL}
-╰─────────────────────
-
-⭐ Star the repository to support development!
-`;
-
-        const sentMsg = await conn.sendMessage(from, {
-            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), image: { url: config.LOGO },
-            caption: captionText
-        }, { quoted: mek });
+        const { full_name, name, forks_count, stargazers_count, created_at, updated_at } = repoData;
+        const messageText = `Hello *_${pushname}_,*\nThis is *${bName},* A Whatsapp Bot Built by *${ownerName},* Enhanced with Amazing Features to Make Your Whatsapp Communication and Interaction Experience Amazing\n\n*ʀᴇᴘᴏ ʟɪɴᴋ:* https://github.com/${princeRepo}\n\n*❲❒❳ ɴᴀᴍᴇ:* ${name}\n*❲❒❳ sᴛᴀʀs:* ${stargazers_count}\n*❲❒❳ ғᴏʀᴋs:* ${forks_count}\n*❲❒❳ ᴄʀᴇᴀᴛᴇᴅ ᴏɴ:* ${new Date(created_at).toLocaleDateString()}\n*❲❒❳ ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇᴅ:* ${new Date(updated_at).toLocaleDateString()}`;
 
         await conn.sendMessage(from, {
-            react: { text: "🧩", key: sentMsg.key }
-        });
+            image: { url: config.LOGO },
+            caption: messageText,
+            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null)
+        }, { quoted: mek });
+        await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
 
     } catch (e) {
         console.log(e);
