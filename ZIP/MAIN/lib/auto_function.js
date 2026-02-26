@@ -21,15 +21,14 @@ class GitHubDB {
             if (err.status === 404) {
                 console.log(`📁 Creating auto-reply file: ${this.FILE_PATH}`);
                 try {
-                    // Try to create the file with empty content
-                    await this.octokit.repos.createOrUpdateFileContents({
+                    const { data } = await this.octokit.repos.createOrUpdateFileContents({
                         owner: this.OWNER,
                         repo: this.REPO,
                         path: this.FILE_PATH,
                         message: "Create auto-reply file",
                         content: Buffer.from(JSON.stringify({}, null, 2)).toString("base64"),
                     });
-                    return { content: {}, sha: null };
+                    return { content: {}, sha: data.content.sha };
                 } catch (createErr) {
                     console.error("❌ Failed to create file:", createErr.message);
                     return { content: {}, sha: null };
