@@ -752,7 +752,7 @@ cmd({
             const numrep = [];
             results.forEach((r, i) => {
                 info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"}\n\n`;
-                numrep.push(`${i + 1} ${prefix}ph_search ${r.url}`);
+                numrep.push(`${prefix}ph_search ${r.url}`);
             });
             info += `${numreplyMg}\n\n> ${config.FOOTER}`;
 
@@ -763,7 +763,7 @@ cmd({
                 contextInfo: ctxInfo
             }, { quoted: mek });
             await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
-            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'nondecimal' });
         }
 
     } catch (e) {
@@ -937,7 +937,7 @@ cmd({
             const numrep = [];
             limited.forEach((r, i) => {
                 info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"} ${r.quality ? `| ${r.quality}` : ""}\n\n`;
-                numrep.push(`${i + 1} ${prefix}xvid_search ${r.url}`);
+                numrep.push(`${prefix}xvid_search ${r.url}`);
             });
             info += `${numreplyMg}\n\n> ${config.FOOTER}`;
 
@@ -948,7 +948,7 @@ cmd({
                 contextInfo: ctxInfo
             }, { quoted: mek });
             await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
-            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'nondecimal' });
         }
 
     } catch (e) {
