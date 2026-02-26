@@ -6,7 +6,7 @@ const {getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, f
 const fg = require('api-dylux');
 const DY_SCRAP = require('@dark-yasiya/scrap');
 const dy_scrap = new DY_SCRAP();
-const { tiktok, ytmp3_v2, fbdownload, ytmp4_v2, mediaFire, apkSearch, apkDownload, twitter, xvideosSearch, xvideosdl, allInOneInfo, allInOneDownload } = require("../lib/scraper");
+const { tiktok, ytmp3_v2, fbdownload, ytmp4_v2, mediaFire, apkSearch, apkDownload, twitter, xvideosSearch, allInOneInfo, allInOneDownload } = require("../lib/scraper");
 const { storenumrepdata } = require('../lib/numreply-db')
 const deneth = require('denethdev-ytmp3');
 const { igdl } = require('ruhend-scraper')
@@ -664,62 +664,166 @@ ${config.FOOTER}`;
     }
 });
 
-//============================ PORNHUB ============================
+//============================ PORNHUB (XNXX) ============================
 cmd({
     pattern: "pornhub",
-    alias: ["ph", "phdl", "porndl"],
+    alias: ["ph", "phdl", "porndl", "xnxx"],
     react: "🔞",
-    desc: "Download Pornhub Video",
+    desc: "Search & Download Pornhub/XNXX Video",
     category: "download",
-    use: "pornhub < query >",
+    use: "pornhub <query or url>",
     filename: __filename
 }, async (conn, m, mek, { from, q, reply, prefix, isDev }) => {
     try {
-
         if(config?.XVIDEO_DL !== 'true' && !isDev){
             return await reply(disXvdl, "");
         }
-            
+
         if (!q) {
-            return await reply(needText, "❓");
+            return await reply(`🔞 *Pornhub/XNXX Downloader*\n\nSearch or send a URL.\n\n*Usage:*\n${prefix}pornhub <search query>\n${prefix}pornhub <url>`, "❓");
         }
 
-        const response = await fetchJson(`https://darkyasiya-new-movie-api.vercel.app/api/other/pornhub/search?q=${q}`);
-        const data = response?.data
-        if(data?.length === 0) return await reply(notFoundMg, "📛");
-        const numrep = [];
-      
-       let info = `\` ${botName || "PRINCE-𝖬𝖣X"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 \`\n\n`
-       
-        
+        if (q.startsWith("http")) {
+            await reply("⏳ *Fetching video info...*");
+            const res = await fetchJson(`https://api.princetechn.com/api/download/xnxxdl?apikey=prince&url=${encodeURIComponent(q)}`);
+
+            if (!res?.success || !res?.result) {
+                return await reply("❌ Failed to fetch video. Check the URL and try again.");
+            }
+
+            const { title, image, info, duration, files } = res.result;
+            if (!files?.low && !files?.high) return await reply("❌ No download URLs found.");
+
+            let infoText = `\`${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡\`\n\n` +
+`┏━━━━━━━━━━━━━━━━━┓\n` +
+`➠ Title: ${title || "Unknown"}\n` +
+`➠ Duration: ${duration || "N/A"}s\n` +
+`➠ Info: ${info || "N/A"}\n` +
+`┗━━━━━━━━━━━━━━━━━┛\n\n` +
+`${numreplyMg}\n`;
+
+            const numrep = [];
+            let optNum = 1;
+            if (files.low) {
+                infoText += `1.${optNum}  📥 Low Quality (240p)\n`;
+                numrep.push(`1.${optNum} ${prefix}ph_dl ${title || "pornhub_video"}🎈${files.low}🎈${image || config.LOGO}`);
+                optNum++;
+            }
+            if (files.high) {
+                infoText += `1.${optNum}  📥 High Quality (360p)\n`;
+                numrep.push(`1.${optNum} ${prefix}ph_dl ${title || "pornhub_video"}🎈${files.high}🎈${image || config.LOGO}`);
+                optNum++;
+            }
+            infoText += `\n> ${config.FOOTER}`;
+
+            const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+            const sentMsg = await conn.sendMessage(from, {
+                image: { url: image || config.LOGO },
+                caption: infoText,
+                contextInfo: ctxInfo
+            }, { quoted: mek });
+            await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'decimal' });
+
+        } else {
+            await reply("🔍 *Searching...*");
+            const searchUrl = `https://www.xnxx.health/?k=${encodeURIComponent(q)}&p=${Math.floor(Math.random() * 3) + 1}`;
+            const result = await axios.get(searchUrl, { timeout: 15000 });
+            const $ = cheerio.load(result.data);
+            const results = [];
+
+            $("div.mozaique > div").each(function (i) {
+                if (i >= 10) return false;
+                const el = $(this);
+                const titleEl = el.find("div.thumb-under p.title a");
+                const t = titleEl.attr("title") || titleEl.text();
+                const href = titleEl.attr("href");
+                const dur = el.find("div.thumb-under p.metadata span.duration").text().trim();
+                const thumb = el.find("div.thumb img").attr("data-src") || el.find("div.thumb img").attr("src");
+                if (t && href) {
+                    results.push({ title: t, url: "https://www.xnxx.health" + href, duration: dur, thumb });
+                }
+            });
+
+            if (!results.length) return await reply(notFoundMg, "📛");
+
+            let info = `\`${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡 𝖲𝖤𝖠𝖱𝖢𝖧\`\n\n`;
+            info += `🔍 Results for: *${q}*\n\n`;
+            const numrep = [];
+            results.forEach((r, i) => {
+                info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"}\n\n`;
+                numrep.push(`${i + 1} ${prefix}ph_search ${r.url}`);
+            });
+            info += `${numreplyMg}\n\n> ${config.FOOTER}`;
+
+            const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+            const sentMsg = await conn.sendMessage(from, {
+                image: { url: results[0].thumb || config.LOGO },
+                caption: info,
+                contextInfo: ctxInfo
+            }, { quoted: mek });
+            await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+        }
+
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
     }
 });
 
-
 cmd({
-    pattern: "ph_det",    
-    react: "⏫",
+    pattern: "ph_search",
+    react: "🔞",
     dontAddCommandList: true,
     filename: __filename
 }, async (conn, m, mek, { from, q, reply, prefix, isDev }) => {
     try {
-
         if(config?.XVIDEO_DL !== 'true' && !isDev){
             return await reply(disXvdl, "");
         }
-            
-        if (!q) return await reply(notFoundMg, "📛");
+        if (!q) return await reply(notFoundMg);
 
-        const phdl = await fetchJson(`https://darkyasiya-new-movie-api.vercel.app/api/other/pornhub/download?url=${q}`);
-        if (!phdl || !phdl.data?.videos?.length) return reply(downUrlNotfound);
+        await reply("⏳ *Fetching video info...*");
+        const res = await fetchJson(`https://api.princetechn.com/api/download/xnxxdl?apikey=prince&url=${encodeURIComponent(q)}`);
 
-        const { title, cover, videos } = phdl.data;
-        let msg = `_*💦 Title:* ${title}_\n\n`;
-        let numrep = [];
+        if (!res?.success || !res?.result) {
+            return await reply("❌ Failed to fetch video.");
+        }
 
+        const { title, image, info, duration, files } = res.result;
+        if (!files?.low && !files?.high) return await reply("❌ No download URLs found.");
+
+        let infoText = `\`${botName || "PRINCE-MDX"} 𝖯𝖮𝖱𝖭𝖧𝖴𝖡\`\n\n` +
+`┏━━━━━━━━━━━━━━━━━┓\n` +
+`➠ Title: ${title || "Unknown"}\n` +
+`➠ Duration: ${duration || "N/A"}s\n` +
+`➠ Info: ${info || "N/A"}\n` +
+`┗━━━━━━━━━━━━━━━━━┛\n\n` +
+`${numreplyMg}\n`;
+
+        const numrep = [];
+        let optNum = 1;
+        if (files.low) {
+            infoText += `1.${optNum}  📥 Low Quality (240p)\n`;
+            numrep.push(`1.${optNum} ${prefix}ph_dl ${title || "pornhub_video"}🎈${files.low}🎈${image || config.LOGO}`);
+            optNum++;
+        }
+        if (files.high) {
+            infoText += `1.${optNum}  📥 High Quality (360p)\n`;
+            numrep.push(`1.${optNum} ${prefix}ph_dl ${title || "pornhub_video"}🎈${files.high}🎈${image || config.LOGO}`);
+            optNum++;
+        }
+        infoText += `\n> ${config.FOOTER}`;
+
+        const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+        const sentMsg = await conn.sendMessage(from, {
+            image: { url: image || config.LOGO },
+            caption: infoText,
+            contextInfo: ctxInfo
+        }, { quoted: mek });
+        await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+        await storenumrepdata({ key: sentMsg.key, numrep, method: 'decimal' });
 
     } catch (e) {
         console.log(e);
@@ -728,35 +832,35 @@ cmd({
 });
 
 cmd({
-    pattern: "ph_dl",    
+    pattern: "ph_dl",
     react: "⬇️",
     dontAddCommandList: true,
     filename: __filename
 }, async (conn, m, mek, { from, q, reply, isDev }) => {
     try {
-
         if(config?.XVIDEO_DL !== 'true' && !isDev){
             return await reply(disXvdl, "");
         }
-            
+
         if (!q) return await reply(notFoundMg);
 
-        let title = '', downloadUrl = '', image = ''
         const parts = q.split('🎈');
+        const title = parts[0] || 'pornhub_video';
+        const downloadUrl = parts[1] || '';
+        const image = parts[2] || config.LOGO;
 
-        title = parts[0] || '';
-        downloadUrl = parts[1] || '';
-        image = parts[2] || config.LOGO;
+        if (!downloadUrl) return await reply("❌ No download URL found.");
 
         const rawBuffer = await getThumbnailFromUrl(image);
         const thumbnailBuffer = await resizeThumbnail(rawBuffer);
         await m.react('⬆️');
-        const dom = await conn.sendMessage(from, {
-            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downloadUrl },
+
+        await conn.sendMessage(from, {
+            document: { url: downloadUrl },
             jpegThumbnail: thumbnailBuffer,
             mimetype: "video/mp4",
             fileName: title + '.mp4',
-            caption: `${title}\n\n${config.FOOTER}`
+            caption: `🔞 ${title}\n\n${config.FOOTER}`
         }, { quoted: mek });
 
         await m.react('✔️');
@@ -772,75 +876,169 @@ cmd({
     pattern: "xvideo",
     alias: ["xv", "xvdl", "xvideodl"],
     react: "🔞",
-    desc: "Download Xvideo Porn Video",
+    desc: "Search & Download Xvideo",
     category: "download",
-    use: "xvideo < query >",
+    use: "xvideo <query or url>",
     filename: __filename
 }, async (conn, m, mek, { from, q, reply, prefix, isDev }) => {
     try {
-
         if(config?.XVIDEO_DL !== 'true' && !isDev){
             return await reply(disXvdl, "");
         }
-            
+
         if (!q) {
-            return await reply(needText, "❓");
+            return await reply(`🔞 *Xvideo Downloader*\n\nSearch or send a URL.\n\n*Usage:*\n${prefix}xvideo <search query>\n${prefix}xvideo <url>`, "❓");
         }
 
-        const response = await xvideosSearch(q);
-        const data = response
-        if(data?.length === 0) return await reply(notFoundMg, "📛");
-        const numrep = [];
-      
-       let info = `\` ${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮\`\n\n`
-       
-        
+        if (q.startsWith("http")) {
+            await reply("⏳ *Fetching video info...*");
+            const res = await fetchJson(`https://api.princetechn.com/api/download/xvideosdl?apikey=prince&url=${encodeURIComponent(q)}`);
+
+            if (!res?.success || !res?.result) {
+                return await reply("❌ Failed to fetch video. Check the URL and try again.");
+            }
+
+            const { title, thumbnail, download_url, views, votes, likes, dislikes, size } = res.result;
+            if (!download_url) return await reply("❌ No download URL found.");
+
+            let infoText = `\`${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮\`\n\n` +
+`┏━━━━━━━━━━━━━━━━━┓\n` +
+`➠ Title: ${title || "Unknown"}\n` +
+`➠ Views: ${views || "N/A"}\n` +
+`➠ Votes: ${votes || "N/A"}\n` +
+`➠ Likes: ${likes || "N/A"} | Dislikes: ${dislikes || "N/A"}\n` +
+`➠ Size: ${size || "N/A"}\n` +
+`┗━━━━━━━━━━━━━━━━━┛\n\n` +
+`${numreplyMg}\n` +
+`1.1  📥 Download Video\n` +
+`\n> ${config.FOOTER}`;
+
+            const numrep = [];
+            numrep.push(`1.1 ${prefix}xvid_dl ${title || "xvideo"}🎈${download_url}🎈${thumbnail || config.LOGO}`);
+
+            const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+            const sentMsg = await conn.sendMessage(from, {
+                image: { url: thumbnail || config.LOGO },
+                caption: infoText,
+                contextInfo: ctxInfo
+            }, { quoted: mek });
+            await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'decimal' });
+
+        } else {
+            await reply("🔍 *Searching...*");
+            const results = await xvideosSearch(q);
+
+            if (!results?.length) return await reply(notFoundMg, "📛");
+
+            const limited = results.slice(0, 10);
+            let info = `\`${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮 𝖲𝖤𝖠𝖱𝖢𝖧\`\n\n`;
+            info += `🔍 Results for: *${q}*\n\n`;
+            const numrep = [];
+            limited.forEach((r, i) => {
+                info += `*${i + 1}.* ${r.title}\n⏱ ${r.duration || "N/A"} ${r.quality ? `| ${r.quality}` : ""}\n\n`;
+                numrep.push(`${i + 1} ${prefix}xvid_search ${r.url}`);
+            });
+            info += `${numreplyMg}\n\n> ${config.FOOTER}`;
+
+            const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+            const sentMsg = await conn.sendMessage(from, {
+                image: { url: limited[0].thumb || config.LOGO },
+                caption: info,
+                contextInfo: ctxInfo
+            }, { quoted: mek });
+            await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+            await storenumrepdata({ key: sentMsg.key, numrep, method: 'number' });
+        }
+
     } catch (e) {
         console.log(e);
         await reply(errorMg, "❌");
     }
 });
 
+cmd({
+    pattern: "xvid_search",
+    react: "🔞",
+    dontAddCommandList: true,
+    filename: __filename
+}, async (conn, m, mek, { from, q, reply, prefix, isDev }) => {
+    try {
+        if(config?.XVIDEO_DL !== 'true' && !isDev){
+            return await reply(disXvdl, "");
+        }
+        if (!q) return await reply(notFoundMg);
 
+        await reply("⏳ *Fetching video info...*");
+        const res = await fetchJson(`https://api.princetechn.com/api/download/xvideosdl?apikey=prince&url=${encodeURIComponent(q)}`);
+
+        if (!res?.success || !res?.result) {
+            return await reply("❌ Failed to fetch video.");
+        }
+
+        const { title, thumbnail, download_url, views, votes, likes, dislikes, size } = res.result;
+        if (!download_url) return await reply("❌ No download URL found.");
+
+        let infoText = `\`${botName || "PRINCE-MDX"} 𝖷𝖵𝖨𝖣𝖤𝖮\`\n\n` +
+`┏━━━━━━━━━━━━━━━━━┓\n` +
+`➠ Title: ${title || "Unknown"}\n` +
+`➠ Views: ${views || "N/A"}\n` +
+`➠ Votes: ${votes || "N/A"}\n` +
+`➠ Likes: ${likes || "N/A"} | Dislikes: ${dislikes || "N/A"}\n` +
+`➠ Size: ${size || "N/A"}\n` +
+`┗━━━━━━━━━━━━━━━━━┛\n\n` +
+`${numreplyMg}\n` +
+`1.1  📥 Download Video\n` +
+`\n> ${config.FOOTER}`;
+
+        const numrep = [];
+        numrep.push(`1.1 ${prefix}xvid_dl ${title || "xvideo"}🎈${download_url}🎈${thumbnail || config.LOGO}`);
+
+        const ctxInfo = getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null);
+        const sentMsg = await conn.sendMessage(from, {
+            image: { url: thumbnail || config.LOGO },
+            caption: infoText,
+            contextInfo: ctxInfo
+        }, { quoted: mek });
+        await conn.sendMessage(from, { react: { text: '🔞', key: sentMsg.key } });
+        await storenumrepdata({ key: sentMsg.key, numrep, method: 'decimal' });
+
+    } catch (e) {
+        console.log(e);
+        await reply(errorMg, "❌");
+    }
+});
 
 cmd({
-    pattern: "xvid_dl",    
+    pattern: "xvid_dl",
     react: "⬇️",
     dontAddCommandList: true,
     filename: __filename
 }, async (conn, m, mek, { from, q, reply, isDev }) => {
     try {
-
         if(config?.XVIDEO_DL !== 'true' && !isDev){
             return await reply(disXvdl, "");
         }
-            
+
         if (!q) return await reply(notFoundMg);
 
-        const dlData = await xvideosdl(q);;
+        const parts = q.split('🎈');
+        const title = parts[0] || 'xvideo';
+        const downloadUrl = parts[1] || '';
+        const image = parts[2] || config.LOGO;
 
-        let title = dlData?.result?.title || '';
-        let downloadUrl = dlData?.result?.url || '';
-        let image = dlData?.result?.thumb || config.LOGO;
-        let caption = 
-`Title: ${title}
-➠ Keyword: ${dlData?.result?.keyword}
-➠ Views: ${dlData?.result?.views}
-➠ Votes: ${dlData?.result?.vote}
-➠ Likes: ${dlData?.result?.likes}
-➠ Dislikes: ${dlData?.result?.deslikes}
-
-${config.FOOTER}`;
+        if (!downloadUrl) return await reply("❌ No download URL found.");
 
         const rawBuffer = await getThumbnailFromUrl(image);
         const thumbnailBuffer = await resizeThumbnail(rawBuffer);
         await m.react('⬆️');
-        const dom = await conn.sendMessage(from, {
-            contextInfo: getContextInfo(config.BOT_NAME !== 'default' ? config.BOT_NAME : null), document: { url: downloadUrl },
+
+        await conn.sendMessage(from, {
+            document: { url: downloadUrl },
             jpegThumbnail: thumbnailBuffer,
             mimetype: "video/mp4",
             fileName: title + '.mp4',
-            caption
+            caption: `🔞 ${title}\n\n${config.FOOTER}`
         }, { quoted: mek });
 
         await m.react('✔️');
