@@ -606,7 +606,7 @@ const {
                       `🤵‍♂️ ${oce}Director:${oce} ➜ ${movieDirector}\n\n` +
                       `🕵️‍♂️ ${oce}Cast:${oce} ➜ ${movieCast}\n\n` +
                       `▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃\n\n` +
-                      `  💃 *ғᴏʟʟᴏᴡ ᴜs ➢* ${channelUrl}\n\n\n` +
+                     
                       (config.CAPTION || config.FOOTER)
 
              const image =
@@ -1542,7 +1542,7 @@ try {
       `📺 Episode Title: ${epTitle}\n` +
       `🔗 Url: ${epUrl}\n\n` +
       `▃▃▃▃▃▃▃▃▃▃▃▃▃\n\n` +
-      `💃 Follow us ➢ ${channelUrl}\n\n` +
+      
       (config.CAPTION || config.FOOTER);
 
   // Send details card
