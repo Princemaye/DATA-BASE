@@ -1606,7 +1606,7 @@ try {
 
 ▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃
 
-💃 *ғᴏʟʟᴏᴡ ᴜs ➢* https://whatsapp.com/channel/0029VaaPfFK7Noa8nI8zGg27
+ 
 
 
 ${config.CAPTION || config.FOOTER || ""}
