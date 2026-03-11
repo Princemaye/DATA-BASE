@@ -2446,6 +2446,19 @@ cmd(
         filename: __filename,
     },
     async (conn, mek, m, { from, q, isOwners, reply }) => {
+        // Deep-strip null values — protobuf crashes on null strings but skips undefined
+        const stripNulls = (v) => {
+            if (v === null || v === undefined) return undefined;
+            if (Buffer.isBuffer(v) || v instanceof Uint8Array) return v;
+            if (typeof v !== 'object') return v;
+            const out = {};
+            for (const [k, val] of Object.entries(v)) {
+                const c = stripNulls(val);
+                if (c !== undefined) out[k] = c;
+            }
+            return out;
+        };
+
         try {
             if (!isOwners) return await reply(ownerMg);
             if (!m.quoted)
@@ -2470,17 +2483,6 @@ cmd(
                 targets.push(q.trim());
             }
 
-            let message = {};
-            message.key = {
-                remoteJid: from,
-                fromMe: true,
-                id: mek?.quoted?.fakeObj.key,
-                participant:
-                    conn.user.lid.split(":")[0] + "@lid" || botNummber2,
-            };
-
-            message.message = mek.quoted;
-
             // Forward to each target
             for (let jid of targets) {
                 if (isImage) {
@@ -2494,7 +2496,11 @@ cmd(
                         caption: m.quoted.videoMessage?.caption || "",
                     });
                 } else {
-                    await conn.forwardMessage(jid, message, false);
+                    const cleanMsg = {
+                        key: m.quoted.fakeObj.key,
+                        message: stripNulls(m.quoted.fakeObj.message),
+                    };
+                    await conn.forwardMessage(jid, cleanMsg, false);
                 }
                 sendList.push(jid);
             }
