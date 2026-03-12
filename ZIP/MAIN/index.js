@@ -581,6 +581,8 @@ async function princeMd(userName = "Princemaye", repoName = "DATA-BASE"){
             await start_numrep_process(pool);
             
             console.log('💬 WhatsApp     : 🤖 Connected');
+
+
             await loadBotLockData(dbData, userName, repoName);
         //conn.newsletterFollow(princeChannelId);
       
@@ -1575,20 +1577,60 @@ conn.ev.on("group-participants.update", welcomeHandler);
           // Auto read & react status ✅
           if (mek.key && mek.key.remoteJid === 'status@broadcast') {
               try {
-                  const shouldRead = config.AUTO_READ_STATUS === 'true';
+                  const shouldRead  = config.AUTO_READ_STATUS  === 'true';
                   const shouldReact = config.AUTO_REACT_STATUS === 'true';
 
-                  if (shouldRead || shouldReact) {
-                      await conn.readMessages([mek.key]);
+                  // ── Raw participant JID (may be @lid or @s.whatsapp.net) ──
+                  const statusParticipant = mek.key.participant || null;
+
+                  if (statusParticipant) {
+                      // ── Resolve LID → real phone JID ────────────────────────
+                      let realJid = statusParticipant;
+
+                      if (statusParticipant.endsWith('@lid')) {
+                          const rawPn = mek.key?.participantPn || mek.key?.senderPn;
+                          if (rawPn) {
+                              realJid = rawPn.includes('@') ? rawPn : `${rawPn}@s.whatsapp.net`;
+                          } else {
+                              const contacts = conn.contacts || {};
+                              const matchedEntry = Object.values(contacts).find(c =>
+                                  c?.lid === statusParticipant ||
+                                  c?.lid === statusParticipant.split('@')[0]
+                              );
+                              if (matchedEntry?.id) {
+                                  realJid = matchedEntry.id;
+                              } else {
+                                  try {
+                                      const resolved = await conn.getJidFromLid(statusParticipant);
+                                      if (resolved) realJid = resolved;
+                                  } catch {}
+                              }
+                          }
+                      }
+
+                      const resolvedKey = { ...mek.key, participant: realJid };
+                      const statusType  = getContentType(mek.message) || 'unknown';
+
+                      if (shouldRead || shouldReact) {
+                          await conn.readMessages([resolvedKey]);
+                      }
+
+                      const reactableTypes = ['imageMessage', 'videoMessage', 'extendedTextMessage',
+                                              'conversation', 'audioMessage', 'documentMessage',
+                                              'stickerMessage', 'contactMessage', 'locationMessage'];
+
+                      if (shouldReact && reactableTypes.includes(statusType)) {
+                          const emojis = ['🧩', '🍉', '💜', '🌸', '🪴', '💊', '💫', '🍂', '🌟', '🎋', '😶‍🌫️', '🫀', '🧿', '👀', '🤖', '🚩', '🥰', '🗿', '💜', '💙', '🌝', '🖤', '💚'];
+                          const emoji  = emojis[Math.floor(Math.random() * emojis.length)];
+                          await conn.sendMessage(
+                              mek.key.remoteJid,
+                              { react: { key: resolvedKey, text: emoji } },
+                              { statusJidList: [realJid, conn.user.id] }
+                          );
+                      }
                   }
 
-                  if (shouldReact) {
-                      const emojis = ['🧩', '🍉', '💜', '🌸', '🪴', '💊', '💫', '🍂', '🌟', '🎋', '😶‍🌫️', '🫀', '🧿', '👀', '🤖', '🚩', '🥰', '🗿', '💜', '💙', '🌝', '🖤', '💚'];
-                      await conn.sendMessage(mek.key.remoteJid, { react: { key: mek.key, text: emojis[Math.floor(Math.random() * emojis.length)] } }, { statusJidList: [mek.key.participant, conn.user.id] });
-                  }
-              } catch (error) {
-                  console.error("Error with status read/react:", error);
-              }
+              } catch (_) {}
           }
             
             if (mek.key && mek.key.remoteJid === 'status@broadcast') return
