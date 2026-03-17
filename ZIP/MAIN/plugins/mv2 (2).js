@@ -103,8 +103,8 @@ function formatDuration(seconds) {
 //  smovie  —  Search movies & TV series
 // ─────────────────────────────────────────────────────────────────────────────
 cmd({
-    pattern: 'smovie',
-    alias: ['smv', 'stv', 'silentmovie'],
+    pattern: 'movie',
+    alias: ['mv','smovie','series', 'stv', 'silentmovie'],
     react: '🎬',
     desc: 'Search & download movies/series (English)',
     category: 'download',
