@@ -8,6 +8,9 @@ const QRCode = require("qrcode");
 const whois = require("whois-json");
 const crypto = require("crypto");
 const fs = require('fs');
+const { spawn } = require('child_process');
+const os = require('os');
+const path = require('path');
 const sharp = require("sharp");
 const Obf = require("javascript-obfuscator");
 const { image2url } = require('@dark-yasiya/imgbb.js');
@@ -875,9 +878,9 @@ cmd({
     pattern: "sticker",
     react: "🖼️",
     alias: ["s", "stic"],
-    desc: "Converts a replied image to a sticker.",
+    desc: "Converts a replied image/video/sticker to a sticker.",
     category: "convert",
-    use: "sticker <Reply to image>",
+    use: "sticker <Reply to image/video/sticker>",
     filename: __filename
 },
 async (conn, mek, m, { reply, quoted, q, from, pushname }) => {
@@ -886,10 +889,10 @@ async (conn, mek, m, { reply, quoted, q, from, pushname }) => {
         const type = getContentType(m.quoted);
         const isQuotedImage = quoted && type === 'imageMessage';
         const isQuotedSticker = quoted && type === 'stickerMessage';
+        const isQuotedVideo = quoted && type === 'videoMessage';
 
-        if (isQuotedImage || isQuotedSticker) {
-            const nameFile = `STICKER-${Date.now()}.jpg`;
-            const buffer = await quoted.download(nameFile);
+        if (isQuotedImage || isQuotedSticker || isQuotedVideo) {
+            const buffer = await quoted.download();
             const cropOption = q && q.includes("--crop") ? StickerTypes.CROPPED : StickerTypes.FULL;
                 
             const sticker = new Sticker(buffer, {
@@ -906,7 +909,7 @@ async (conn, mek, m, { reply, quoted, q, from, pushname }) => {
             await conn.sendMessage(from, { sticker: stickerBuffer }, { quoted: mek });
                 
         } else {
-            await reply("❌ Please reply to an image or sticker!");
+            await reply("❌ Please reply to an image, video or sticker!");
         }
             
     } catch (e) {
@@ -919,55 +922,55 @@ async (conn, mek, m, { reply, quoted, q, from, pushname }) => {
 
 
 cmd({
-    pattern: "tts",
-    alias: ["say"],
-    react: "🗣️",
-    desc: "Convert text or replied message to voice",
+    pattern: "transcribe",
+    alias: ["stt", "speech2text", "voicetotext"],
+    react: "🎙️",
+    desc: "Transcribe a voice/audio message to text",
     category: "tools",
-    use: "tts <text> OR reply to a message",
+    use: "transcribe <reply to audio/voice>",
     filename: __filename
-}, async (conn, mek, m, { from, reply, q, quoted }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
-        let text;
+        const quoted = m.quoted;
+        if (!quoted) return reply("📌 Reply to a voice or audio message.");
 
-        // If text is provided directly
-        if (q) {
-            text = q;
-        }
-        // If replying to a message
-        else if (quoted) {
-            text =
-                quoted.text ||
-                quoted?.conversation ||
-                quoted?.extendedTextMessage?.text;
+        const type = quoted.type || '';
+        const isAudio =
+            type === 'audioMessage' ||
+            type === 'ptpMessage' ||
+            quoted?.msg?.mimetype?.includes('audio') ||
+            quoted?.mimetype?.includes('audio');
 
-            if (!text) {
-                return reply("❌ Could not extract quoted text.");
-            }
-        }
-        else {
-            return reply("📌 Provide text or reply to a message.");
-        }
+        if (!isAudio) return reply("❌ Please reply to a voice or audio message.");
 
-        const apiUrl =
-            `https://apisKeith.top/ai/text2speech?q=${encodeURIComponent(text)}`;
+        const buf = await quoted.download();
+        if (!buf) return reply("❌ Failed to download the audio.");
 
+        const { uploadToCatbox } = require('../lib/functions');
+        const hostedUrl = await uploadToCatbox(buf, 'audio.mp3');
+        if (!hostedUrl) return reply("❌ Failed to upload audio for transcription.");
+
+        const apiUrl = `https://apiskeith.top/ai/transcribe?q=${encodeURIComponent(hostedUrl)}`;
         const { data } = await axios.get(apiUrl, { timeout: 60000 });
-        const result = data?.result;
 
-        if (!result || result.Error !== 0 || !result.URL) {
-            return reply("❌ Failed to generate speech.");
-        }
+        const text = data?.result?.text?.trim();
+        const lang = data?.result?.language || 'Unknown';
+        const dur  = data?.result?.duration?.toFixed(1) || '?';
 
-        await conn.sendMessage(from, {
-            audio: { url: result.URL },
-            mimetype: "audio/mpeg",
-            ptt: false
-        }, { quoted: mek });
+        if (!text) return reply("❌ Could not transcribe the audio.");
+
+        await reply(
+`🎙️ *Transcription*
+━━━━━━━━━━━━━━━
+${text}
+━━━━━━━━━━━━━━━
+🌐 Language: ${lang}
+⏱️ Duration: ${dur}s`
+        );
 
     } catch (e) {
-        console.log("TTS Error:", e);
-        reply("⚠️ An error occurred while generating speech.");
+        console.log("Transcribe Error:", e.message || e);
+        reply("⚠️ An error occurred while transcribing.");
     }
 });
 
@@ -1004,6 +1007,74 @@ async (conn, mek, m, { reply, quoted, from }) => {
         console.log(e);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
         await reply(errorMg);
+    }
+});
+
+
+
+async function toVideo(audioBuffer) {
+    return new Promise((resolve, reject) => {
+        const tmpDir = os.tmpdir();
+        const inFile  = path.join(tmpDir, `tov_in_${Date.now()}.mp3`);
+        const outFile = path.join(tmpDir, `tov_out_${Date.now()}.mp4`);
+
+        fs.writeFileSync(inFile, audioBuffer);
+
+        const proc = spawn('ffmpeg', [
+            '-f', 'lavfi', '-i', 'color=c=black:size=1280x720:rate=25',
+            '-i', inFile,
+            '-shortest',
+            '-c:v', 'libx264', '-tune', 'stillimage',
+            '-c:a', 'aac', '-b:a', '192k',
+            '-pix_fmt', 'yuv420p',
+            '-y', outFile
+        ]);
+
+        proc.on('close', (code) => {
+            try { fs.unlinkSync(inFile); } catch (_) {}
+            if (code !== 0) return reject(new Error(`ffmpeg exited with code ${code}`));
+            const buf = fs.readFileSync(outFile);
+            try { fs.unlinkSync(outFile); } catch (_) {}
+            resolve(buf);
+        });
+
+        proc.on('error', (err) => {
+            try { fs.unlinkSync(inFile); } catch (_) {}
+            reject(err);
+        });
+    });
+}
+
+cmd({
+    pattern: "tovideo",
+    alias: ["tomp4", "tovid", "toblackscreen", "blackscreen"],
+    react: "🎥",
+    desc: "Convert a replied audio message to an MP4 video with black screen.",
+    category: "convert",
+    use: "tovideo <reply to audio>",
+    filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+    try {
+        const type = getContentType(m.quoted);
+        if (!m.quoted || type !== 'audioMessage') {
+            return reply("❌ Please reply to an audio message.");
+        }
+
+        const audioBuf = await m.quoted.download();
+        if (!audioBuf) return reply("❌ Failed to download the audio.");
+
+        const videoBuf = await toVideo(audioBuf);
+
+        await conn.sendMessage(from, {
+            video: videoBuf,
+            mimetype: "video/mp4",
+            caption: `Converted Video 🎥\n\n${config.FOOTER}`
+        }, { quoted: mek });
+
+    } catch (e) {
+        console.log("toVideo Error:", e.message || e);
+        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+        await reply("❌ Failed to convert audio to video.");
     }
 });
 
