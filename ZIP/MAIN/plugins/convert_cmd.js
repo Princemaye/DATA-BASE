@@ -12,11 +12,15 @@ const { spawn, execSync } = require('child_process');
 const os = require('os');
 const path = require('path');
 
-// Find ffmpeg at runtime — works on both Replit (nix PATH) and Heroku (buildpack)
+// Find ffmpeg — bundled binary first, then system PATH fallback
 function findFfmpeg() {
-    // Heroku buildpack installs here
+    try {
+        const staticPath = require('ffmpeg-static');
+        if (staticPath && fs.existsSync(staticPath)) return staticPath;
+    } catch (_) {}
+    // Heroku buildpack path
     if (fs.existsSync('/app/vendor/ffmpeg/ffmpeg')) return '/app/vendor/ffmpeg/ffmpeg';
-    // Fall back to whatever is on PATH
+    // System PATH
     try { return execSync('which ffmpeg').toString().trim(); } catch (_) {}
     return 'ffmpeg';
 }
