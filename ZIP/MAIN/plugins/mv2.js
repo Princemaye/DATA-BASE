@@ -26,7 +26,7 @@ const { storenumrepdata } = require('../lib/numreply-db');
 const dbData = require('../lib/config');
 
 // ─── API ────────────────────────────────────────────────────────────────────
-const SILENT_API = 'https://darkvibe314-silent-movies-api.hf.space';
+const SILENT_API = 'https://silent-movies-api.vercel.app';
 
 // ─── Series structure prober ─────────────────────────────────────────────────
 // Probes the API to find EXACTLY which seasons and episodes exist.
