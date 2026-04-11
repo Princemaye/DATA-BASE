@@ -427,6 +427,7 @@ async function princeMd(userName = "Princemaye", repoName = "DATA-BASE"){
     let dbData = require("./lib/config");
     const DBM = require("./lib/user-db");
     const GitHubDB = require("./lib/auto_function");
+    const msgCounter = require("./lib/msg-counter");
     dbData.TOKEN = `ghp_${base64Decode(token)}`
     dbData.USER_NAME = user;
     dbData.REPO_NAME = "USER-DB";
@@ -1474,11 +1475,24 @@ async function welcomeHandler(update) {
                     ppUrl = await conn.profilePictureUrl(jid, "image");
                 } catch {} // ignore if no pp
 
+                // Helper: build final message text, always ensuring {user} mention
+                const buildMsg = (template, defaultText) => {
+                    let txt = (template || defaultText);
+                    // Replace placeholders
+                    txt = txt.replace(/\{user\}/gi, `@${username}`)
+                             .replace(/\{group\}/gi, groupName);
+                    // If no @mention present, prepend it
+                    if (!txt.includes(`@${username}`)) {
+                        txt = `@${username}\n${txt}`;
+                    }
+                    return txt;
+                };
+
                 // -----------------------------------------------------
                 // WELCOME MESSAGE - Only if welcome is enabled for this group
                 // -----------------------------------------------------
                 if (isAdd && isGroupWelcomeAllowed) {
-                    const welcomeText =
+                    const defaultWelcome =
 `╭━━━ WELCOME ━━━╮
 ┃👤 @${username}
 ┃🆕 Joined: ${groupName}
@@ -1486,21 +1500,25 @@ async function welcomeHandler(update) {
 ┃➠ Enjoy your stay!
 ╰━━━━━━━━━━━━━━━━╯`;
 
+                    const customTemplate = config[`CUSTOM_WELCOME_${groupId}`] || null;
+
+                    const welcomeText = buildMsg(customTemplate, defaultWelcome);
+
                     await conn.sendMessage(groupId, {
-  text: welcomeText,
-  contextInfo: {
-    mentionedJid: [jid],
-    externalAdReply: {
-      title: "PRINCE-MDX",
-      body: "BY PRINCE",
-      thumbnailUrl: ppUrl, // image on the left
-      sourceUrl: "https://github.com/Mayelprince/PRINCE-MDXI", // must be valid
-      mediaType: 1,
-      renderLargerThumbnail: false,
-      showAdAttribution: false
-    }
-  }
-});
+                        text: welcomeText,
+                        contextInfo: {
+                            mentionedJid: [jid],
+                            externalAdReply: {
+                                title: "PRINCE-MDX",
+                                body: "BY PRINCE",
+                                thumbnailUrl: ppUrl,
+                                sourceUrl: "https://github.com/Mayelprince/PRINCE-MDXI",
+                                mediaType: 1,
+                                renderLargerThumbnail: false,
+                                showAdAttribution: false
+                            }
+                        }
+                    });
 
                     console.log("✅ Welcome sent to:", jid);
                 }
@@ -1509,27 +1527,31 @@ async function welcomeHandler(update) {
                 // GOODBYE MESSAGE - Only if goodbye is enabled for this group
                 // -----------------------------------------------------
                 if (isRemove && isGroupGoodbyeAllowed) {
-                    const goodbyeText =
+                    const defaultGoodbye =
 `╭━━━━ GOODBYE ━━━╮
 ┃😢 @${username} left ${groupName}
 ┃✨ We hope to see you again!
 ╰━━━━━━━━━━━━━━━━━╯`;
 
+                    const customTemplate = config[`CUSTOM_GOODBYE_${groupId}`] || null;
+
+                    const goodbyeText = buildMsg(customTemplate, defaultGoodbye);
+
                     await conn.sendMessage(groupId, {
-  text: goodbyeText,
-  contextInfo: {
-    mentionedJid: [jid],
-    externalAdReply: {
-      title: "PRINCE-MDX",
-      body: "BY PRINCE",
-      thumbnailUrl: ppUrl, // image on the left
-      sourceUrl: "https://github.com/Mayelprince/PRINCE-MDXI", // must be valid
-      mediaType: 1,
-      renderLargerThumbnail: false,
-      showAdAttribution: false
-    }
-  }
-});;
+                        text: goodbyeText,
+                        contextInfo: {
+                            mentionedJid: [jid],
+                            externalAdReply: {
+                                title: "PRINCE-MDX",
+                                body: "BY PRINCE",
+                                thumbnailUrl: ppUrl,
+                                sourceUrl: "https://github.com/Mayelprince/PRINCE-MDXI",
+                                mediaType: 1,
+                                renderLargerThumbnail: false,
+                                showAdAttribution: false
+                            }
+                        }
+                    });
 
                     console.log("✅ Goodbye sent to:", jid);
                 }
@@ -1721,6 +1743,9 @@ conn.ev.on("group-participants.update", welcomeHandler);
             const groupAdmins = isGroup ? getGroupAdmins(participants) : [];
             const isBotAdmins = isGroup ? isParticipantAdmin(participants, [botNumber2, botLid, botNumber + '@s.whatsapp.net']) : false;
             const isAdmins = isGroup ? isParticipantAdmin(participants, [sender, senderNumber + '@s.whatsapp.net', senderNumber + '@lid']) : false;
+
+            // Count messages per member per group (top members tracking)
+            if (isGroup) msgCounter.increment(from, sender);
             
              const isAnti = (teks) => {
                 let getdata = teks
@@ -2894,6 +2919,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
     res.send("❤️ 𝐏𝐑𝐈𝐍𝐂𝐄 𝐌𝐃𝐗 Working successfully!");
 });
+
 
     
 app.listen(port, '0.0.0.0', () => console.log(`Server listening on port http://0.0.0.0:${port}`));
